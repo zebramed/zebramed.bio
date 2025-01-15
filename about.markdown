@@ -4,7 +4,7 @@ title: About
 permalink: /about/
 ---
 
-Get to know the team and the supporter behind ZebraMed:
+Discover the passionate team and dedicated supporters who brought ZebraMed to life:
 
 
 
