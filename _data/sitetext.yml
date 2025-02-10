@@ -1,0 +1,142 @@
+#
+# Customized YML configuration for ZebraMed's website
+#
+# How to use:
+# {{ site.data.ui-text[site.locale].<var_name> | default: 'text' }}
+
+# English (default)
+# -----------------
+en: &DEFAULT_EN
+  header:
+    title: "Hacking drug-screening with little fishes close to humans"
+    text: "The future of Drug Discovery is here"
+    button: "Learn More"
+    buttonlink: "#services"
+
+  services:
+    title: "Our Services"
+    text: "Transforming drug discovery with cutting-edge technology and zebrafish models."
+    section: services
+    list:
+      - title: "High-Throughput In-Vivo Screening"
+        desc: "Screen 200-400 drug candidates per machine monthly, generating holistic data on pharmacodynamics, pharmacokinetics, ADME-Tox, and efficacy."
+        icon: fas fa-flask
+      - title: "Custom Dataset Creation"
+        desc: "Generate organism-level datasets for AI training, bridging the gap in safety and efficacy data for drug discovery."
+        icon: fas fa-database
+      - title: "Strategic Partnerships"
+        desc: "Collaborate with us for drug co-development, repurposing, and precision medicine solutions."
+        icon: fas fa-handshake
+
+  portfolio:
+    title: "Our Innovations"
+    text: "Explore our groundbreaking platform and its impact on preclinical research."
+    section: portfolio
+    closebutton: "Close Project"
+
+  timeline:
+    title: "Our Journey"
+    text: "Key milestones in ZebraMed's evolution."
+    section: timeline
+    events:
+      - title: "Founding Vision"
+        year: "2024"
+        desc: "ZebraMed was founded with the mission to revolutionize preclinical drug discovery using zebrafish models and advanced robotics."
+        image: assets/img/timeline/1.jpg
+        alt: "Founding Vision"
+      - title: "Platform Development"
+        year: "2025"
+        desc: "Development of the first fully automated high-throughput screening platform leveraging zebrafish larvae."
+        image: assets/img/timeline/2.jpg
+        alt: "Platform Development"
+      - title: "Market Access"
+        year: "2026"
+        desc: "Partnerships with leading institutions like ZeClinic and Pediatric Hospital Bambino Gesù to advance precision medicine."
+        image: assets/img/timeline/3.jpg
+        alt: "Strategic Collaborations"
+      - title: "AI Integration"
+        year: "2027"
+        desc: "Integration of AI-driven data analysis to enhance drug discovery and predictive modeling."
+        image: assets/img/timeline/4.jpg
+        alt: "AI Integration"
+    end: "Join Us in Shaping the Future of Drug Discovery!"
+
+  about:
+    title: "About ZebraMed"
+    text: "Our Story"
+    body: "ZebraMed is transforming preclinical drug discovery with a fully automated platform that reduces costs by 70%, cuts time to results by 50%, and lowers early-stage failure rates by 40%. Using advanced robotics and zebrafish larvae with 85% genetic similarity to humans, we provide unparalleled insights into drug safety and efficacy."
+    section: about
+
+  clients:
+    section: clients
+    max-height: 100px
+    horizontal-scrolling: "no"
+    list:
+      - title: "ZeClinic"
+        url: https://zeclinic.com
+        logo: assets/img/clients/zeclinic.jpg
+      - title: "Bambino Gesù"
+        url: https://www.opbg.net
+        logo: assets/img/clients/bambino-gesu.jpg
+      - title: "BioReperia"
+        url: https://bioreperia.com
+        logo: assets/img/clients/bioreperia.jpg
+
+  team:
+    title: "Our Team"
+    text: "Meet the Innovators Behind ZebraMed"
+    subtext: "Our team combines expertise in robotics, biology, and AI to drive the future of drug discovery."
+    section: team
+    people:
+      - name: "Valerio Laghi"
+        role: "Co-Founder & CEO"
+        image: assets/img/team/valerio-laghi.webp
+        social:
+          - url: https://www.linkedin.com/in/valerio-laghi-phd
+            icon: fab fa-linkedin-in
+      - name: "Lorenzo Zolfanelli"
+        role: "Co-Founder & CSO"
+        image: assets/img/team/lorenzo-zolfanelli.webp
+        social:
+          - url: https://linkedin.com/in/lorenzo-zolfanelli
+            icon: fab fa-linkedin-in
+      - name: "Guillaume De Luca"
+        role: "Head of Computer Vision"
+        image: assets/img/team/guillaume-de-luca.webp
+        social:
+          - url: https://www.linkedin.com/in/guillaume-de-luca-b27673105
+            icon: fab fa-linkedin-in
+  contact:
+    title: "Contact Us"
+    text: "Get in touch to learn more about our platform and partnerships."
+    section: contact
+    name: "Name*"
+    name-validation: "Please enter your name."
+    email: "Email*"
+    email-validation: "Please enter your email address."
+    phone: "Phone Number"
+    phone-validation: "Please enter your phone number."
+    message: "Message*"
+    message-validation: "Please enter a message."
+    subject: "Contact Form Submission"
+    submit: "Send Message"
+
+  footer:
+    legal: "Privacy Policy"
+    social:
+      - url: https://twitter.com/zebramed
+        icon: "fab fa-twitter"
+      - url: https://linkedin.com/company/zebramed
+        icon: "fab fa-linkedin-in"
+      - url: https://github.com/zebramed
+        icon: "fab fa-github"
+
+# Localization for other languages (if needed)
+en-US:
+  <<: *DEFAULT_EN
+en-CA:
+  <<: *DEFAULT_EN
+en-GB:
+  <<: *DEFAULT_EN
+en-AU:
+  <<: *DEFAULT_EN
