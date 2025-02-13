@@ -51,7 +51,7 @@ en: &DEFAULT_EN
         alt: "Platform Development"
       - title: "Market Access"
         year: "2026"
-        desc: "Partnerships with leading institutions like ZeClinic and Pediatric Hospital Bambino Gesù to advance precision medicine."
+        desc: "Offering our services to leading institutions like ZeClinic and hospitals to advance precision medicine."
         image: assets/img/timeline/3.jpg
         alt: "Strategic Collaborations"
       - title: "AI Integration"
