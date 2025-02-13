@@ -11,10 +11,8 @@
 # -----------------
 en: &DEFAULT_EN
   nav:
-    - title: "Services"
+    - title: "Approach"
       section: services
-    - title: "Portfolio"
-      section: portfolio
     - title: "About"
       section: about
     - title: "Timeline"
@@ -38,8 +36,6 @@ es: &DEFAULT_ES
   nav:
     - title: "Servicios"
       section: servicios
-    - title: "Portafolio"
-      section: portafolio
     - title: "Sobre Nosotros"
       section: nosotros
     - title: "Cronología"

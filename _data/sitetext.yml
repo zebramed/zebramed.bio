@@ -14,7 +14,7 @@ en: &DEFAULT_EN
     buttonlink: "#services"
 
   services:
-    title: "Our Services"
+    title: "Our Breakthrough Approach"
     text: "Transforming drug discovery with cutting-edge technology and zebrafish models."
     section: services
     list:
@@ -64,7 +64,7 @@ en: &DEFAULT_EN
   about:
     title: "About ZebraMed"
     text: "Our Story"
-    body: "ZebraMed is transforming preclinical drug discovery with a fully automated platform that reduces costs by 70%, cuts time to results by 50%, and lowers early-stage failure rates by 40%. Using advanced robotics and zebrafish larvae with 85% genetic similarity to humans, we provide unparalleled insights into drug safety and efficacy."
+    body: "ZebraMed is transforming drug discovery by combining AI, robotics, and zebrafish models to improve efficiency and accuracy. Our approach reduces costs, accelerates timelines, and minimizes early-stage failures, making preclinical screening more reliable and scalable."
     section: about
 
   clients:
