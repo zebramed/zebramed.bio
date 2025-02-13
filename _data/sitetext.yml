@@ -125,13 +125,7 @@ en: &DEFAULT_EN
 
   footer:
     legal: "Privacy Policy"
-    social:
-      - url: https://twitter.com/zebramed
-        icon: "fab fa-twitter"
-      - url: https://linkedin.com/company/zebramed
-        icon: "fab fa-linkedin-in"
-      - url: https://github.com/zebramed
-        icon: "fab fa-github"
+    social: []
 
 # Localization for other languages (if needed)
 en-US:
