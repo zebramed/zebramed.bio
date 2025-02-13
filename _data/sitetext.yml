@@ -18,15 +18,15 @@ en: &DEFAULT_EN
     text: "Transforming drug discovery with cutting-edge technology and zebrafish models."
     section: services
     list:
-      - title: "High-Throughput In-Vivo Screening"
-        desc: "Screen 200-400 drug candidates per machine monthly, generating holistic data on pharmacodynamics, pharmacokinetics, ADME-Tox, and efficacy."
-        icon: fas fa-flask
-      - title: "Custom Dataset Creation"
-        desc: "Generate organism-level datasets for AI training, bridging the gap in safety and efficacy data for drug discovery."
-        icon: fas fa-database
-      - title: "Strategic Partnerships"
-        desc: "Collaborate with us for drug co-development, repurposing, and precision medicine solutions."
-        icon: fas fa-handshake
+      - title: "🔥 The Problem"
+        desc: "90% of drug candidates fail, costing $125B+ annually. Slow, expensive, and unreliable preclinical screening delays life-saving treatments."
+        icon: fas fa-exclamation-triangle
+      - title: "🚀 Our Solution"
+        desc: "We automate in vivo drug screening using AI-powered robotics and zebrafish larvae—85% genetically similar to humans—for faster, scalable, and cost-effective testing."
+        icon: fas fa-robot
+      - title: "🌍 The Impact"
+        desc: "Cut failure risks by 70%, reduce costs by 50%, and accelerate drug discovery timelines by months."
+        icon: fas fa-chart-line
 
   portfolio:
     title: "Our Innovations"
