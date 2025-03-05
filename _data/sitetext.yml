@@ -67,23 +67,23 @@ en: &DEFAULT_EN
     body: "ZebraMed is transforming drug discovery by combining AI, robotics, and zebrafish models to improve efficiency and accuracy. Our approach reduces costs, accelerates timelines, and minimizes early-stage failures, making preclinical screening more reliable and scalable."
     section: about
 
-  clients:
-    section: clients
-    max-height: 100px
-    horizontal-scrolling: "no"
-    list:
-      - title: "Genopole Shaker"
-        url: https://www.genopole.com
-        logo: https://www.genopole.com/content/uploads/2021/01/Shaker-uk.png
-      - title: "ZeClinics"
-        url: https://www.zeclinics.com
-        logo: https://www.zeclinics.com/wp-content/themes/ZeClinics/images/logo-zeclinics.png
+#  clients:
+#    section: clients
+#    max-height: 100px
+#    horizontal-scrolling: "no"
+#    list:
+#      - title: "Genopole Shaker"
+#        url: https://www.genopole.com
+#        logo: https://www.genopole.com/content/uploads/2021/01/Shaker-uk.png
+#      - title: "ZeClinics"
+#        url: https://www.zeclinics.com
+#        logo: https://www.zeclinics.com/wp-content/themes/ZeClinics/images/logo-zeclinics.png
 #      - title: "Angelini Pharma"
 #        url: https://angelinipharma.it
 #        logo: https://www.angelinipharma.it/images/logo_pharma/angelini_pharma_v3.svg
-      - title: "endogene.bio"
-        url: https://www.endogene.bio
-        logo: https://www.endogene.bio/_next/static/media/endogeneLogo.d94f8236.svg
+#      - title: "endogene.bio"
+#        url: https://www.endogene.bio
+#        logo: https://www.endogene.bio/_next/static/media/endogeneLogo.d94f8236.svg
   team:
     title: "Our Team"
     text: "Meet the Innovators Behind ZebraMed"
