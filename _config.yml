@@ -1,0 +1,18 @@
+# Site settings
+title: ZebraMed
+description: "The Ground Truth Engine for AI-Driven Drug Discovery"
+email: info@zebramed.bio
+url: "https://zebramed.bio"
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+# theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Sass settings
+sass:
+#  sass_dir: _sass
+  style: compressed

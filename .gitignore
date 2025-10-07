@@ -1,0 +1,38 @@
+# Build output
+_site/
+
+# Jekyll caches/metadata
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Bundler
+.bundle/
+vendor/
+
+# Ruby
+*.gem
+log/
+/tmp/
+/coverage/
+.ruby-gemset
+.ruby-version
+
+# Node
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / Editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Environment files
+.env
+.env.*
+
+# Note: Intentionally DO NOT ignore Gemfile.lock for reproducible builds

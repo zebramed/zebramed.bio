@@ -1,0 +1,155 @@
+---
+# This empty front matter is required for Jekyll to process the file
+---
+
+/*------------------------------------------------------------------
+[Main Stylesheet]
+
+Project:    Zebramed Website
+Version:    1.1
+-------------------------------------------------------------------*/
+
+/* * 1. Configuration & Variables
+ * 2. Base Styles
+ * 3. Components
+ * 4. Animations
+ * 5. Custom Utility Classes
+*/
+
+
+/* 1. CONFIGURATION & VARIABLES
+-------------------------------------------------------------------*/
+:root {
+    /* Base Colors (HEX) */
+    --color-bg-dark: #0a192f;
+    --color-text-light: #ccd6f6;
+    --color-text-bright: #e6f1ff;
+    --color-text-medium: #8892b0;
+    --color-accent-primary: #64ffda;
+    --color-accent-secondary: #a8ff78;
+
+    /* Base Colors (RGB Values for Opacity) */
+    --color-accent-primary-rgb: 100, 255, 218;
+    --color-text-light-rgb: 204, 214, 246;
+    --color-accent-secondary-rgb: 168, 255, 120;
+    
+    /* Font */
+    --font-family-sans: 'Inter', sans-serif;
+}
+
+/* 2. BASE STYLES
+-------------------------------------------------------------------*/
+body {
+    font-family: var(--font-family-sans);
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-light);
+}
+
+#bg-video {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -2; /* Behind the particles */
+    transform: translateX(-50%) translateY(-50%);
+    object-fit: cover;
+    opacity: 0.5;
+}
+
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+/* 3. COMPONENTS
+-------------------------------------------------------------------*/
+
+.card-bg {
+    background-color: rgba(10, 25, 47, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(var(--color-accent-primary-rgb), 0.1);
+    border-radius: 0.75rem;
+}
+
+.gradient-text {
+    background: linear-gradient(to right, var(--color-accent-primary), var(--color-accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 40px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: rgba(var(--color-accent-primary-rgb), 0.2);
+}
+.timeline-item { position: relative; padding-left: 120px; }
+.timeline-number { position: absolute; left: 0; top: 0; width: 80px; height: 80px; font-size: 2rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+
+/* 4. ANIMATIONS
+-------------------------------------------------------------------*/
+
+.reveal-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+.reveal-on-scroll.visible { opacity: 1; transform: translateY(0); }
+
+@keyframes light-up-dim-stars { from { fill: #4a5568; } to { fill: var(--color-accent-secondary); } }
+@keyframes reveal-new-stars { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+@keyframes draw-lines { from { stroke-dashoffset: var(--line-length); } to { stroke-dashoffset: 0; } }
+#solution-animation-container.is-visible .dim-star { animation: light-up-dim-stars 1.5s 0.5s forwards ease-in-out; }
+#solution-animation-container.is-visible .new-star { transform-origin: center; animation: reveal-new-stars 1.5s 1s forwards ease-in-out; }
+#solution-animation-container.is-visible .constellation-line { animation: draw-lines 2s 1.5s forwards ease-in-out; }
+@keyframes full-constellation-loop { 0% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
+#solution-animation-container.is-visible svg { animation: full-constellation-loop 10s infinite; }
+
+.carousel-track {
+    display: flex;
+    width: 200%;
+    animation: scroll 10s linear infinite;
+}
+@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.carousel-container:hover .carousel-track { animation-play-state: paused; }
+
+/* 5. CUSTOM UTILITY CLASSES
+-------------------------------------------------------------------*/
+
+/* Text Colors */
+.text-accent-primary { color: var(--color-accent-primary); }
+.text-text-light { color: var(--color-text-light); }
+.text-text-medium { color: var(--color-text-medium); }
+.text-text-bright { color: var(--color-text-bright); }
+
+/* Background Colors */
+.bg-bg-dark { background-color: var(--color-bg-dark); }
+.from-accent-primary { --tw-gradient-from: var(--color-accent-primary) var(--tw-gradient-from-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.to-accent-secondary { --tw-gradient-to: var(--color-accent-secondary) var(--tw-gradient-to-position); }
+.from-bg-dark { --tw-gradient-from: var(--color-bg-dark) var(--tw-gradient-from-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.to-bg-dark { --tw-gradient-to: var(--color-bg-dark) var(--tw-gradient-to-position); }
+
+
+/* Border Colors */
+.border-accent-primary { border-color: var(--color-accent-primary); }
+.border-accent-primary-50 { border-color: rgba(var(--color-accent-primary-rgb), 0.5); }
+.border-accent-secondary-50 { border-color: rgba(var(--color-accent-secondary-rgb), 0.5); }
+.border-text-light-50 { border-color: rgba(var(--color-text-light-rgb), 0.5); }
+
+/* Hover States */
+.hover\:bg-accent-primary:hover { background-color: var(--color-accent-primary); }
+.hover\:text-bg-dark:hover { color: var(--color-bg-dark); }
+
+/* SVG Styling */
+.svg-accent-primary-stroke { stroke: var(--color-accent-primary); }
+.svg-accent-secondary-stroke { stroke: var(--color-accent-secondary); }
+.svg-accent-primary-fill { fill: var(--color-accent-primary); }
+.svg-accent-primary-fill-10 { fill: rgba(var(--color-accent-primary-rgb), 0.1); }
