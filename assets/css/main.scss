@@ -131,6 +131,16 @@ body {
 @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 .carousel-container:hover .carousel-track { animation-play-state: paused; }
 
+/* Normalize partner logos */
+.partner-logo { 
+    height: 64px; 
+    width: auto; 
+    object-fit: contain; 
+    object-position: center; 
+    filter: saturate(0.9) brightness(1.05);
+}
+@media (min-width: 768px) { .partner-logo { height: 80px; } }
+
 /* Mobile tweaks */
 @media (max-width: 640px) {
     .timeline { padding-left: 0; }
