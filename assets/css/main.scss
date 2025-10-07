@@ -63,10 +63,10 @@ body {
     min-height: 100%;
     width: auto;
     height: auto;
-    z-index: -2; /* Behind the particles */
+    z-index: -2; /* Behind content */
     transform: translateX(-50%) translateY(-50%);
     object-fit: cover;
-    opacity: 0.5;
+    opacity: 0.4;
 }
 
 #particles-js {
@@ -130,6 +130,15 @@ body {
 }
 @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 .carousel-container:hover .carousel-track { animation-play-state: paused; }
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+    .timeline { padding-left: 0; }
+    .timeline::before { left: 28px; }
+    .timeline-item { padding-left: 100px; }
+    .timeline-number { width: 64px; height: 64px; font-size: 1.5rem; }
+    #bg-video { display: none; }
+}
 
 /* 5. CUSTOM UTILITY CLASSES
 -------------------------------------------------------------------*/
