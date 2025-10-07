@@ -45,6 +45,16 @@ body {
     color: var(--color-text-light);
 }
 
+/* Reduce motion: disable background video and animations for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    #bg-video { display: none; }
+    .reveal-on-scroll { transition: none; transform: none; opacity: 1; }
+    #solution-animation-container.is-visible .dim-star,
+    #solution-animation-container.is-visible .new-star,
+    #solution-animation-container.is-visible .constellation-line,
+    #solution-animation-container.is-visible svg { animation: none !important; }
+}
+
 #bg-video {
     position: fixed;
     top: 50%;

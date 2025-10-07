@@ -16,12 +16,12 @@
 </head>
 <body class="overflow-x-hidden antialiased">
 
-    <video autoplay loop muted playsinline id="bg-video">
-        <source src="{{ '/assets/videos/video.mp4' | relative_url }}" type="video/mp4">
+    <video autoplay loop muted playsinline id="bg-video" preload="metadata" poster="{{ '/assets/images/video-poster.jpg' | relative_url }}">
+        <source src="{{ '/assets/videos/video.optimized.mp4' | relative_url }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
     
-    <div id="particles-js"></div>
+    
     
     <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
