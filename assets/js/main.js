@@ -2,24 +2,43 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // Intersection Observer for reveal-on-scroll animations
-    const scrollObserver = new IntersectionObserver((entries, observer) => {
+    const scrollObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                entry.target.classList.add('visible');
+            const el = entry.target;
+            const isSolution = el.id === 'solution-animation-container';
 
-                // Check if the intersecting element is the constellation animation container
-                if (entry.target.id === 'solution-animation-container') {
-                    const lines = entry.target.querySelectorAll('.constellation-line');
-                    // Check if setup has already been done to avoid re-running
-                    if (lines.length > 0 && !lines[0].style.strokeDasharray) {
-                         lines.forEach(line => {
-                            const length = line.getTotalLength();
-                            line.style.strokeDasharray = length;
-                            line.style.strokeDashoffset = length;
-                            line.style.setProperty('--line-length', length);
-                        });
-                    }
+            if (entry.isIntersecting) {
+                // For all reveal elements
+                el.classList.add('visible');
+                el.classList.add('is-visible');
+
+                // Reset and start constellation animation each time it enters view
+                if (isSolution) {
+                    const lines = el.querySelectorAll('.constellation-line');
+                    lines.forEach((line) => {
+                        const length = line.getTotalLength();
+                        line.style.strokeDasharray = length;
+                        line.style.strokeDashoffset = length;
+                        line.style.setProperty('--line-length', length);
+                    });
+                    // Force reflow on svg to restart CSS animations when class toggles
+                    const svg = el.querySelector('svg');
+                    if (svg) { void svg.offsetWidth; }
+                }
+            } else {
+                // Allow re-entrance animations by removing visibility classes
+                el.classList.remove('visible');
+                el.classList.remove('is-visible');
+
+                if (isSolution) {
+                    // Ensure lines are reset so next entry animates from start
+                    const lines = el.querySelectorAll('.constellation-line');
+                    lines.forEach((line) => {
+                        const length = line.getTotalLength();
+                        line.style.strokeDasharray = length;
+                        line.style.strokeDashoffset = length;
+                        line.style.setProperty('--line-length', length);
+                    });
                 }
             }
         });
