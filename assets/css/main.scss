@@ -104,8 +104,8 @@ body {
     width: 2px;
     background-color: rgba(var(--color-accent-primary-rgb), 0.2);
 }
-.timeline-item { position: relative; padding-left: 120px; }
-.timeline-number { position: absolute; left: 0; top: 0; width: 80px; height: 80px; font-size: 2rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.timeline-item { position: relative; padding-left: 96px; }
+.timeline-number { position: absolute; left: 0; top: 0; width: 72px; height: 72px; font-size: 1.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
 
 /* 4. ANIMATIONS
@@ -134,9 +134,9 @@ body {
 /* Mobile tweaks */
 @media (max-width: 640px) {
     .timeline { padding-left: 0; }
-    .timeline::before { left: 28px; }
-    .timeline-item { padding-left: 100px; }
-    .timeline-number { width: 64px; height: 64px; font-size: 1.5rem; }
+    .timeline::before { left: 24px; }
+    .timeline-item { padding-left: 84px; }
+    .timeline-number { width: 56px; height: 56px; font-size: 1.25rem; }
     #bg-video { display: none; }
 }
 
@@ -148,6 +148,38 @@ body {
 .text-text-light { color: var(--color-text-light); }
 .text-text-medium { color: var(--color-text-medium); }
 .text-text-bright { color: var(--color-text-bright); }
+
+/* Readability: constrain paragraph line length and center blocks */
+p { max-width: 65ch; margin-left: auto; margin-right: auto; }
+.text-center p { max-width: 75ch; margin-left: auto; margin-right: auto; }
+
+/* Subtle hover polish for CTA */
+button:hover { transform: translateY(-1px); }
+button { transition: transform 150ms ease; }
+
+/* Primary CTA refinement */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.9rem 1.25rem;
+    background-color: var(--color-bg-dark);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(var(--color-accent-primary-rgb), 0.35);
+    color: var(--color-text-bright);
+    transition: transform 160ms ease, box-shadow 200ms ease, border-color 200ms ease, background-color 200ms ease;
+    box-shadow: 0 0 0 0 rgba(var(--color-accent-primary-rgb), 0.0);
+}
+.btn-primary .label { font-weight: 600; letter-spacing: 0.2px; }
+.btn-primary .icon { opacity: 0.9; transform: translateX(0); transition: transform 160ms ease, opacity 160ms ease; }
+.btn-primary:hover { 
+    transform: translateY(-2px);
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 8px 24px -6px rgba(var(--color-accent-primary-rgb), 0.25);
+}
+.btn-primary:hover .icon { transform: translateX(3px); opacity: 1; }
+.btn-primary:active { transform: translateY(-1px); }
+.btn-primary:focus { outline: none; box-shadow: 0 0 0 3px rgba(var(--color-accent-primary-rgb), 0.35); }
 
 /* Background Colors */
 .bg-bg-dark { background-color: var(--color-bg-dark); }
@@ -172,3 +204,38 @@ body {
 .svg-accent-secondary-stroke { stroke: var(--color-accent-secondary); }
 .svg-accent-primary-fill { fill: var(--color-accent-primary); }
 .svg-accent-primary-fill-10 { fill: rgba(var(--color-accent-primary-rgb), 0.1); }
+
+/* Logo sizing and alignment */
+.logo-mark { display: block; height: 36px; width: 36px; }
+
+/* PNG logo as mask tinted with accent color */
+.logo-mask {
+    display: inline-block;
+    width: 56px;
+    height: 56px;
+    background-color: var(--color-accent-primary);
+    -webkit-mask-image: url('/assets/images/zebramed_light_bg.png');
+    mask-image: url('/assets/images/zebramed_light_bg.png');
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    /* Avoid cropping: keep full image within box */
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-position: center center;
+    mask-position: center center;
+    filter: drop-shadow(0 0 10px rgba(var(--color-accent-primary-rgb), 0.25));
+    transition: transform 200ms ease, filter 200ms ease, background-color 200ms ease;
+}
+
+/* Optional hover to shift to secondary accent */
+.logo-mask:hover { 
+    background-color: var(--color-accent-secondary);
+    filter: drop-shadow(0 0 14px rgba(var(--color-accent-primary-rgb), 0.35));
+    transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+    .logo-mask { width: 64px; height: 64px; }
+}
+
+/* (reverted) sticky/shrink header removed */

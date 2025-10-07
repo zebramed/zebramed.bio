@@ -58,4 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
         counterObserver.observe(loiCounter);
     }
 
+    // (reverted) sticky/shrink header logic removed
+
 });
