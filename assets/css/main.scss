@@ -205,6 +205,16 @@ button { transition: transform 150ms ease; }
 .svg-accent-primary-fill { fill: var(--color-accent-primary); }
 .svg-accent-primary-fill-10 { fill: rgba(var(--color-accent-primary-rgb), 0.1); }
 
+/* SVG glow effects for stars/nodes */
+.svg-glow-primary {
+    filter: drop-shadow(0 0 8px rgba(var(--color-accent-primary-rgb), 0.7))
+            drop-shadow(0 0 16px rgba(var(--color-accent-primary-rgb), 0.4));
+}
+.svg-glow-secondary {
+    filter: drop-shadow(0 0 8px rgba(var(--color-accent-secondary-rgb), 0.7))
+            drop-shadow(0 0 16px rgba(var(--color-accent-secondary-rgb), 0.4));
+}
+
 /* Logo sizing and alignment */
 .logo-mark { display: block; height: 36px; width: 36px; }
 
