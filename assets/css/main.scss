@@ -123,13 +123,26 @@ body {
 @keyframes full-constellation-loop { 0% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
 #solution-animation-container.is-visible svg { animation: full-constellation-loop 10s infinite; }
 
+/* Carousel Styles */
 .carousel-track {
     display: flex;
-    width: 200%;
-    animation: scroll 10s linear infinite;
+    /* Let the track's width be determined by its content */
+    width: max-content; 
+    align-items: center;
+    /* This will be set by JS to create the scrolling animation */
 }
-@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-.carousel-container:hover .carousel-track { animation-play-state: paused; }
+
+.carousel-slide {
+    display: inline-flex; /* Use inline-flex to shrink-wrap the content */
+    align-items: center;
+    gap: 2.5rem; /* Equivalent to gap-10 */
+    padding: 0 1rem; /* Add some padding */
+    flex-shrink: 0; /* Prevent the slide from shrinking */
+}
+
+.carousel-container:hover .carousel-track {
+    animation-play-state: paused;
+}
 
 /* Normalize partner logos */
 .partner-logo { 

@@ -77,6 +77,102 @@ document.addEventListener('DOMContentLoaded', function() {
         counterObserver.observe(loiCounter);
     }
 
-    // (reverted) sticky/shrink header logic removed
+    // --- UPDATED: SEAMLESS CAROUSEL LOGIC ---
+    const initSeamlessCarousel = async () => { // Make the function async
+        const carouselTrack = document.querySelector('.carousel-track');
+        if (!carouselTrack) return;
 
+        const slide = carouselTrack.querySelector('.carousel-slide');
+        if (!slide) return;
+        
+        // --- NEW: Wait for all images inside the carousel to load ---
+        const images = slide.querySelectorAll('img');
+        const promises = [...images].map(img => {
+            return new Promise((resolve) => {
+                // If the image is already loaded (e.g., from cache), resolve immediately
+                if (img.complete) {
+                    resolve();
+                } else {
+                    // Otherwise, wait for the load or error event
+                    img.addEventListener('load', resolve, { once: true });
+                    img.addEventListener('error', resolve, { once: true }); // Resolve on error too, so it doesn't break the carousel
+                }
+            });
+        });
+        // Wait for all image-loading promises to complete
+        await Promise.all(promises);
+        // --- END NEW PART ---
+
+        // Clear previous state for recalculation on resize
+        // We get the original slide HTML to avoid issues with cloning clones
+        const originalSlideHTML = slide.outerHTML;
+        carouselTrack.innerHTML = originalSlideHTML;
+        const newSlide = carouselTrack.querySelector('.carousel-slide');
+        carouselTrack.style.animation = 'none';
+
+        // Calculate the width of a single slide (now guaranteed to be accurate)
+        const slideWidth = newSlide.offsetWidth;
+
+        // Clone the slide enough times to fill the screen and create a buffer
+        const clonesNeeded = Math.ceil(window.innerWidth / slideWidth) + 1;
+        for (let i = 0; i < clonesNeeded; i++) {
+            carouselTrack.insertAdjacentHTML('beforeend', originalSlideHTML);
+        }
+
+        // Create a dynamic keyframe animation
+        const scrollAnimation = `
+            @keyframes scroll {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-${slideWidth}px); }
+            }
+        `;
+        
+        // Remove old stylesheet if it exists to prevent memory leaks
+        const oldStyleSheet = document.getElementById('carousel-animation-style');
+        if (oldStyleSheet) {
+            oldStyleSheet.remove();
+        }
+
+        // Add the new keyframes to the document's head
+        const styleSheet = document.createElement("style");
+        styleSheet.id = 'carousel-animation-style'; // Give it an ID for easy removal
+        styleSheet.type = "text/css";
+        styleSheet.innerText = scrollAnimation;
+        document.head.appendChild(styleSheet);
+        
+        // Calculate duration based on width to maintain constant speed
+        const scrollSpeed = 80; // pixels per second
+        const duration = slideWidth / scrollSpeed;
+
+        // Apply the animation
+        carouselTrack.style.animation = `scroll ${duration}s linear infinite`;
+
+        // Check for reduced motion preference
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const handleMotionChange = () => {
+            if (motionQuery.matches) {
+                carouselTrack.style.animationPlayState = 'paused';
+            } else {
+                carouselTrack.style.animationPlayState = 'running';
+            }
+        };
+        handleMotionChange();
+        // Avoid adding multiple listeners by checking if one exists
+        if (!window.motionListenerAdded) {
+            motionQuery.addEventListener('change', handleMotionChange);
+            window.motionListenerAdded = true;
+        }
+    };
+
+    initSeamlessCarousel();
+
+    // Recalculate on window resize to ensure responsiveness
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            initSeamlessCarousel();
+        }, 250); // Debounce to avoid excessive recalculations
+    });
+    // --- END: SEAMLESS CAROUSEL LOGIC ---
 });
