@@ -4,6 +4,7 @@ description: "The Ground Truth Engine for AI-Driven Drug Discovery"
 email: info@zebramed.bio
 url: "https://zebramed.bio"
 baseurl: ""
+intranet_url: "https://portal.zebramed.bio"
 
 # Build settings
 markdown: kramdown

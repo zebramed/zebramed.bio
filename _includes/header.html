@@ -5,5 +5,8 @@
             <span class="brand-med">Zebra</span><span class="brand-zebra gradient-text">Med</span>
         </h1>
     </div>
-    <a href="mailto:{{ site.email }}" class="border border-accent-primary text-accent-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-accent-primary hover:text-bg-dark transition-colors">Contact Us</a>
+    <div class="flex items-center gap-3">
+        <a href="{{ site.intranet_url }}" class="text-accent-primary text-sm font-medium hover:underline opacity-70 hover:opacity-100 transition-opacity">Intranet</a>
+        <a href="mailto:{{ site.email }}" class="border border-accent-primary text-accent-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-accent-primary hover:text-bg-dark transition-colors">Contact Us</a>
+    </div>
 </header>
