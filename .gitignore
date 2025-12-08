@@ -36,3 +36,4 @@ Thumbs.db
 .env.*
 
 # Note: Intentionally DO NOT ignore Gemfile.lock for reproducible builds
+node_modules/

@@ -1,0 +1,27 @@
+{
+  "name": "zebramed.bio",
+  "version": "1.0.0",
+  "description": "ZebraMed - The Ground Truth Engine for AI-Driven Drug Discovery",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./assets/css/tailwind.src.css -o ./assets/css/tailwind.css --minify",
+    "watch:css": "npx tailwindcss -i ./assets/css/tailwind.src.css -o ./assets/css/tailwind.css --watch",
+    "build": "npm run build:css && bundle exec jekyll build",
+    "dev": "npm run watch:css & bundle exec jekyll serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zebramed/zebramed.bio.git"
+  },
+  "keywords": ["biotech", "drug-discovery", "zebrafish", "AI"],
+  "author": "ZebraMed",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/zebramed/zebramed.bio/issues"
+  },
+  "homepage": "https://github.com/zebramed/zebramed.bio#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.18"
+  }
+}
