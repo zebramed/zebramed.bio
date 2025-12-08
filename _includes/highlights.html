@@ -1,0 +1,21 @@
+{% if site.data.highlights and site.data.highlights.size > 0 %}
+<div class="highlights-bar" role="marquee" aria-label="Breaking news and highlights">
+    <div class="highlights-track">
+        {% for item in site.data.highlights %}
+        <span class="highlight-item">
+            <span class="highlight-date">{{ item.date }}</span>
+            <span class="highlight-separator">—</span>
+            <span class="highlight-text">{{ item.text }}</span>
+        </span>
+        {% endfor %}
+        <!-- Duplicate for seamless loop -->
+        {% for item in site.data.highlights %}
+        <span class="highlight-item">
+            <span class="highlight-date">{{ item.date }}</span>
+            <span class="highlight-separator">—</span>
+            <span class="highlight-text">{{ item.text }}</span>
+        </span>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

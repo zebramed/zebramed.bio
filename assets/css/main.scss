@@ -144,6 +144,90 @@ button:focus-visible {
 /* 3. COMPONENTS
 -------------------------------------------------------------------*/
 
+/* Highlights / Breaking News Bar */
+.highlights-bar {
+    background: linear-gradient(90deg, 
+        rgba(var(--color-accent-primary-rgb), 0.15) 0%, 
+        rgba(var(--color-accent-secondary-rgb), 0.1) 50%,
+        rgba(var(--color-accent-primary-rgb), 0.15) 100%);
+    border-bottom: 1px solid rgba(var(--color-accent-primary-rgb), 0.3);
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    padding: 0.625rem 0;
+}
+
+.highlights-bar::before,
+.highlights-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.highlights-bar::before {
+    left: 0;
+    background: linear-gradient(to right, var(--color-bg-dark), transparent);
+}
+
+.highlights-bar::after {
+    right: 0;
+    background: linear-gradient(to left, var(--color-bg-dark), transparent);
+}
+
+.highlights-track {
+    display: inline-flex;
+    gap: 4rem;
+    animation: scrollHighlights 30s linear infinite;
+}
+
+.highlights-track:hover {
+    animation-play-state: paused;
+}
+
+.highlight-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.highlight-date {
+    color: var(--color-accent-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.highlight-separator {
+    color: rgba(var(--color-text-light-rgb), 0.4);
+}
+
+.highlight-text {
+    color: var(--color-text-medium);
+}
+
+@keyframes scrollHighlights {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Reduce motion: pause animation for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .highlights-track {
+        animation: none;
+    }
+}
+
 .card-bg {
     background-color: rgba(10, 25, 47, 0.85);
     backdrop-filter: blur(10px);
