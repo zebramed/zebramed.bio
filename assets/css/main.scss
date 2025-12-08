@@ -55,6 +55,11 @@ body {
     #solution-animation-container.is-visible svg { animation: none !important; }
 }
 
+/* Disable video on mobile to save bandwidth and battery */
+@media (max-width: 768px) {
+    #bg-video { display: none; }
+}
+
 #bg-video {
     position: fixed;
     top: 50%;
