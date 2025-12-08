@@ -1,10 +1,22 @@
 # Site settings
 title: ZebraMed
 description: "The Ground Truth Engine for AI-Driven Drug Discovery"
+tagline: "Generating systemic, in vivo data at industrial scale for predictive AI-driven drug discovery"
 email: info@zebramed.bio
 url: "https://zebramed.bio"
 baseurl: ""
 intranet_url: "https://portal.zebramed.bio"
+
+# SEO & Social
+author: ZebraMed
+twitter:
+  card: summary_large_image
+social:
+  name: ZebraMed
+  links:
+    - https://www.linkedin.com/company/zebramed
+logo: /assets/images/zebramed_logo.png
+locale: en_US
 
 # Build settings
 markdown: kramdown

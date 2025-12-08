@@ -45,6 +45,31 @@ body {
     color: var(--color-text-light);
 }
 
+/* Accessibility: Screen reader only utility */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Accessibility: Focus states */
+:focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 2px;
+}
+
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 2px;
+}
+
 /* Reduce motion: disable background video and animations for accessibility */
 @media (prefers-reduced-motion: reduce) {
     #bg-video { display: none; }

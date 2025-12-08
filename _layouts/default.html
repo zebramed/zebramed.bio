@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site.title }} | {{ page.title | default: site.description }}</title>
     
+    <!-- Preload critical assets -->
+    <link rel="preload" href="{{ '/assets/css/main.css' | relative_url }}" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,26 +17,60 @@
     
     <!-- Favicons -->
     <link rel="icon" href="{{ '/assets/images/favicon.svg' | relative_url }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}">
 
     <meta name="theme-color" content="#0a192f">
     
+    <!-- Additional SEO meta tags -->
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="ZebraMed">
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
     {% seo %}
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "{{ site.title }}",
+        "url": "{{ site.url }}",
+        "logo": "{{ site.url }}/assets/images/zebramed_logo.png",
+        "description": "{{ site.description }}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Pépinière Genopole Entreprises, 4 rue Pierre Fontaine",
+            "addressLocality": "Évry-Courcouronnes",
+            "postalCode": "91000",
+            "addressCountry": "FR"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "{{ site.email }}",
+            "contactType": "General Inquiry"
+        },
+        "sameAs": [
+            "https://www.linkedin.com/company/zebramed"
+        ],
+        "vatID": "FR09988494795",
+        "foundingDate": "2025"
+    }
+    </script>
 </head>
 <body class="overflow-x-hidden antialiased">
 
-    <video autoplay loop muted playsinline id="bg-video" preload="metadata" poster="{{ '/assets/images/video-poster.jpg' | relative_url }}">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent-primary focus:text-bg-dark focus:rounded-md">Skip to main content</a>
+
+    <video autoplay loop muted playsinline id="bg-video" preload="metadata" poster="{{ '/assets/images/video-poster.jpg' | relative_url }}" aria-hidden="true">
         <source src="{{ '/assets/videos/video.optimized.mp4' | relative_url }}" type="video/mp4">
-        Your browser does not support the video tag.
     </video>
-    
-    
     
     <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {% include header.html %}
 
-        <main class="space-y-24 md:space-y-36 py-20">
+        <main id="main-content" class="space-y-24 md:space-y-36 py-20" role="main">
             {{ content }}
         </main>
         

@@ -200,6 +200,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const isOpen = mobileMenu.classList.toggle('open');
             mobileMenu.classList.toggle('hidden', !isOpen);
             
+            // Update aria-expanded for accessibility
+            mobileMenuBtn.setAttribute('aria-expanded', isOpen);
+            
             // Toggle icon
             const menuIcon = mobileMenuBtn.querySelector('.menu-icon');
             const closeIcon = mobileMenuBtn.querySelector('.close-icon');
@@ -214,6 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
             link.addEventListener('click', () => {
                 mobileMenu.classList.remove('open');
                 mobileMenu.classList.add('hidden');
+                mobileMenuBtn.setAttribute('aria-expanded', 'false');
                 const menuIcon = mobileMenuBtn.querySelector('.menu-icon');
                 const closeIcon = mobileMenuBtn.querySelector('.close-icon');
                 if (menuIcon && closeIcon) {
