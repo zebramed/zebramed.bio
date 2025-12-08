@@ -1,12 +1,42 @@
-<header class="site-brand flex justify-between items-center py-8">
-    <div class="flex items-center gap-3">
-        <span class="logo-mask" aria-hidden="true"></span>
-        <h1 class="brand-title text-3xl font-bold tracking-tighter">
-            <span class="brand-med">Zebra</span><span class="brand-zebra gradient-text">Med</span>
-        </h1>
+<header class="site-header sticky top-0 z-50 bg-bg-dark/80 backdrop-blur-md border-b border-transparent transition-all duration-300" id="site-header">
+    <div class="flex justify-between items-center py-4">
+        <div class="flex items-center gap-3">
+            <span class="logo-mask" aria-hidden="true"></span>
+            <a href="#" class="brand-title text-2xl font-bold tracking-tighter">
+                <span class="brand-med">Zebra</span><span class="brand-zebra gradient-text">Med</span>
+            </a>
+        </div>
+        
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-6">
+            <a href="#problem" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Problem</a>
+            <a href="#solution" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Solution</a>
+            <a href="#traction" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Traction</a>
+            <a href="#team" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Team</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+            <a href="{{ site.intranet_url }}" class="hidden sm:inline text-accent-primary text-sm font-medium hover:underline opacity-70 hover:opacity-100 transition-opacity">Intranet</a>
+            <a href="mailto:{{ site.email }}" class="border border-accent-primary text-accent-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-accent-primary hover:text-bg-dark transition-colors">Contact Us</a>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-text-medium hover:text-accent-primary transition-colors" aria-label="Toggle menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path class="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    <path class="close-icon hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
     </div>
-    <div class="flex items-center gap-3">
-        <a href="{{ site.intranet_url }}" class="text-accent-primary text-sm font-medium hover:underline opacity-70 hover:opacity-100 transition-opacity">Intranet</a>
-        <a href="mailto:{{ site.email }}" class="border border-accent-primary text-accent-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-accent-primary hover:text-bg-dark transition-colors">Contact Us</a>
-    </div>
+    
+    <!-- Mobile Navigation -->
+    <nav id="mobile-menu" class="md:hidden hidden pb-4">
+        <div class="flex flex-col gap-3">
+            <a href="#problem" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Problem</a>
+            <a href="#solution" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Solution</a>
+            <a href="#traction" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Traction</a>
+            <a href="#team" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Team</a>
+            <a href="{{ site.intranet_url }}" class="sm:hidden text-accent-primary text-sm font-medium hover:underline opacity-70 hover:opacity-100 transition-opacity py-2">Intranet</a>
+        </div>
+    </nav>
 </header>

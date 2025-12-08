@@ -175,4 +175,77 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 250); // Debounce to avoid excessive recalculations
     });
     // --- END: SEAMLESS CAROUSEL LOGIC ---
+
+    // --- STICKY HEADER & NAVIGATION ---
+    const siteHeader = document.getElementById('site-header');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section[id]');
+
+    // Sticky header on scroll
+    if (siteHeader) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                siteHeader.classList.add('scrolled');
+            } else {
+                siteHeader.classList.remove('scrolled');
+            }
+        });
+    }
+
+    // Mobile menu toggle
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            const isOpen = mobileMenu.classList.toggle('open');
+            mobileMenu.classList.toggle('hidden', !isOpen);
+            
+            // Toggle icon
+            const menuIcon = mobileMenuBtn.querySelector('.menu-icon');
+            const closeIcon = mobileMenuBtn.querySelector('.close-icon');
+            if (menuIcon && closeIcon) {
+                menuIcon.classList.toggle('hidden', isOpen);
+                closeIcon.classList.toggle('hidden', !isOpen);
+            }
+        });
+
+        // Close mobile menu when clicking a link
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                mobileMenu.classList.add('hidden');
+                const menuIcon = mobileMenuBtn.querySelector('.menu-icon');
+                const closeIcon = mobileMenuBtn.querySelector('.close-icon');
+                if (menuIcon && closeIcon) {
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                }
+            });
+        });
+    }
+
+    // Active section highlighting
+    if (sections.length > 0 && navLinks.length > 0) {
+        const navObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${id}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { 
+            threshold: 0.3,
+            rootMargin: '-80px 0px -50% 0px'
+        });
+
+        sections.forEach(section => {
+            navObserver.observe(section);
+        });
+    }
+    // --- END: STICKY HEADER & NAVIGATION ---
 });
