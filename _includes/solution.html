@@ -8,48 +8,368 @@
     </div>
 
     <div id="solution-animation-container" class="relative reveal-on-scroll">
-        <div class="w-full h-96 md:h-[500px] flex flex-col justify-center items-center p-4 mb-16">
-            <svg id="constellation-svg" class="w-full h-full" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div class="w-full h-96 md:h-[500px] flex flex-col justify-center items-center p-4 mb-16 overflow-hidden">
+            <svg id="constellation-svg" class="w-full h-full max-w-4xl" viewBox="0 0 650 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <!-- Halo filters: create a soft glow while keeping a crisp core -->
-                    <filter id="haloPrimary" x="-50%" y="-50%" width="200%" height="200%">
+                    <filter id="glowPrimary" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <filter id="glowSecondary" x="-100%" y="-100%" width="300%" height="300%">
                         <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
-                        <feMerge>
-                            <feMergeNode in="blur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                     </filter>
-                    <filter id="haloSecondary" x="-50%" y="-50%" width="200%" height="200%">
+                    <filter id="glowYolk" x="-100%" y="-100%" width="300%" height="300%">
                         <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
-                        <feMerge>
-                            <feMergeNode in="blur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                     </filter>
+                    <filter id="glowMini" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <filter id="glowData" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <filter id="glowHub" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    
+                    <!-- Mini larva symbol - exact copy of detailed larva, using same viewBox as main SVG -->
+                    <symbol id="mini-larva" viewBox="0 0 500 200">
+                        <g class="mini-fish" opacity="0.9">
+                            <!-- Connection lines - same as main larva -->
+                            <g stroke="var(--color-accent-primary)" stroke-width="1.5" fill="none">
+                                <!-- Head outline -->
+                                <path d="M92 68 L78 75 L68 88 L65 102 L70 115 L82 122"/>
+                                <path d="M92 68 L108 62 L125 58"/>
+                                <path d="M92 68 L95 58 L108 62"/>
+                                <!-- Eye connections -->
+                                <path d="M85 85 L78 75 M85 85 L68 88 M85 85 L92 68"/>
+                                <!-- Heart hint -->
+                                <path d="M108 62 L118 78 L125 58"/>
+                                <!-- Yolk sac outline -->
+                                <path d="M82 122 L95 135 L115 145 L140 150 L165 148 L185 140 L200 125 L205 108"/>
+                                <!-- Yolk internal -->
+                                <path d="M115 145 L140 130 L165 148 M140 130 L140 150" opacity="0.6"/>
+                                <!-- Body connection to yolk -->
+                                <path d="M155 55 L140 130 M190 54 L185 140 M205 55 L205 108"/>
+                                <!-- Body/notochord -->
+                                <path d="M125 58 L155 55 L190 54 L205 55 L240 52 L280 50 L320 52 L360 58 L400 68 L435 82 L465 100"/>
+                                <!-- Tail fin upper -->
+                                <path d="M240 52 L240 42 L280 38 L320 40 L360 48 L400 60 L435 82" opacity="0.7"/>
+                                <path d="M280 50 L280 38 M320 52 L320 40 M360 58 L360 48 M400 68 L400 60" opacity="0.5"/>
+                                <!-- Tail fin lower -->
+                                <path d="M205 108 L240 100 L280 95 L320 92 L360 90 L400 92 L435 95 L465 100" opacity="0.7"/>
+                                <!-- Somites -->
+                                <path d="M240 42 L240 100 M280 38 L280 95 M320 40 L320 92 M360 48 L360 90 M400 60 L400 92 M435 82 L435 95" opacity="0.4"/>
+                            </g>
+                            
+                            <!-- Key nodes - simplified but correct positions -->
+                            <!-- Eye -->
+                            <circle cx="85" cy="85" r="5" fill="#0d1117" stroke="var(--color-accent-secondary)" stroke-width="1.5"/>
+                            <circle cx="85" cy="85" r="2.5" fill="var(--color-accent-secondary)"/>
+                            <!-- Head nodes -->
+                            <circle cx="92" cy="68" r="2.5" fill="var(--color-accent-primary)"/>
+                            <circle cx="78" cy="75" r="2" fill="var(--color-accent-primary)"/>
+                            <circle cx="68" cy="88" r="2" fill="var(--color-accent-primary)"/>
+                            <!-- Heart -->
+                            <circle cx="118" cy="78" r="2.5" fill="var(--color-accent-primary)"/>
+                            <!-- Body nodes -->
+                            <circle cx="125" cy="58" r="2.5" fill="var(--color-accent-primary)"/>
+                            <circle cx="155" cy="55" r="2.5" fill="var(--color-accent-primary)"/>
+                            <circle cx="205" cy="55" r="3" fill="var(--color-accent-primary)"/>
+                            <circle cx="280" cy="50" r="2.5" fill="var(--color-accent-primary)"/>
+                            <circle cx="360" cy="58" r="2.5" fill="var(--color-accent-primary)"/>
+                            <circle cx="465" cy="100" r="3" fill="var(--color-accent-primary)"/>
+                            <!-- Yolk nodes (proportional) -->
+                            <circle cx="95" cy="135" r="3" fill="#f4a574" opacity="0.85"/>
+                            <circle cx="115" cy="145" r="3" fill="#f4a574" opacity="0.85"/>
+                            <circle cx="140" cy="150" r="4" fill="#f4a574" opacity="0.85"/>
+                            <circle cx="165" cy="148" r="3" fill="#f4a574" opacity="0.85"/>
+                            <circle cx="185" cy="140" r="3" fill="#f4a574" opacity="0.85"/>
+                            <circle cx="140" cy="130" r="2.5" fill="#f4a574" opacity="0.7"/>
+                        </g>
+                    </symbol>
                 </defs>
-                <g class="nodes">
-                    <circle class="dim-star" cx="50" cy="50" r="6"/>
-                    <circle class="lit-star svg-accent-primary-fill" filter="url(#haloPrimary)" cx="150" cy="150" r="6"/>
-                    <circle class="dim-star" cx="250" cy="50" r="6"/>
-                    <circle class="lit-star svg-accent-primary-fill" filter="url(#haloPrimary)" cx="350" cy="150" r="6"/>
-                    <circle class="dim-star" cx="200" cy="100" r="6"/>
-                    <circle class="new-star" filter="url(#haloSecondary)" cx="100" cy="100" r="5" fill="#a8ff78"/>
-                    <circle class="new-star" filter="url(#haloSecondary)" cx="300" cy="100" r="5" fill="#a8ff78"/>
-                    <circle class="new-star" filter="url(#haloSecondary)" cx="200" cy="20" r="5" fill="#a8ff78"/>
+                
+                <!-- PHASE 1: Disconnected dim stars (siloed data) - scattered and isolated -->
+                <g class="disconnected-stars">
+                    <circle class="dim-star" cx="35" cy="45" r="4"/>
+                    <circle class="dim-star" cx="85" cy="175" r="5"/>
+                    <circle class="dim-star" cx="145" cy="30" r="4"/>
+                    <circle class="dim-star" cx="210" cy="180" r="4"/>
+                    <circle class="dim-star" cx="275" cy="25" r="5"/>
+                    <circle class="dim-star" cx="340" cy="175" r="4"/>
+                    <circle class="dim-star" cx="400" cy="35" r="4"/>
+                    <circle class="dim-star" cx="465" cy="165" r="5"/>
+                    <circle class="dim-star" cx="120" cy="95" r="3"/>
+                    <circle class="dim-star" cx="380" cy="120" r="3"/>
+                    <circle class="dim-star" cx="250" cy="160" r="3"/>
+                    <circle class="dim-star" cx="180" cy="55" r="3"/>
                 </g>
-                <g class="lines svg-accent-secondary-stroke" stroke-width="1">
-                    <line class="constellation-line" x1="50" y1="50" x2="100" y2="100" />
-                    <line class="constellation-line" x1="100" y1="100" x2="150" y2="150" />
-                    <line class="constellation-line" x1="50" y1="50" x2="200" y2="20" />
-                    <line class="constellation-line" x1="200" y1="20" x2="250" y2="50" />
-                    <line class="constellation-line" x1="250" y1="50" x2="300" y2="100" />
-                    <line class="constellation-line" x1="300" y1="100" x2="350" y2="150" />
-                    <line class="constellation-line" x1="150" y1="150" x2="200" y2="100" />
-                    <line class="constellation-line" x1="200" y1="100" x2="250" y2="50" />
+
+                <!-- PHASE 2 & 3: Single zebrafish that will shrink -->
+                <g class="zebrafish-constellation primary-larva">
+                    <!-- Connection lines -->
+                    <g class="fish-lines" stroke-width="1.5">
+                        <!-- Head outline (rounded, detailed) -->
+                        <line class="constellation-line" x1="92" y1="68" x2="78" y2="75"/>
+                        <line class="constellation-line" x1="78" y1="75" x2="68" y2="88"/>
+                        <line class="constellation-line" x1="68" y1="88" x2="65" y2="102"/>
+                        <line class="constellation-line" x1="65" y1="102" x2="70" y2="115"/>
+                        <line class="constellation-line" x1="70" y1="115" x2="82" y2="122"/>
+                        <line class="constellation-line" x1="92" y1="68" x2="108" y2="62"/>
+                        <line class="constellation-line" x1="108" y1="62" x2="125" y2="58"/>
+                        
+                        <!-- Eye socket detail -->
+                        <line class="constellation-line" x1="85" y1="85" x2="78" y2="75"/>
+                        <line class="constellation-line" x1="85" y1="85" x2="68" y2="88"/>
+                        <line class="constellation-line" x1="85" y1="85" x2="92" y2="68"/>
+                        
+                        <!-- Brain/head top curve -->
+                        <line class="constellation-line" x1="92" y1="68" x2="95" y2="58"/>
+                        <line class="constellation-line" x1="95" y1="58" x2="108" y2="62"/>
+                        
+                        <!-- Yolk sac (large oval - more nodes for detail) -->
+                        <line class="constellation-line" x1="82" y1="122" x2="95" y2="135"/>
+                        <line class="constellation-line" x1="95" y1="135" x2="115" y2="145"/>
+                        <line class="constellation-line" x1="115" y1="145" x2="140" y2="150"/>
+                        <line class="constellation-line" x1="140" y1="150" x2="165" y2="148"/>
+                        <line class="constellation-line" x1="165" y1="148" x2="185" y2="140"/>
+                        <line class="constellation-line" x1="185" y1="140" x2="200" y2="125"/>
+                        <line class="constellation-line" x1="200" y1="125" x2="205" y2="108"/>
+                        
+                        <!-- Yolk internal structure -->
+                        <line class="constellation-line yolk-line" x1="115" y1="145" x2="140" y2="130"/>
+                        <line class="constellation-line yolk-line" x1="140" y1="130" x2="165" y2="148"/>
+                        <line class="constellation-line yolk-line" x1="140" y1="130" x2="140" y2="150"/>
+                        
+                        <!-- Body/notochord connection from head -->
+                        <line class="constellation-line" x1="125" y1="58" x2="155" y2="55"/>
+                        <line class="constellation-line" x1="155" y1="55" x2="190" y2="54"/>
+                        <line class="constellation-line" x1="190" y1="54" x2="205" y2="55"/>
+                        
+                        <!-- Body connects to yolk -->
+                        <line class="constellation-line" x1="155" y1="55" x2="140" y2="130"/>
+                        <line class="constellation-line" x1="190" y1="54" x2="185" y2="140"/>
+                        <line class="constellation-line" x1="205" y1="55" x2="205" y2="108"/>
+                        
+                        <!-- Notochord/spine - long tail -->
+                        <line class="constellation-line" x1="205" y1="55" x2="240" y2="52"/>
+                        <line class="constellation-line" x1="240" y1="52" x2="280" y2="50"/>
+                        <line class="constellation-line" x1="280" y1="50" x2="320" y2="52"/>
+                        <line class="constellation-line" x1="320" y1="52" x2="360" y2="58"/>
+                        <line class="constellation-line" x1="360" y1="58" x2="400" y2="68"/>
+                        <line class="constellation-line" x1="400" y1="68" x2="435" y2="82"/>
+                        <line class="constellation-line" x1="435" y1="82" x2="465" y2="100"/>
+                        
+                        <!-- Tail fin membrane - upper edge -->
+                        <line class="constellation-line" x1="240" y1="52" x2="240" y2="42"/>
+                        <line class="constellation-line" x1="280" y1="50" x2="280" y2="38"/>
+                        <line class="constellation-line" x1="320" y1="52" x2="320" y2="40"/>
+                        <line class="constellation-line" x1="360" y1="58" x2="360" y2="48"/>
+                        <line class="constellation-line" x1="400" y1="68" x2="400" y2="60"/>
+                        <line class="constellation-line" x1="240" y1="42" x2="280" y2="38"/>
+                        <line class="constellation-line" x1="280" y1="38" x2="320" y2="40"/>
+                        <line class="constellation-line" x1="320" y1="40" x2="360" y2="48"/>
+                        <line class="constellation-line" x1="360" y1="48" x2="400" y2="60"/>
+                        <line class="constellation-line" x1="400" y1="60" x2="435" y2="82"/>
+                        
+                        <!-- Tail fin membrane - lower edge -->
+                        <line class="constellation-line" x1="205" y1="108" x2="240" y2="100"/>
+                        <line class="constellation-line" x1="240" y1="100" x2="280" y2="95"/>
+                        <line class="constellation-line" x1="280" y1="95" x2="320" y2="92"/>
+                        <line class="constellation-line" x1="320" y1="92" x2="360" y2="90"/>
+                        <line class="constellation-line" x1="360" y1="90" x2="400" y2="92"/>
+                        <line class="constellation-line" x1="400" y1="92" x2="435" y2="95"/>
+                        <line class="constellation-line" x1="435" y1="95" x2="465" y2="100"/>
+                        
+                        <!-- Somite/segment lines -->
+                        <line class="constellation-line segment" x1="240" y1="42" x2="240" y2="100"/>
+                        <line class="constellation-line segment" x1="280" y1="38" x2="280" y2="95"/>
+                        <line class="constellation-line segment" x1="320" y1="40" x2="320" y2="92"/>
+                        <line class="constellation-line segment" x1="360" y1="48" x2="360" y2="90"/>
+                        <line class="constellation-line segment" x1="400" y1="60" x2="400" y2="92"/>
+                        <line class="constellation-line segment" x1="435" y1="82" x2="435" y2="95"/>
+                        
+                        <!-- Heart region hint -->
+                        <line class="constellation-line" x1="108" y1="62" x2="118" y2="78"/>
+                        <line class="constellation-line" x1="118" y1="78" x2="125" y2="58"/>
+                    </g>
+                    
+                    <!-- Star nodes at key anatomical points -->
+                    <g class="fish-nodes">
+                        <!-- Head -->
+                        <circle class="new-star n1" cx="92" cy="68" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n2" cx="78" cy="75" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n3" cx="68" cy="88" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n4" cx="65" cy="102" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n5" cx="70" cy="115" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n27" cx="95" cy="58" r="3" filter="url(#glowPrimary)"/>
+                        
+                        <!-- Eye (prominent, dark with ring) -->
+                        <circle class="new-star eye" cx="85" cy="85" r="8" filter="url(#glowSecondary)"/>
+                        <circle class="new-star eye-inner" cx="85" cy="85" r="4"/>
+                        
+                        <!-- Heart hint -->
+                        <circle class="new-star heart" cx="118" cy="78" r="4" filter="url(#glowPrimary)"/>
+                        
+                        <!-- Yolk sac nodes (warm orange) -->
+                        <circle class="new-star yolk y1" cx="82" cy="122" r="4" filter="url(#glowYolk)"/>
+                        <circle class="new-star yolk y2" cx="95" cy="135" r="5" filter="url(#glowYolk)"/>
+                        <circle class="new-star yolk y3" cx="115" cy="145" r="5" filter="url(#glowYolk)"/>
+                        <circle class="new-star yolk y4" cx="140" cy="150" r="6" filter="url(#glowYolk)"/>
+                        <circle class="new-star yolk y5" cx="165" cy="148" r="5" filter="url(#glowYolk)"/>
+                        <circle class="new-star yolk y6" cx="185" cy="140" r="5" filter="url(#glowYolk)"/>
+                        <circle class="new-star yolk y7" cx="200" cy="125" r="4" filter="url(#glowYolk)"/>
+                        <circle class="new-star yolk yc" cx="140" cy="130" r="4" filter="url(#glowYolk)"/>
+                        
+                        <!-- Body/notochord -->
+                        <circle class="new-star n6" cx="108" cy="62" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n7" cx="125" cy="58" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n8" cx="155" cy="55" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n9" cx="190" cy="54" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n10" cx="205" cy="55" r="5" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n11" cx="205" cy="108" r="4" filter="url(#glowPrimary)"/>
+                        
+                        <!-- Tail spine nodes -->
+                        <circle class="new-star n12" cx="240" cy="52" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n13" cx="280" cy="50" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n14" cx="320" cy="52" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n15" cx="360" cy="58" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n16" cx="400" cy="68" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n17" cx="435" cy="82" r="4" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n18" cx="465" cy="100" r="5" filter="url(#glowPrimary)"/>
+                        
+                        <!-- Tail fin upper edge -->
+                        <circle class="new-star n19" cx="240" cy="42" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n20" cx="280" cy="38" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n21" cx="320" cy="40" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n22" cx="360" cy="48" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n23" cx="400" cy="60" r="3" filter="url(#glowPrimary)"/>
+                        
+                        <!-- Tail fin lower edge -->
+                        <circle class="new-star n24" cx="240" cy="100" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n25" cx="280" cy="95" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n26" cx="320" cy="92" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n28" cx="360" cy="90" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n29" cx="400" cy="92" r="3" filter="url(#glowPrimary)"/>
+                        <circle class="new-star n30" cx="435" cy="95" r="3" filter="url(#glowPrimary)"/>
+                    </g>
+                </g>
+                
+                <!-- PHASE 4: Parallelization - grid of mini larvae (left 2/3 of viewport) -->
+                <g class="parallel-larvae">
+                    <!-- Row 1 (4 larvae) - width:height = 500:200 = 2.5:1 ratio -->
+                    <use href="#mini-larva" class="clone-larva c1" x="-20" y="2" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c2" x="90" y="-2" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c3" x="200" y="4" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c4" x="310" y="0" width="125" height="50"/>
+                    
+                    <!-- Row 2 (4 larvae, offset) -->
+                    <use href="#mini-larva" class="clone-larva c5" x="25" y="48" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c6" x="135" y="52" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c7" x="245" y="46" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c8" x="355" y="50" width="125" height="50"/>
+                    
+                    <!-- Row 3 (4 larvae) -->
+                    <use href="#mini-larva" class="clone-larva c9" x="-20" y="95" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c10" x="90" y="99" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c11" x="200" y="93" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c12" x="310" y="97" width="125" height="50"/>
+                    
+                    <!-- Row 4 (4 larvae, offset) -->
+                    <use href="#mini-larva" class="clone-larva c13" x="25" y="142" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c14" x="135" y="146" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c15" x="245" y="140" width="125" height="50"/>
+                    <use href="#mini-larva" class="clone-larva c16" x="355" y="144" width="125" height="50"/>
+                </g>
+                
+                <!-- PHASE 5: Data hub on the RIGHT side + streaming particles -->
+                <g class="data-streams">
+                    <!-- ZebrAI Chip - positioned on right side (digital twin destination) -->
+                    <g class="data-hub zebrai-chip" transform="translate(560, 100)">
+                        <!-- Outer glow effect -->
+                        <rect class="chip-glow" x="-48" y="-32" width="96" height="64" rx="6" fill="var(--color-accent-secondary)" opacity="0" filter="url(#glowHub)"/>
+                        
+                        <!-- Chip body (main rectangle) -->
+                        <rect class="chip-body" x="-42" y="-26" width="84" height="52" rx="4" fill="#0d1117" stroke="var(--color-accent-primary)" stroke-width="2" opacity="0"/>
+                        
+                        <!-- Chip pins - left side -->
+                        <g class="chip-pins-left" opacity="0">
+                            <rect x="-52" y="-18" width="12" height="4" rx="1" fill="var(--color-accent-primary)"/>
+                            <rect x="-52" y="-6" width="12" height="4" rx="1" fill="var(--color-accent-primary)"/>
+                            <rect x="-52" y="6" width="12" height="4" rx="1" fill="var(--color-accent-primary)"/>
+                            <rect x="-52" y="18" width="12" height="4" rx="1" fill="var(--color-accent-primary)"/>
+                        </g>
+                        
+                        <!-- Chip pins - right side -->
+                        <g class="chip-pins-right" opacity="0">
+                            <rect x="40" y="-18" width="12" height="4" rx="1" fill="var(--color-accent-secondary)"/>
+                            <rect x="40" y="-6" width="12" height="4" rx="1" fill="var(--color-accent-secondary)"/>
+                            <rect x="40" y="6" width="12" height="4" rx="1" fill="var(--color-accent-secondary)"/>
+                            <rect x="40" y="18" width="12" height="4" rx="1" fill="var(--color-accent-secondary)"/>
+                        </g>
+                        
+                        <!-- Chip pins - top -->
+                        <g class="chip-pins-top" opacity="0">
+                            <rect x="-22" y="-36" width="4" height="12" rx="1" fill="var(--color-accent-primary)"/>
+                            <rect x="-8" y="-36" width="4" height="12" rx="1" fill="var(--color-accent-primary)"/>
+                            <rect x="6" y="-36" width="4" height="12" rx="1" fill="var(--color-accent-primary)"/>
+                            <rect x="20" y="-36" width="4" height="12" rx="1" fill="var(--color-accent-primary)"/>
+                        </g>
+                        
+                        <!-- Chip pins - bottom -->
+                        <g class="chip-pins-bottom" opacity="0">
+                            <rect x="-22" y="24" width="4" height="12" rx="1" fill="var(--color-accent-secondary)"/>
+                            <rect x="-8" y="24" width="4" height="12" rx="1" fill="var(--color-accent-secondary)"/>
+                            <rect x="6" y="24" width="4" height="12" rx="1" fill="var(--color-accent-secondary)"/>
+                            <rect x="20" y="24" width="4" height="12" rx="1" fill="var(--color-accent-secondary)"/>
+                        </g>
+                        
+                        <!-- Chip inner circuit pattern -->
+                        <g class="chip-circuits" opacity="0">
+                            <path d="M-30 -12 L-20 -12 L-15 -6" stroke="var(--color-accent-primary)" stroke-width="1" fill="none" opacity="0.5"/>
+                            <path d="M-30 12 L-20 12 L-15 6" stroke="var(--color-accent-primary)" stroke-width="1" fill="none" opacity="0.5"/>
+                            <path d="M30 -12 L20 -12 L15 -6" stroke="var(--color-accent-secondary)" stroke-width="1" fill="none" opacity="0.5"/>
+                            <path d="M30 12 L20 12 L15 6" stroke="var(--color-accent-secondary)" stroke-width="1" fill="none" opacity="0.5"/>
+                        </g>
+                        
+                        <!-- ZebrAI™ label -->
+                        <text class="hub-label chip-label" x="0" y="-2" text-anchor="middle" fill="var(--color-accent-primary)" font-size="11" font-weight="bold" opacity="0">ZebrAI™</text>
+                        <text class="chip-sublabel" x="0" y="12" text-anchor="middle" fill="var(--color-accent-secondary)" font-size="7" opacity="0">Digital Twin</text>
+                    </g>
+                    
+                    <!-- Data particles - one per larva, starting near each larva -->
+                    <!-- Row 1 particles -->
+                    <circle class="data-dot d1" cx="95" cy="22" r="3" fill="var(--color-accent-secondary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d2" cx="205" cy="19" r="3" fill="var(--color-accent-primary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d3" cx="315" cy="24" r="3" fill="var(--color-accent-secondary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d4" cx="425" cy="21" r="3" fill="var(--color-accent-primary)" filter="url(#glowData)"/>
+                    
+                    <!-- Row 2 particles -->
+                    <circle class="data-dot d5" cx="140" cy="70" r="3" fill="var(--color-accent-primary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d6" cx="250" cy="73" r="3" fill="var(--color-accent-secondary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d7" cx="360" cy="68" r="3" fill="var(--color-accent-primary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d8" cx="470" cy="71" r="3" fill="var(--color-accent-secondary)" filter="url(#glowData)"/>
+                    
+                    <!-- Row 3 particles -->
+                    <circle class="data-dot d9" cx="95" cy="118" r="3" fill="var(--color-accent-secondary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d10" cx="205" cy="121" r="3" fill="var(--color-accent-primary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d11" cx="315" cy="116" r="3" fill="var(--color-accent-secondary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d12" cx="425" cy="119" r="3" fill="var(--color-accent-primary)" filter="url(#glowData)"/>
+                    
+                    <!-- Row 4 particles -->
+                    <circle class="data-dot d13" cx="140" cy="168" r="3" fill="var(--color-accent-primary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d14" cx="250" cy="171" r="3" fill="var(--color-accent-secondary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d15" cx="315" cy="166" r="3" fill="var(--color-accent-primary)" filter="url(#glowData)"/>
+                    <circle class="data-dot d16" cx="470" cy="169" r="3" fill="var(--color-accent-secondary)" filter="url(#glowData)"/>
                 </g>
             </svg>
         </div>
-        <p class="gradient-text text-center text-xl font-semibold -mt-8 mb-16 w-fit mx-auto">We connect biology's dim stars to reveal new constellations of insight.</p>
+        <p class="gradient-text text-center text-xl font-semibold -mt-8 mb-16 w-fit mx-auto">From siloed data to systemic insight — industrialized at scale.</p>
     </div>
 
     <div class="timeline relative">

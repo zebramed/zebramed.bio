@@ -110,7 +110,12 @@ button:focus-visible {
     #solution-animation-container.is-visible .dim-star,
     #solution-animation-container.is-visible .new-star,
     #solution-animation-container.is-visible .constellation-line,
+    #solution-animation-container.is-visible .zebrafish-constellation,
     #solution-animation-container.is-visible svg { animation: none !important; }
+    /* Show final state for reduced motion users */
+    .disconnected-stars .dim-star { opacity: 0.08; }
+    .zebrafish-constellation .new-star { opacity: 1; transform: scale(1); }
+    .zebrafish-constellation .constellation-line { stroke-dashoffset: 0 !important; }
 }
 
 /* Disable video on mobile to save bandwidth and battery */
@@ -199,14 +204,503 @@ button:focus-visible {
     to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes light-up-dim-stars { from { fill: #4a5568; } to { fill: var(--color-accent-secondary); } }
-@keyframes reveal-new-stars { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-@keyframes draw-lines { from { stroke-dashoffset: var(--line-length); } to { stroke-dashoffset: 0; } }
-#solution-animation-container.is-visible .dim-star { animation: light-up-dim-stars 1.5s 0.5s forwards ease-in-out; }
-#solution-animation-container.is-visible .new-star { transform-origin: center; animation: reveal-new-stars 1.5s 1s forwards ease-in-out; }
-#solution-animation-container.is-visible .constellation-line { animation: draw-lines 2s 1.5s forwards ease-in-out; }
-@keyframes full-constellation-loop { 0% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
-#solution-animation-container.is-visible svg { animation: full-constellation-loop 10s infinite; }
+/* =============================================
+   ZEBRAFISH CONSTELLATION ANIMATION
+   ============================================= */
+
+/* Initial states */
+.disconnected-stars .dim-star {
+    fill: #4a5568;
+    opacity: 1;
+}
+
+.zebrafish-constellation .new-star {
+    fill: var(--color-accent-primary);
+    opacity: 0;
+    transform: scale(0);
+    transform-origin: center;
+}
+
+/* Eye - dark center with glowing ring */
+.zebrafish-constellation .new-star.eye {
+    fill: #0d1117;
+    stroke: var(--color-accent-secondary);
+    stroke-width: 2;
+}
+
+.zebrafish-constellation .new-star.eye-inner {
+    fill: var(--color-accent-secondary);
+}
+
+/* Heart - subtle warm pinkish tone */
+.zebrafish-constellation .new-star.heart {
+    fill: #e07a9e;
+}
+
+/* Yolk sac - warm orange/peach color like the real larva */
+.zebrafish-constellation .new-star.yolk {
+    fill: #f4a574;
+}
+
+/* Connection lines */
+.zebrafish-constellation .constellation-line {
+    stroke: var(--color-accent-primary);
+    stroke-width: 1.5;
+}
+
+/* Yolk internal lines - more subtle */
+.zebrafish-constellation .constellation-line.yolk-line {
+    stroke: #f4a574;
+    stroke-width: 1;
+    opacity: 0.6;
+}
+
+/* Somite/segment lines - subtle structural detail */
+.zebrafish-constellation .constellation-line.segment {
+    stroke-width: 1;
+    opacity: 0.5;
+}
+
+/* Keyframe animations */
+@keyframes fadeOutDim {
+    0% { opacity: 1; }
+    100% { opacity: 0.08; }
+}
+
+@keyframes popIn {
+    0% { opacity: 0; transform: scale(0); }
+    60% { opacity: 1; transform: scale(1.4); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Slower, more dramatic line drawing */
+@keyframes drawLine {
+    0% { stroke-dashoffset: 100; opacity: 0.3; }
+    20% { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes subtlePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+
+/* Yolk sac gentle pulsing glow */
+@keyframes yolkPulse {
+    0%, 100% { opacity: 1; filter: url(#glowYolk); }
+    50% { opacity: 0.9; }
+}
+
+/* ========================================
+   ANIMATION SEQUENCE TIMELINE
+   ========================================
+   Phase 1 (0-1.5s):    Dim stars fade out
+   Phase 2 (0.3-2.2s):  Nodes appear (staggered)
+   Phase 3 (2.5-6.5s):  Lines draw slowly (THE CONNECTING PHASE - 4 seconds!)
+   Phase 4 (7s+):       Gentle idle pulse
+   ======================================== */
+
+/* Phase 1: Dim stars fade out */
+#solution-animation-container.is-visible .disconnected-stars .dim-star {
+    animation: fadeOutDim 1.5s 0.2s forwards ease-out;
+}
+
+/* Phase 2: Nodes appear - grouped by anatomy, staggered */
+
+/* Head region (0.3s - 0.6s) */
+#solution-animation-container.is-visible .new-star.n1 { animation: popIn 0.5s 0.3s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n2 { animation: popIn 0.5s 0.35s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n3 { animation: popIn 0.5s 0.4s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n4 { animation: popIn 0.5s 0.45s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n5 { animation: popIn 0.5s 0.5s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n27 { animation: popIn 0.5s 0.38s forwards ease-out; }
+
+/* Eye (prominent, appears early) */
+#solution-animation-container.is-visible .new-star.eye { animation: popIn 0.6s 0.55s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.eye-inner { animation: popIn 0.4s 0.7s forwards ease-out; }
+
+/* Heart */
+#solution-animation-container.is-visible .new-star.heart { animation: popIn 0.5s 0.65s forwards ease-out; }
+
+/* Yolk sac (0.7s - 1.1s) - the distinctive feature */
+#solution-animation-container.is-visible .new-star.y1 { animation: popIn 0.6s 0.7s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.y2 { animation: popIn 0.6s 0.75s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.y3 { animation: popIn 0.6s 0.8s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.y4 { animation: popIn 0.6s 0.85s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.y5 { animation: popIn 0.6s 0.9s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.y6 { animation: popIn 0.6s 0.95s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.y7 { animation: popIn 0.6s 1.0s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.yc { animation: popIn 0.6s 0.9s forwards ease-out; }
+
+/* Body/notochord (0.6s - 0.9s) */
+#solution-animation-container.is-visible .new-star.n6 { animation: popIn 0.5s 0.6s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n7 { animation: popIn 0.5s 0.68s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n8 { animation: popIn 0.5s 0.75s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n9 { animation: popIn 0.5s 0.82s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n10 { animation: popIn 0.5s 0.88s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n11 { animation: popIn 0.5s 0.95s forwards ease-out; }
+
+/* Tail spine (1.0s - 1.6s) - progresses toward tip */
+#solution-animation-container.is-visible .new-star.n12 { animation: popIn 0.5s 1.05s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n13 { animation: popIn 0.5s 1.15s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n14 { animation: popIn 0.5s 1.25s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n15 { animation: popIn 0.5s 1.35s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n16 { animation: popIn 0.5s 1.45s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n17 { animation: popIn 0.5s 1.55s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n18 { animation: popIn 0.5s 1.65s forwards ease-out; }
+
+/* Tail fin upper edge (1.1s - 1.5s) */
+#solution-animation-container.is-visible .new-star.n19 { animation: popIn 0.4s 1.1s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n20 { animation: popIn 0.4s 1.2s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n21 { animation: popIn 0.4s 1.3s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n22 { animation: popIn 0.4s 1.4s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n23 { animation: popIn 0.4s 1.5s forwards ease-out; }
+
+/* Tail fin lower edge (1.15s - 1.7s) */
+#solution-animation-container.is-visible .new-star.n24 { animation: popIn 0.4s 1.15s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n25 { animation: popIn 0.4s 1.25s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n26 { animation: popIn 0.4s 1.35s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n28 { animation: popIn 0.4s 1.45s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n29 { animation: popIn 0.4s 1.55s forwards ease-out; }
+#solution-animation-container.is-visible .new-star.n30 { animation: popIn 0.4s 1.65s forwards ease-out; }
+
+/* Phase 3: THE CONNECTING PHASE - Lines draw SLOWLY (4 seconds!) 
+   This is the "connecting isolated points into knowledge" moment */
+#solution-animation-container.is-visible .fish-lines .constellation-line {
+    animation: drawLine 4s 2.2s forwards cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Yolk internal lines draw slightly later */
+#solution-animation-container.is-visible .fish-lines .constellation-line.yolk-line {
+    animation: drawLine 3s 3s forwards cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Segment lines draw last */
+#solution-animation-container.is-visible .fish-lines .constellation-line.segment {
+    animation: drawLine 2.5s 4s forwards cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* ========================================
+   PHASE 4: PARALLELIZATION - ZOOM OUT & SCALE
+   The single larva shrinks and multiple appear
+   Timeline: 7s - 12s
+   ======================================== */
+
+/* Zoom out keyframe - primary larva shrinks and fades */
+@keyframes zoomOutFade {
+    0% { 
+        transform: scale(1) translate(0, 0);
+        opacity: 1;
+    }
+    100% { 
+        transform: scale(0) translate(0, 0);
+        opacity: 0;
+    }
+}
+
+/* Mini larvae pop in with stagger */
+@keyframes clonePopIn {
+    0% { 
+        opacity: 0; 
+        transform: scale(0);
+    }
+    60% { 
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+}
+
+/* Gentle wave animation for parallel larvae */
+@keyframes swimWave {
+    0%, 100% { transform: translateX(0) translateY(0); }
+    50% { transform: translateX(2px) translateY(-1px); }
+}
+
+/* Primary larva - starts visible, then zooms out */
+.primary-larva {
+    transform-origin: center center;
+}
+
+#solution-animation-container.is-visible .primary-larva {
+    animation: 
+        subtlePulse 4s 7s 1 ease-in-out,
+        zoomOutFade 1.5s 8s forwards ease-in-out;
+}
+
+/* Parallel larvae container - hidden initially */
+.parallel-larvae {
+    opacity: 0;
+}
+
+.parallel-larvae .clone-larva {
+    opacity: 0;
+    transform: scale(0);
+    transform-origin: center center;
+}
+
+/* Staggered appearance of parallel larvae - starts at 8.5s */
+#solution-animation-container.is-visible .parallel-larvae {
+    opacity: 1;
+}
+
+/* Row 1 - appears first */
+#solution-animation-container.is-visible .clone-larva.c1 { animation: clonePopIn 0.5s 8.5s forwards ease-out, swimWave 3s 10s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c2 { animation: clonePopIn 0.5s 8.6s forwards ease-out, swimWave 3.2s 10.2s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c3 { animation: clonePopIn 0.5s 8.7s forwards ease-out, swimWave 2.8s 10.1s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c4 { animation: clonePopIn 0.5s 8.8s forwards ease-out, swimWave 3.1s 10.3s infinite ease-in-out; }
+
+/* Row 2 */
+#solution-animation-container.is-visible .clone-larva.c5 { animation: clonePopIn 0.5s 8.7s forwards ease-out, swimWave 3.3s 10.4s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c6 { animation: clonePopIn 0.5s 8.8s forwards ease-out, swimWave 2.7s 10.2s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c7 { animation: clonePopIn 0.5s 8.9s forwards ease-out, swimWave 3s 10.1s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c8 { animation: clonePopIn 0.5s 9s forwards ease-out, swimWave 3.2s 10.5s infinite ease-in-out; }
+
+/* Row 3 */
+#solution-animation-container.is-visible .clone-larva.c9 { animation: clonePopIn 0.5s 8.9s forwards ease-out, swimWave 2.9s 10.2s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c10 { animation: clonePopIn 0.5s 9s forwards ease-out, swimWave 3.1s 10.4s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c11 { animation: clonePopIn 0.5s 9.1s forwards ease-out, swimWave 3.3s 10.1s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c12 { animation: clonePopIn 0.5s 9.2s forwards ease-out, swimWave 2.7s 10.5s infinite ease-in-out; }
+
+/* Row 4 - appears last */
+#solution-animation-container.is-visible .clone-larva.c13 { animation: clonePopIn 0.5s 9.1s forwards ease-out, swimWave 3.2s 10.3s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c14 { animation: clonePopIn 0.5s 9.2s forwards ease-out, swimWave 2.8s 10.1s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c15 { animation: clonePopIn 0.5s 9.3s forwards ease-out, swimWave 3.1s 10.5s infinite ease-in-out; }
+#solution-animation-container.is-visible .clone-larva.c16 { animation: clonePopIn 0.5s 9.4s forwards ease-out, swimWave 2.9s 10.2s infinite ease-in-out; }
+
+/* ========================================
+   PHASE 5: DATA GENERATION STREAMS
+   Particles flow from larvae to ZebrAI chip on RIGHT (560, 100)
+   Timeline: 10s - continuous
+   ======================================== */
+
+/* ZebrAI chip elements - hidden initially */
+.data-hub .chip-glow,
+.data-hub .chip-body,
+.data-hub .chip-pins-left,
+.data-hub .chip-pins-right,
+.data-hub .chip-pins-top,
+.data-hub .chip-pins-bottom,
+.data-hub .chip-circuits,
+.data-hub .chip-label,
+.data-hub .chip-sublabel,
+.data-hub .hub-label {
+    opacity: 0;
+}
+
+@keyframes chipAppear {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes chipPulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.05); opacity: 0.7; }
+}
+
+@keyframes chipGlowPulse {
+    0%, 100% { transform: scale(1); opacity: 0.2; }
+    50% { transform: scale(1.08); opacity: 0.1; }
+}
+
+@keyframes pinsFlicker {
+    0%, 100% { opacity: 0.9; }
+    25% { opacity: 0.6; }
+    50% { opacity: 1; }
+    75% { opacity: 0.7; }
+}
+
+@keyframes circuitFlow {
+    0% { stroke-dashoffset: 20; opacity: 0.3; }
+    50% { opacity: 0.7; }
+    100% { stroke-dashoffset: 0; opacity: 0.3; }
+}
+
+/* ZebrAI chip animations - transform origin is at center since chip is translated */
+#solution-animation-container.is-visible .data-hub .chip-glow {
+    animation: chipAppear 0.6s 10s forwards ease-out, chipGlowPulse 3s 10.6s infinite ease-in-out;
+    transform-origin: center;
+}
+
+#solution-animation-container.is-visible .data-hub .chip-body {
+    animation: chipAppear 0.5s 10.1s forwards ease-out;
+    transform-origin: center;
+}
+
+#solution-animation-container.is-visible .data-hub .chip-pins-left {
+    animation: chipAppear 0.4s 10.3s forwards ease-out, pinsFlicker 1.5s 10.7s infinite ease-in-out;
+    transform-origin: center;
+}
+
+#solution-animation-container.is-visible .data-hub .chip-pins-right {
+    animation: chipAppear 0.4s 10.4s forwards ease-out, pinsFlicker 1.8s 10.8s infinite ease-in-out;
+    transform-origin: center;
+}
+
+#solution-animation-container.is-visible .data-hub .chip-pins-top {
+    animation: chipAppear 0.4s 10.5s forwards ease-out, pinsFlicker 1.6s 10.9s infinite ease-in-out;
+    transform-origin: center;
+}
+
+#solution-animation-container.is-visible .data-hub .chip-pins-bottom {
+    animation: chipAppear 0.4s 10.6s forwards ease-out, pinsFlicker 2s 11s infinite ease-in-out;
+    transform-origin: center;
+}
+
+#solution-animation-container.is-visible .data-hub .chip-circuits {
+    animation: chipAppear 0.5s 10.7s forwards ease-out;
+    transform-origin: center;
+}
+
+#solution-animation-container.is-visible .data-hub .chip-circuits path {
+    stroke-dasharray: 20;
+    animation: circuitFlow 2s 11s infinite linear;
+}
+
+#solution-animation-container.is-visible .data-hub .chip-label,
+#solution-animation-container.is-visible .data-hub .hub-label {
+    animation: chipAppear 0.4s 10.8s forwards ease-out;
+    transform-origin: center;
+}
+
+#solution-animation-container.is-visible .data-hub .chip-sublabel {
+    animation: chipAppear 0.4s 11s forwards ease-out;
+    transform-origin: center;
+}
+
+/* Data dots - hidden initially */
+.data-streams .data-dot {
+    opacity: 0;
+}
+
+/* Stream to right hub (560, 100) - all particles move RIGHT and toward vertical center */
+/* Row 1 particles (y ~22) → hub (560, 100): move right and down */
+@keyframes streamR1-1 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(465px, 78px); } }
+@keyframes streamR1-2 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(355px, 81px); } }
+@keyframes streamR1-3 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(245px, 76px); } }
+@keyframes streamR1-4 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(135px, 79px); } }
+
+/* Row 2 particles (y ~70) → hub (560, 100): move right and slightly down */
+@keyframes streamR2-1 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(420px, 30px); } }
+@keyframes streamR2-2 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(310px, 27px); } }
+@keyframes streamR2-3 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(200px, 32px); } }
+@keyframes streamR2-4 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(90px, 29px); } }
+
+/* Row 3 particles (y ~118) → hub (560, 100): move right and slightly up */
+@keyframes streamR3-1 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(465px, -18px); } }
+@keyframes streamR3-2 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(355px, -21px); } }
+@keyframes streamR3-3 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(245px, -16px); } }
+@keyframes streamR3-4 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(135px, -19px); } }
+
+/* Row 4 particles (y ~168) → hub (560, 100): move right and up */
+@keyframes streamR4-1 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(420px, -68px); } }
+@keyframes streamR4-2 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(310px, -71px); } }
+@keyframes streamR4-3 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(245px, -66px); } }
+@keyframes streamR4-4 { 0% { opacity: 0; transform: translate(0, 0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(90px, -69px); } }
+
+/* Apply streaming animations with staggered timing */
+#solution-animation-container.is-visible .data-dot.d1 { animation: streamR1-1 2s 10.5s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d2 { animation: streamR1-2 2.2s 10.8s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d3 { animation: streamR1-3 1.9s 11s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d4 { animation: streamR1-4 2.1s 10.6s infinite ease-in-out; }
+
+#solution-animation-container.is-visible .data-dot.d5 { animation: streamR2-1 2s 10.7s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d6 { animation: streamR2-2 1.8s 11.1s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d7 { animation: streamR2-3 2.3s 10.4s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d8 { animation: streamR2-4 1.9s 10.9s infinite ease-in-out; }
+
+#solution-animation-container.is-visible .data-dot.d9 { animation: streamR3-1 2.1s 10.6s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d10 { animation: streamR3-2 1.9s 10.9s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d11 { animation: streamR3-3 2s 10.5s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d12 { animation: streamR3-4 2.2s 10.8s infinite ease-in-out; }
+
+#solution-animation-container.is-visible .data-dot.d13 { animation: streamR4-1 2.3s 10.8s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d14 { animation: streamR4-2 1.9s 11s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d15 { animation: streamR4-3 2s 10.6s infinite ease-in-out; }
+#solution-animation-container.is-visible .data-dot.d16 { animation: streamR4-4 2.2s 10.9s infinite ease-in-out; }
+
+/* ========================================
+   MOBILE RESPONSIVE: Solution Animation
+   ======================================== */
+
+/* Mobile-specific pulsing animation for the larva */
+@keyframes mobileStarPulse {
+    0%, 100% { opacity: 1; filter: url(#glowPrimary); }
+    50% { opacity: 0.7; filter: url(#glowSecondary); }
+}
+
+@keyframes mobileLinePulse {
+    0%, 100% { opacity: 1; stroke-width: 1.5px; }
+    50% { opacity: 0.6; stroke-width: 1px; }
+}
+
+@keyframes mobileYolkPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+@keyframes mobileEyePulse {
+    0%, 100% { opacity: 1; }
+    30% { opacity: 0.85; }
+    60% { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    /* Increase height and ensure no overflow issues */
+    #solution-animation-container > div:first-child {
+        height: 280px;
+        padding: 1rem 0;
+        overflow: visible;
+    }
+    
+    /* Don't scale the SVG - it causes clipping */
+    #constellation-svg {
+        max-width: 100%;
+        height: auto;
+        overflow: visible;
+    }
+    
+    /* On mobile, hide the parallelization phase entirely and keep single larva */
+    .parallel-larvae {
+        display: none;
+    }
+    
+    /* Hide data streams on mobile */
+    .data-streams {
+        display: none;
+    }
+    
+    /* Keep the primary larva visible and prevent fade-out on mobile */
+    .primary-larva {
+        opacity: 1 !important;
+    }
+    
+    #solution-animation-container.is-visible .primary-larva {
+        animation: none !important;
+    }
+    
+    /* After lines are drawn, add gentle pulsing animation */
+    #solution-animation-container.is-visible .zebrafish-constellation .constellation-line {
+        animation: drawLine 4s ease-out forwards, mobileLinePulse 3s 8s ease-in-out infinite;
+    }
+    
+    #solution-animation-container.is-visible .zebrafish-constellation .new-star {
+        animation: starAppear 0.5s ease-out forwards, mobileStarPulse 2.5s 8s ease-in-out infinite;
+    }
+    
+    #solution-animation-container.is-visible .zebrafish-constellation .new-star.yolk {
+        animation: starAppear 0.5s ease-out forwards, mobileYolkPulse 3s 8s ease-in-out infinite;
+        transform-origin: center;
+    }
+    
+    #solution-animation-container.is-visible .zebrafish-constellation .new-star.eye,
+    #solution-animation-container.is-visible .zebrafish-constellation .new-star.eye-inner {
+        animation: starAppear 0.5s ease-out forwards, mobileEyePulse 2s 8s ease-in-out infinite;
+    }
+}
 
 /* Carousel Styles */
 .carousel-track {
