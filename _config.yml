@@ -26,6 +26,31 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
 
+# Files and folders kept out of the published site.
+# NOTE: defining `exclude` REPLACES Jekyll's built-in list, so the
+# defaults are repeated here. docs/ holds internal working documents
+# (e.g. the narrative audit, which cites confidential material) — those
+# files have no front matter, so without this they are copied verbatim
+# into _site and served from zebramed.bio.
+exclude:
+  - docs/
+  - README.md
+  - package.json
+  - package-lock.json
+  - tailwind.config.js
+  - assets/css/tailwind.src.css
+  # Jekyll defaults, restored:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
 # Sass settings
 sass:
 #  sass_dir: _sass
