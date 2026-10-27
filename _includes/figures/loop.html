@@ -1,5 +1,6 @@
 {% comment %}
-Figure 1: the lab-in-the-loop cycle. Five stations on a ring. A pulse travels
+Figure 1: the lab-in-the-loop cycle. Five stations on a ring, each a simple
+drawing with its name and no smaller text. A pulse travels
 the ring and each station fills as it arrives; content accumulates and never
 resets. Under prefers-reduced-motion the ring renders complete and the
 buttons step it by hand. Every value drawn here is fictional.
@@ -26,22 +27,22 @@ buttons step it by hand. Every value drawn here is fictional.
         </g>
 
         <g class="ctx" aria-hidden="true">
-            <circle class="hair-2 c1" cx="240" cy="250" r="34"/>
-            <circle class="hair-2 c2" cx="240" cy="250" r="41"/>
-            <circle class="hair-2 c3" cx="240" cy="250" r="48"/>
+            <circle class="hair-2 c1" cx="240" cy="250" r="46"/>
+            <circle class="hair-2 c2" cx="240" cy="250" r="53"/>
+            <circle class="hair-2 c3" cx="240" cy="250" r="60"/>
         </g>
-        <text class="turn" x="240" y="247" text-anchor="middle">turn <tspan class="turn-n">01</tspan></text>
-        <text class="gloss" x="240" y="262" text-anchor="middle">context accumulates</text>
+        <text class="turn" x="240" y="248" text-anchor="middle">turn <tspan class="turn-n">01</tspan></text>
+        <text class="gloss" x="240" y="266" text-anchor="middle">context</text>
+        <text class="gloss" x="240" y="280" text-anchor="middle">accumulates</text>
 
         <!-- Design (top) -->
         <g class="station" data-i="0" transform="translate(180,56)">
-            <g class="draw-area" transform="translate(10,2)" aria-hidden="true">
-                <text class="num" x="0" y="12">1</text><line class="live a" style="--d:0" x1="12" y1="9" x2="62" y2="9"/><text class="num a" style="--d:3" x="100" y="12" text-anchor="end">dose</text>
-                <text class="num" x="0" y="28">2</text><line class="hair-2 a" style="--d:1" x1="12" y1="25" x2="50" y2="25"/><text class="num a" style="--d:3" x="100" y="28" text-anchor="end">time</text>
-                <text class="num" x="0" y="44">3</text><line class="hair-2 a" style="--d:2" x1="12" y1="41" x2="36" y2="41"/><text class="num a" style="--d:3" x="100" y="44" text-anchor="end">edit</text>
+            <g aria-hidden="true">
+                <line class="live a bar" style="--d:0" x1="30" y1="12" x2="90" y2="12"/>
+                <line class="hair-2 a bar" style="--d:1" x1="30" y1="28" x2="78" y2="28"/>
+                <line class="hair-2 a bar" style="--d:2" x1="30" y1="44" x2="64" y2="44"/>
             </g>
-            <text class="name" x="60" y="68" text-anchor="middle">Design</text>
-            <text class="gloss" x="60" y="80" text-anchor="middle">rank the next experiments</text>
+            <text class="name" x="60" y="76" text-anchor="middle">Design</text>
         </g>
 
         <!-- Run (right) -->
@@ -69,8 +70,7 @@ buttons step it by hand. Every value drawn here is fictional.
                     <circle class="hair-2" cx="75" cy="28" r="3.6"/><circle class="live-f a" style="--d:7" cx="75" cy="28" r="2.2"/>
                 </g>
             </g>
-            <text class="name" x="60" y="68" text-anchor="middle">Run</text>
-            <text class="gloss" x="60" y="80" text-anchor="middle">dose and load the chip</text>
+            <text class="name" x="60" y="76" text-anchor="middle">Run</text>
         </g>
 
         <!-- Measure (bottom right) -->
@@ -86,8 +86,7 @@ buttons step it by hand. Every value drawn here is fictional.
                 </g>
                 <polyline class="res draw" style="--len:120;--d:4" points="10,48 22,46 30,52 40,42 48,50 58,47 68,52 76,41 86,49 98,46 112,48"/>
             </g>
-            <text class="name" x="60" y="68" text-anchor="middle">Measure</text>
-            <text class="gloss" x="60" y="80" text-anchor="middle">image, track, sequence</text>
+            <text class="name" x="60" y="76" text-anchor="middle">Measure</text>
         </g>
 
         <!-- Structure (bottom left) -->
@@ -104,10 +103,8 @@ buttons step it by hand. Every value drawn here is fictional.
                 <circle class="hair-2 a" style="--d:2" cx="84" cy="24" r="3.8"/>
                 <circle class="hair-2 a" style="--d:2" cx="34" cy="48" r="3.8"/>
                 <circle class="live-f a" style="--d:3" cx="68" cy="50" r="3.8"/>
-                <text class="num a" style="--d:4" x="56" y="8">.7</text>
             </g>
-            <text class="name" x="60" y="68" text-anchor="middle">Structure</text>
-            <text class="gloss" x="60" y="80" text-anchor="middle">organ states over time</text>
+            <text class="name" x="60" y="76" text-anchor="middle">Structure</text>
         </g>
 
         <!-- Reason (left) -->
@@ -116,16 +113,13 @@ buttons step it by hand. Every value drawn here is fictional.
                 <rect class="live-f a" style="--d:0" x="0" y="4" width="4.5" height="4.5"/><line class="hair-2 a" style="--d:0" x1="10" y1="6" x2="56" y2="6"/><line class="res a" style="--d:1" x1="62" y1="6" x2="98" y2="6"/>
                 <rect class="live-f a" style="--d:1" x="0" y="16" width="4.5" height="4.5"/><line class="hair-2 a" style="--d:1" x1="10" y1="18" x2="46" y2="18"/><line class="res a" style="--d:2" x1="52" y1="18" x2="98" y2="18"/>
                 <rect class="live-f a" style="--d:2" x="0" y="28" width="4.5" height="4.5"/><line class="hair-2 a" style="--d:2" x1="10" y1="30" x2="66" y2="30"/><line class="res a" style="--d:3" x1="72" y1="30" x2="98" y2="30"/>
-                <text class="num" x="0" y="46">confidence</text>
                 <rect class="hair" x="0" y="49" width="98" height="4.5" rx="2.2"/>
                 <rect class="live-f a" style="--d:3" x="0" y="49" width="68" height="4.5" rx="2.2"/>
                 <line class="flag a" style="--d:4" x1="84" y1="45" x2="84" y2="58"/>
             </g>
-            <text class="name" x="60" y="68" text-anchor="middle">Reason</text>
-            <text class="gloss" x="60" y="80" text-anchor="middle">trace, confidence, decision</text>
+            <text class="name" x="60" y="76" text-anchor="middle">Reason</text>
         </g>
 
-        <text class="footnote" x="470" y="474" text-anchor="end">Illustrative</text>
     </svg>
 
     <figcaption class="fig-controls" aria-label="Figure controls">
@@ -135,5 +129,6 @@ buttons step it by hand. Every value drawn here is fictional.
         <button type="button" data-hold="2" aria-pressed="false">Measure</button>
         <button type="button" data-hold="3" aria-pressed="false">Structure</button>
         <button type="button" data-hold="4" aria-pressed="false">Reason</button>
+        <span class="fig-note">Illustrative</span>
     </figcaption>
 </figure>

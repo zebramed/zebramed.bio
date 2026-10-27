@@ -5,50 +5,47 @@
 {% assign parts = parts | push: "public programmes" %}
 {% capture lede %}{% for x in parts %}{% if forloop.last and forloop.length > 1 %} and {% elsif forloop.index > 1 %}, {% endif %}{{ x }}{% endfor %}{% endcapture %}
 {% assign shown = 0 %}{% for m in tr.measures %}{% unless prod and m.pending %}{% assign shown = shown | plus: 1 %}{% endunless %}{% endfor %}
-<section id="traction" class="section">
-    <div class="max-w-3xl">
-        <h2 class="h2">Traction</h2>
-        <p class="lede mt-6">{{ lede | slice: 0 | upcase }}{{ lede | slice: 1, 500 }}.</p>
-    </div>
+<section id="traction" class="section band">
+  <div class="wrap">
+    <header class="section-head">
+        <h2 class="title">Traction</h2>
+        <p class="lede">{{ lede | slice: 0 | upcase }}{{ lede | slice: 1, 500 }}.</p>
+    </header>
 
-    <div class="mt-14 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 features">
+    <div class="duo features">
         {% for f in tr.features %}
         {% if prod and f.pending %}{% continue %}{% endif %}
         <article class="feature">
-            <p class="kicker">{{ f.kicker }}</p>
-            <h3 class="h4 mt-2">{{ f.title }}</h3>
-            <p class="mt-3 text-sm">{{ f.text }}</p>
+            <p class="label">{{ f.kicker }}</p>
+            <h3 class="h3">{{ f.title }}</h3>
+            <p>{{ f.text }}</p>
             {% if f.pending %}<p class="mt-2 pending-inline">Pending: {{ f.pending }}.</p>{% endif %}
         </article>
         {% endfor %}
     </div>
 
     {% if shown > 0 %}
-    <div class="impact-row mt-16 is-quiet" style="--cols: {{ shown }}">
+    <div class="numerals is-quiet" style="--cols: {{ shown }}">
         {% for m in tr.measures %}
         {% if prod and m.pending %}{% continue %}{% endif %}
-        <div class="measure">
-            <p class="measure-value{% if m.value contains '[' or m.pending %} is-placeholder{% endif %}">{{ m.value }}</p>
-            <p class="measure-label mt-2">{{ m.label }}</p>
-            {% if m.pending %}<p class="measure-label mt-1 pending-inline">Pending: {{ m.pending }}.</p>{% endif %}
+        <div class="numeral">
+            <p class="numeral-value{% if m.value contains '[' or m.pending %} is-placeholder{% endif %}">{{ m.value }}</p>
+            <p class="numeral-label">{{ m.label }}</p>
+            {% if m.pending %}<p class="numeral-label pending-inline">Pending: {{ m.pending }}.</p>{% endif %}
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <div class="mt-16">
-        <p class="group-name">Programmes, prizes and ecosystem</p>
-        <div class="relative w-full overflow-hidden carousel-container mt-5">
-            <div class="absolute inset-y-0 left-0 w-20 fade-left z-10 pointer-events-none"></div>
-            <div class="absolute inset-y-0 right-0 w-20 fade-right z-10 pointer-events-none"></div>
-            <div class="carousel-track">
-                <div class="carousel-slide">
-                    {% for p in site.data.partners %}
-                    {% if p.logo %}<span class="partner-tile"><img src="{{ '/assets/images/' | append: p.logo | relative_url }}" alt="{{ p.name }}" title="{{ p.name }}" loading="lazy" class="partner-logo"></span>
-                    {% else %}<span class="partner-tile is-text">{{ p.name }}</span>{% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
+    {% if site.data.highlights and site.data.highlights.size > 0 %}
+    <div class="news">
+        <p class="label">News</p>
+        <ul class="news-list">
+            {% for item in site.data.highlights %}
+            <li><span class="news-date">{{ item.date }}</span><span class="news-text">{{ item.text }}</span></li>
+            {% endfor %}
+        </ul>
     </div>
+    {% endif %}
+  </div>
 </section>

@@ -1,25 +1,22 @@
-<section id="team" class="section">
-    <div class="max-w-3xl">
-        <h2 class="h2">Team</h2>
-        <p class="lede mt-6">
+<section id="team" class="section band band-deep">
+  <div class="wrap">
+    <header class="section-head">
+        <h2 class="title">Team</h2>
+        <p class="lede">
             Three founders across translational pharmacology, microfluidic hardware automation and
             production multi-agent AI.
         </p>
-    </div>
+    </header>
 
-    <div class="mt-14 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-10 team">
+    <div class="trio team">
         {% for p in site.data.team %}
         <article class="person">
-            <img src="{{ '/assets/images/' | append: p.photo | relative_url }}" alt="{{ p.name }}" loading="lazy" width="96" height="96" class="person-photo">
-            <h3 class="h4 mt-5">{{ p.name }}{% if p.title %}, {{ p.title }}{% endif %}</h3>
-            <p class="role mt-1">{{ p.role }}</p>
-            <p class="mt-4 text-sm">{{ p.bio }}</p>
-            {% if p.affiliations %}
-            <ul class="chips mt-4" aria-label="Affiliations">
-                {% for a in p.affiliations %}<li>{{ a }}</li>{% endfor %}
-            </ul>
-            {% endif %}
-            <p class="mt-4 text-sm links">
+            <img src="{{ '/assets/images/' | append: p.photo | relative_url }}" alt="{{ p.name }}" loading="lazy" width="112" height="112" class="person-photo">
+            <h3 class="person-name">{{ p.name }}{% if p.title %}, {{ p.title }}{% endif %}</h3>
+            <p class="label">{{ p.role }}</p>
+            <p class="person-bio">{{ p.bio }}</p>
+            {% if p.affiliations %}<p class="person-aff">{{ p.affiliations | join: " · " }}</p>{% endif %}
+            <p class="links">
                 {% if p.linkedin %}<a href="{{ p.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% endif %}
                 {% if p.page %}<a href="{{ p.page | relative_url }}">Profile</a>{% endif %}
             </p>
@@ -30,19 +27,19 @@
     {% assign prod = false %}{% if jekyll.environment == "production" %}{% assign prod = true %}{% endif %}
     {% assign board_shown = 0 %}
     {% for g in site.data.board.groups %}{% for m in g.members %}{% unless prod and m.pending %}{% assign board_shown = board_shown | plus: 1 %}{% endunless %}{% endfor %}{% endfor %}
-    <div class="mt-20 board">
+    <div class="board">
         {% if board_shown > 0 %}
-        <h3 class="h3">Board</h3>
+        <h3 class="title title-sm">Board</h3>
         {% for g in site.data.board.groups %}
         {% assign g_shown = 0 %}{% for m in g.members %}{% unless prod and m.pending %}{% assign g_shown = g_shown | plus: 1 %}{% endunless %}{% endfor %}
         {% if g_shown == 0 %}{% continue %}{% endif %}
         <div class="mt-8">
-            <p class="group-name">{{ g.name }}</p>
-            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10">
+            <p class="label">{{ g.name }}</p>
+            <div class="trio trio-tight mt-5">
                 {% for m in g.members %}
                 {% if prod and m.pending %}{% continue %}{% endif %}
                 <article class="member">
-                    <h4 class="h5">{% if m.title %}{{ m.title }} {% endif %}{{ m.name }}</h4>
+                    <h4 class="h4">{% if m.title %}{{ m.title }} {% endif %}{{ m.name }}</h4>
                     <p class="mt-2 text-sm">{{ m.line }}</p>
                     {% if m.linkedin != "" %}<p class="mt-2 text-sm links"><a href="{{ m.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a></p>{% endif %}
                     {% if m.pending %}<p class="mt-2 pending-inline">Pending: {{ m.pending }}.</p>{% endif %}
@@ -52,6 +49,7 @@
         </div>
         {% endfor %}
         {% endif %}
-        <p class="{% if board_shown > 0 %}mt-10 {% endif %}text-sm muted max-w-2xl">{{ site.data.board.mentorship }}</p>
+        <p class="mentors{% if board_shown == 0 %} is-alone{% endif %}">{{ site.data.board.mentorship }}</p>
     </div>
+  </div>
 </section>

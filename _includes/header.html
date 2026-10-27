@@ -1,23 +1,21 @@
-<header class="site-header sticky top-0 z-50 border-b border-transparent transition-all duration-300" id="site-header" role="banner">
-    <div class="flex justify-between items-center py-4">
-        <div class="flex items-center gap-3">
+<header class="site-header" id="site-header" role="banner">
+    <div class="wrap header-bar">
+        <a href="#" class="brand" aria-label="ZebraMed, back to top">
             <span class="logo-mask" aria-hidden="true"></span>
-            <a href="#" class="brand-title text-2xl font-bold tracking-tighter" aria-label="ZebraMed, back to top">
-                <span class="brand-med">Zebra</span><span class="brand-zebra gradient-text">Med</span>
-            </a>
-        </div>
+            <span class="brand-title"><span class="text-text-light">Zebra</span><span class="gradient-text">Med</span></span>
+        </a>
 
-        <nav class="hidden md:flex items-center gap-6" aria-label="Main navigation">
-            <a href="#problem" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Problem</a>
-            <a href="#platform" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Platform</a>
-            <a href="#team" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Team</a>
-            <a href="#traction" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Traction</a>
+        <nav class="nav hidden md:flex" aria-label="Main navigation">
+            <a href="#problem" class="nav-link">Problem</a>
+            <a href="#platform" class="nav-link">Platform</a>
+            <a href="#team" class="nav-link">Team</a>
+            <a href="#traction" class="nav-link">Traction</a>
         </nav>
 
-        <div class="flex items-center gap-3">
-            <a href="mailto:{{ site.email }}" class="btn btn-outline text-sm" aria-label="Email ZebraMed">Contact us</a>
+        <div class="header-actions">
+            <a href="mailto:{{ site.email }}" class="btn btn-solid btn-sm" aria-label="Email ZebraMed">Contact us</a>
 
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-text-medium hover:text-accent-primary transition-colors" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-menu">
+            <button id="mobile-menu-btn" class="menu-btn md:hidden" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-menu">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path class="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     <path class="close-icon hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -26,12 +24,12 @@
         </div>
     </div>
 
-    <nav id="mobile-menu" class="md:hidden hidden pb-4" aria-label="Mobile navigation">
-        <div class="flex flex-col gap-3">
-            <a href="#problem" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Problem</a>
-            <a href="#platform" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Platform</a>
-            <a href="#team" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Team</a>
-            <a href="#traction" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Traction</a>
+    <nav id="mobile-menu" class="wrap md:hidden hidden" aria-label="Mobile navigation">
+        <div class="mobile-nav">
+            <a href="#problem" class="nav-link">Problem</a>
+            <a href="#platform" class="nav-link">Platform</a>
+            <a href="#team" class="nav-link">Team</a>
+            <a href="#traction" class="nav-link">Traction</a>
         </div>
     </nav>
 </header>

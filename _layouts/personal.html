@@ -8,7 +8,7 @@
     <link rel="preload" href="{{ '/assets/css/tailwind.css' | relative_url }}" as="style">
     <link rel="preload" href="{{ '/assets/css/main.css' | relative_url }}" as="style">
     <link rel="preload" href="{{ '/assets/fonts/inter/Inter-Regular.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="{{ '/assets/fonts/inter/Inter-Bold.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ '/assets/fonts/barlow/Barlow-Light.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
 
     <link rel="stylesheet" href="{{ '/assets/css/tailwind.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
@@ -30,9 +30,9 @@
 
         <div class="card-bg p-8 md:p-12 text-center">
             <img src="{{ '/assets/images/' | append: page.photo | relative_url }}" alt="{{ page.person_name }}" loading="lazy" class="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto mb-6 border-2 border-accent-primary-50">
-            <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-light">{{ page.person_name }}</h1>
+            <h1 class="title">{{ page.person_name }}</h1>
             <p class="gradient-text font-medium text-lg mt-2">{{ page.role }}</p>
-            <p class="mt-6 text-text-medium leading-relaxed">{{ page.bio }}</p>
+            <p class="mt-6 mx-auto text-text-medium leading-relaxed">{{ page.bio }}</p>
 
             <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 {% if page.linkedin %}
@@ -59,7 +59,7 @@
         </div>
 
         <div class="mt-8 text-center text-xs text-text-medium opacity-50">
-            <p>&copy; {{ 'now' | date: "%Y" }} {{ site.title }}</p>
+            <p class="mx-auto">&copy; {{ 'now' | date: "%Y" }} {{ site.title }}</p>
         </div>
 
     </div>

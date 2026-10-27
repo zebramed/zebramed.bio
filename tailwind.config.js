@@ -14,11 +14,11 @@ module.exports = {
       colors: {
         'bg-dark': '#171F56',
         'text-light': '#ffffff',
-        'text-bright': '#e6f1ff',
-        'text-medium': '#ccd6f6',
+        'text-bright': '#eef2fb',
+        'text-medium': '#c4cbe0',
         'flag': '#f5b85c',
-        'accent-primary': '#64ffda',
-        'accent-secondary': '#a8ff78',
+        'accent-primary': '#32aafb',
+        'accent-secondary': '#80d4ff',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

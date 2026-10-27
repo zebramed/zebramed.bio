@@ -110,47 +110,6 @@
     if (reduced()) draw();
   });
 
-  /* ---------- Figure 4: connectors between the three panels ---------- */
-  document.querySelectorAll('[data-figure="abstract"]').forEach(root => {
-    const overlay = root.querySelector('.flows');
-    const panels = [...root.querySelectorAll('.panel')];
-    if (!overlay || panels.length < 3) return;
-    const ns = 'http://www.w3.org/2000/svg';
-    const mk = (cls) => { const p = document.createElementNS(ns, 'path'); p.setAttribute('class', cls); overlay.appendChild(p); return p; };
-    const fwd1 = mk('flow'), fwd2 = mk('flow'), ret = mk('flow flow-return');
-
-    const layout = () => {
-      const R = root.getBoundingClientRect();
-      overlay.setAttribute('viewBox', `0 0 ${R.width} ${R.height}`);
-      overlay.setAttribute('width', R.width); overlay.setAttribute('height', R.height);
-      const b = panels.map(p => { const r = p.getBoundingClientRect(); return { x: r.left - R.left, y: r.top - R.top, w: r.width, h: r.height }; });
-      const stacked = b[1].y > b[0].y + b[0].h - 1;
-      if (!stacked) {
-        const y01 = Math.min(b[0].y + b[0].h, b[1].y + b[1].h) * 0.5 + Math.max(b[0].y, b[1].y) * 0.5;
-        fwd1.setAttribute('d', `M${b[0].x + b[0].w} ${y01} H${b[1].x}`);
-        fwd2.setAttribute('d', `M${b[1].x + b[1].w} ${y01} H${b[2].x}`);
-        const yb = Math.max(...b.map(p => p.y + p.h)) + 22;
-        const xs = b[2].x + b[2].w * 0.5, xe = b[0].x + b[0].w * 0.5;
-        ret.setAttribute('d', `M${xs} ${b[2].y + b[2].h} V${yb} H${xe} V${b[0].y + b[0].h + 6}`);
-      } else {
-        // stacked: the return runs in the gutter the CSS leaves left of the panels
-        const x = b[0].x - 12;
-        fwd1.setAttribute('d', `M${b[0].x + b[0].w * 0.5} ${b[0].y + b[0].h} V${b[1].y}`);
-        fwd2.setAttribute('d', `M${b[1].x + b[1].w * 0.5} ${b[1].y + b[1].h} V${b[2].y}`);
-        ret.setAttribute('d', `M${b[2].x} ${b[2].y + b[2].h * 0.5} H${x} V${b[0].y + b[0].h * 0.5} H${b[0].x}`);
-      }
-    };
-    layout();
-    new ResizeObserver(layout).observe(root);
-    figures.push({
-      el: root,
-      enter() { if (!reduced()) root.classList.add('is-playing'); },
-      leave() { root.classList.remove('is-playing'); },
-      onMotionChange() { if (reduced()) root.classList.remove('is-playing'); }
-    });
-    io.observe(root);
-  });
-
   /* ---------- count-up for numeric measures only ---------- */
   document.querySelectorAll('[data-count]').forEach(el => {
     const raw = el.dataset.count;

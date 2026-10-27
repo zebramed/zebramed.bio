@@ -1,0 +1,51 @@
+{% comment %}
+Platform figure 2: the interactome. Seven zebrafish states in a graph (organ
+states, a behaviour, two transcripts), four of them carried across to human
+terms on the right. Labels sit above mapped nodes and left of the others, so
+no edge runs through text. Fictional.
+{% endcomment %}
+<svg class="plate-svg ix" viewBox="0 0 420 310" role="img"
+     aria-label="The interactome, illustrated. A graph of zebrafish organ states, a behaviour and gene transcripts. Pericardium, liver and startle map to human terms; swim bladder has no human match. Fictional.">
+    <text class="f-head" x="14" y="22">zebrafish</text>
+    <text class="f-head" x="300" y="22">human</text>
+
+    <!-- edges -->
+    <line class="edge" x1="110" y1="110" x2="232" y2="72"/>
+    <line class="edge" x1="90" y1="188" x2="110" y2="110"/>
+    <line class="edge" x1="90" y1="188" x2="220" y2="150"/>
+    <line class="edge" x1="90" y1="188" x2="238" y2="224"/>
+    <line class="edge" x1="130" y1="258" x2="220" y2="150"/>
+    <line class="edge" x1="130" y1="258" x2="238" y2="224"/>
+    <line class="edge" x1="130" y1="258" x2="214" y2="286"/>
+    <line class="edge edge-live" x1="110" y1="110" x2="220" y2="150"/>
+
+    <!-- carried across to human terms -->
+    <line class="carry" x1="244" y1="72" x2="290" y2="72"/>
+    <line class="carry" x1="234" y1="150" x2="290" y2="150"/>
+    <line class="carry" x1="249" y1="224" x2="290" y2="224"/>
+    <line class="carry" x1="225" y1="286" x2="290" y2="286"/>
+
+    <!-- nodes -->
+    <circle class="node n-morph" cx="232" cy="72" r="9"/>
+    <circle class="node n-morph" cx="220" cy="150" r="12"/>
+    <circle class="node n-behav" cx="238" cy="224" r="8"/>
+    <circle class="node n-morph" cx="214" cy="286" r="8"/>
+    <circle class="node n-morph" cx="110" cy="110" r="8"/>
+    <circle class="node n-tx" cx="90" cy="188" r="8"/>
+    <circle class="node n-tx" cx="130" cy="258" r="7"/>
+
+    <!-- zebrafish labels -->
+    <text class="f-label" x="232" y="52" text-anchor="middle">pericardium</text>
+    <text class="f-label" x="220" y="126" text-anchor="middle">liver</text>
+    <text class="f-label" x="238" y="204" text-anchor="middle">startle</text>
+    <text class="f-label" x="214" y="266" text-anchor="middle">swim bladder</text>
+    <text class="f-label" x="94" y="115" text-anchor="end">yolk</text>
+    <text class="f-label" x="74" y="193" text-anchor="end">cyp3a</text>
+    <text class="f-label" x="114" y="263" text-anchor="end">hsp70</text>
+
+    <!-- human terms -->
+    <circle class="res-f" cx="300" cy="72" r="4"/><text class="f-label f-strong" x="312" y="77">pericardium</text>
+    <circle class="res-f" cx="300" cy="150" r="4"/><text class="f-label f-strong" x="312" y="155">liver</text>
+    <circle class="res-f" cx="300" cy="224" r="4"/><text class="f-label f-strong" x="312" y="229">startle reflex</text>
+    <circle class="flag" cx="300" cy="286" r="4"/><text class="f-label" x="312" y="291">no match</text>
+</svg>

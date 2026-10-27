@@ -1,10 +1,11 @@
-<footer class="site-footer border-t pt-12 pb-8" role="contentinfo">
+<footer class="site-footer" role="contentinfo">
+  <div class="wrap">
     <div class="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
         
         <!-- Brand -->
         <div class="flex items-center gap-2">
             <span class="logo-mask w-8 h-8" aria-hidden="true"></span>
-            <span class="text-lg font-bold tracking-tighter">
+            <span class="brand-title brand-title-sm">
                 <span class="text-text-light">Zebra</span><span class="gradient-text">Med</span>
             </span>
         </div>
@@ -31,8 +32,9 @@
     </div>
 
     <!-- Bottom Bar -->
-    <div class="footer-bar border-t pt-6 text-center text-sm text-text-medium">
+    <div class="footer-bar">
         <p>&copy; {{ 'now' | date: "%Y" }} {{ site.title }}. All rights reserved.</p>
-        <p class="mt-2 text-xs opacity-70">RCS Évry 988 494 795 · VAT FR09988494795</p>
+        <p class="mt-2 text-xs">RCS Évry 988 494 795 · VAT FR09988494795</p>
     </div>
+  </div>
 </footer>

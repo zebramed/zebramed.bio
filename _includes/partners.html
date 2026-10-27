@@ -1,0 +1,22 @@
+{% comment %}
+The ecosystem strip, directly under the opening: programmes, prizes and
+partners from _data/partners.yml. Logos are shown as their owners supply them,
+on light tiles; items without a logo file render as text.
+{% endcomment %}
+<section class="band band-deep partners-band" aria-label="Programmes, prizes and ecosystem">
+    <div class="wrap">
+        <p class="label text-center">Programmes, prizes and ecosystem</p>
+        <div class="relative w-full overflow-hidden carousel-container mt-6">
+            <div class="absolute inset-y-0 left-0 w-16 fade-left z-10 pointer-events-none"></div>
+            <div class="absolute inset-y-0 right-0 w-16 fade-right z-10 pointer-events-none"></div>
+            <div class="carousel-track">
+                <div class="carousel-slide">
+                    {% for p in site.data.partners %}
+                    {% if p.logo %}<span class="partner-tile"><img src="{{ '/assets/images/' | append: p.logo | relative_url }}" alt="{{ p.name }}" title="{{ p.name }}" loading="lazy" class="partner-logo"></span>
+                    {% else %}<span class="partner-tile is-text">{{ p.name }}</span>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

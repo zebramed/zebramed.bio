@@ -1,53 +1,74 @@
-<section id="platform" class="section">
-    <div class="max-w-3xl">
-        <h2 class="h2">The platform</h2>
-        <p class="lede mt-6">
+<section id="platform" class="section band">
+  <div class="wrap">
+    <header class="section-head">
+        <h2 class="title">The platform</h2>
+        <p class="lede">
             A biofoundry produces whole-organism data. The interactome structures that data and maps
             it onto human biology, and XenoEx reasons over the result to decide what to run next.
         </p>
+    </header>
+
+    <div class="rows">
+        <article class="row">
+            <figure class="plate">
+                {% include figures/biofoundry.html %}
+            </figure>
+            <div class="row-text">
+                <p class="label">Run</p>
+                <h3 class="row-title">The automated biofoundry</h3>
+                <p>
+                    Transparent zebrafish larvae share 82% of human disease-associated genes and carry a
+                    working liver, heart, nervous system and blood-brain barrier. ZebraChip microfluidics
+                    load each larva and hold it in a fixed lateral position; FishEye computer vision reads
+                    morphology and behaviour. We built the pipeline for the New Approach Methodology
+                    framework of the FDA Modernization Act 2.0.
+                </p>
+            </div>
+        </article>
+
+        <article class="row is-flipped">
+            <figure class="plate">
+                {% include figures/interactome.html %}
+                <figcaption class="plate-note">Organ states in blue, behaviour in cyan, transcripts in grey.</figcaption>
+            </figure>
+            <div class="row-text">
+                <p class="label">Structure</p>
+                <h3 class="row-title">The Multi-Species Systemic Interactome</h3>
+                <p>
+                    The interactome is our data asset: continuous morphology, behavioural matrices and
+                    transcriptomics, co-registered over several days on the same individuals, in cohorts
+                    large enough to show population variability. We add client in vitro and organoid data
+                    and external omics, then map the result onto human biology through cross-species
+                    orthology and clinical priors.
+                </p>
+            </div>
+        </article>
+
+        <article class="row">
+            <figure class="plate">
+                {% include figures/xenoex.html %}
+            </figure>
+            <div class="row-text">
+                <p class="label">Reason</p>
+                <h3 class="row-title">XenoEx, interpretable multi-agent AI</h3>
+                <p>
+                    XenoEx reasons over the interactome in steps a scientist can read, audit and redirect.
+                    It humanises signatures, scores candidates for systemic efficacy and multi-organ
+                    toxicity, re-evaluates shelved assets and ranks target hypotheses. When its confidence
+                    falls under the client's agreed threshold, it designs the validation run and sends it
+                    to the biofoundry.
+                </p>
+            </div>
+        </article>
     </div>
 
-    <div class="mt-14 md:mt-16">
-        {% include figures/abstract.html %}
-    </div>
+    <p class="plate-legal">Figures are illustrative, with fictional data.</p>
 
-    <div class="mt-16 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 blocks">
-        <div class="block">
-            <h3 class="h4">The automated biofoundry</h3>
-            <p class="mt-3">
-                Transparent zebrafish larvae share 82% of human disease-associated genes and carry a
-                working liver, heart, nervous system and blood-brain barrier. ZebraChip microfluidics
-                load each larva and hold it in a fixed lateral position; FishEye computer vision reads
-                morphology and behaviour. We built the pipeline for the New Approach Methodology
-                framework of the FDA Modernization Act 2.0.
-            </p>
-        </div>
-        <div class="block">
-            <h3 class="h4">The Multi-Species Systemic Interactome</h3>
-            <p class="mt-3">
-                The interactome is our data asset: continuous morphology, behavioural matrices and
-                transcriptomics, co-registered over several days on the same individuals, in cohorts
-                large enough to show population variability. We add client in vitro and organoid data and external
-                omics, then map the result onto human biology through cross-species orthology and
-                clinical priors.
-            </p>
-        </div>
-        <div class="block">
-            <h3 class="h4">XenoEx, interpretable multi-agent AI</h3>
-            <p class="mt-3">
-                XenoEx reasons over the interactome in steps a scientist can read, audit and redirect.
-                It humanises signatures, scores candidates for systemic efficacy and multi-organ
-                toxicity, re-evaluates shelved assets and ranks target hypotheses. When its confidence
-                falls under the client's agreed threshold, it designs the validation run and
-                sends it to the biofoundry.
-            </p>
-        </div>
-    </div>
-
-    <div class="mt-14">
+    <div class="section-foot">
         <a class="btn btn-solid" href="{{ site.data.links.pilot }}">
             <span>Start a validation pilot</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
     </div>
+  </div>
 </section>
