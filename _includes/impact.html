@@ -1,0 +1,13 @@
+{% assign im = site.data.impact %}
+<section id="impact" class="section impact">
+    <p class="h3 max-w-2xl">{{ im.statement }}</p>
+    <div class="impact-row mt-10">
+        {% for m in im.measures %}
+        <div class="measure">
+            <p class="measure-value{% if m.value contains '[' %} is-placeholder{% endif %}"{% if m.count != "" %} data-count="{{ m.count }}"{% endif %}>{{ m.value }}</p>
+            <p class="measure-label mt-2">{{ m.label }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <p class="mt-6 text-sm muted">{{ im.basis }}</p>
+</section>

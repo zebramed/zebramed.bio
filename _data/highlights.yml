@@ -1,21 +1,9 @@
-# Breaking News / Highlights
-# Add your news items here. They will scroll automatically on the website.
-# Format: date (for display), text (the catchy headline)
-
-#- date: "Dec 2-3, 2025"
-#  text: "🎯 Meet ZebraMed at BioFIT in Strasbourg!"
-
-#- date: "Nov 5, 2025"
-#  text: "🚀 ZebraMed is excited to announce its membership in the NVIDIA Inception program."
-
-- date: "Oct 14, 2025"
-  text: "🏆 ZebraMed wins the prestigious i-Lab Innovation Prize!"
-
-- date: "Feb 20, 2026"
-  text: "🏢 ZebraMed join the Future4Care campus in Paris."
-
-- date: "Mar 3-5, 2026"
-  text: "🇨🇭 Meet ZebraMed at health.tech in Basel!"
-
-- date: "Mar 24, 2026"
-  text: "💡 Join our booth at the Techinnov days in Paris!"
+# Highlights ticker. Public facts only; dates as displayed.
+- date: "Oct 2025"
+  text: "ZebraMed wins the i-Lab innovation prize (Bpifrance)"
+- date: "Feb 2026"
+  text: "ZebraMed joins the Future4Care campus in Paris"
+- date: "2026"
+  text: "Selected for the DayOne accelerator in Basel"
+- date: "2026"
+  text: "Deeptech incubation at HEC Paris Challenge+"

@@ -1,0 +1,59 @@
+{% comment %}
+Figure 2: the systemic biology wall. Data from _data/wall_chart.yml.
+Plot area: x 56..616 (560 wide), y 28..292 (264 tall). Lines draw in once
+when the figure enters view; reduced motion shows the finished chart.
+{% endcomment %}
+{% assign wc = site.data.wall_chart %}
+<figure class="fig fig-wall" data-figure="wall">
+    <svg viewBox="0 0 640 360" role="img"
+         aria-label="Asset survival through preclinical, Phase I and Phase II. One line, traditional pharma, declines steadily from the start. The other, AI-designed candidates, stays high through Phase I and collapses against a brick wall over Phase II. Schematic.">
+        <defs>
+            <pattern id="bricks" width="28" height="14" patternUnits="userSpaceOnUse">
+                <rect width="28" height="14" fill="none"/>
+                <path d="M0 0 H28 M0 7 H28 M14 0 V7 M0 7 V14 M28 7 V14" class="brick"/>
+            </pattern>
+        </defs>
+
+        {% assign wx = wc.wall.from | times: 560.0 | plus: 56 %}
+        {% assign ww = wc.wall.to | minus: wc.wall.from | times: 560.0 %}
+        <rect class="wall" x="{{ wx }}" y="28" width="{{ ww }}" height="264" fill="url(#bricks)"/>
+        <text class="wall-label" x="{{ wx | plus: 14 }}" y="58">{{ wc.wall.label }}</text>
+
+        <!-- axes -->
+        <line class="axis" x1="56" y1="292" x2="616" y2="292"/>
+        <line class="axis" x1="56" y1="28" x2="56" y2="292"/>
+        {% for t in (0..5) %}{% assign yv = t | times: 20 %}{% assign yp = yv | times: -2.64 | plus: 292 %}
+        <text class="tick" x="48" y="{{ yp | plus: 3 }}" text-anchor="end">{{ yv }}%</text>
+        {% if t > 0 %}<line class="grid" x1="56" y1="{{ yp }}" x2="616" y2="{{ yp }}"/>{% endif %}
+        {% endfor %}
+        <text class="tick axis-label" x="56" y="16">{{ wc.y_label }}</text>
+
+        <!-- phases -->
+        {% for ph in wc.phases %}
+        {% assign px0 = ph.from | times: 560.0 | plus: 56 %}
+        {% assign pxm = ph.to | plus: ph.from | times: 280.0 | plus: 56 %}
+        {% if forloop.index > 1 %}<line class="grid" x1="{{ px0 }}" y1="28" x2="{{ px0 }}" y2="292"/>{% endif %}
+        <text class="phase" x="{{ pxm }}" y="318" text-anchor="middle">{{ ph.label }}</text>
+        <text class="phase-sub" x="{{ pxm }}" y="334" text-anchor="middle">{{ ph.sub }}</text>
+        {% endfor %}
+
+        <!-- series -->
+        {% for s in wc.series %}
+        {% capture pts %}{% assign raw = s.points | split: " " %}{% for pt in raw %}{% assign xy = pt | split: "," %}{% assign px = xy[0] | times: 560.0 | plus: 56 | round: 1 %}{% assign py = xy[1] | times: -2.64 | plus: 292 | round: 1 %}{{ px }},{{ py }} {% endfor %}{% endcapture %}
+        <polyline class="series series-{{ s.style }}" points="{{ pts | strip }}"/>
+        {% endfor %}
+
+        <!-- legend -->
+        {% for s in wc.series %}
+        {% assign ly = forloop.index | times: 18 | plus: 228 %}
+        <line class="series-{{ s.style }} legend-swatch" x1="72" y1="{{ ly }}" x2="96" y2="{{ ly }}"/>
+        <text class="legend" x="104" y="{{ ly | plus: 4 }}">{{ s.name }}</text>
+        {% endfor %}
+
+        {% if wc.status == "pending" %}<text class="pending" x="616" y="352" text-anchor="end">Data pending</text>{% endif %}
+    </svg>
+    <figcaption class="fig-caption">
+        {{ wc.caption }}{% if wc.source != "" %} {{ wc.source }}{% endif %}
+        <button type="button" class="fig-replay" data-replay>Replay</button>
+    </figcaption>
+</figure>

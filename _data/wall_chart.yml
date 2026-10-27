@@ -1,0 +1,32 @@
+# Figure 2: the systemic biology wall.
+# Values were re-read from the deck's chart image on 2026-10-27 and are
+# placeholders until the source file's values replace them. x runs from 0
+# (start of preclinical) to 1 (end of Phase II); y is asset survival in %.
+status: pending          # pending | sourced  — "pending" shows a badge on the chart
+y_label: Asset survival
+phases:
+  - label: Preclinical
+    sub: years 0 to 2
+    from: 0.0
+    to: 0.33
+  - label: Phase I
+    sub: years 2 to 5
+    from: 0.33
+    to: 0.66
+  - label: Phase II
+    sub: years 5 to 7
+    from: 0.66
+    to: 1.0
+wall:
+  from: 0.66
+  to: 1.0
+  label: The systemic biology wall
+series:
+  - name: Traditional pharma
+    style: base
+    points: "0,100 1,10"
+  - name: AI-designed candidates
+    style: live
+    points: "0,100 0.66,90 0.82,20 1,12"
+caption: "Asset survival through the clinical phases. Schematic after the ZebraMed deck."
+source: ""               # citation line; shown under the caption when filled

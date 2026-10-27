@@ -1,38 +1,42 @@
-<section id="traction">
-    <div class="text-center mb-16 reveal-on-scroll">
-        <h3 class="text-sm font-semibold tracking-widest text-accent-primary uppercase">Traction & Validation</h3>
-        <h4 class="mt-4 text-3xl md:text-4xl font-bold tracking-tight">Validated by the Industry</h4>
-        <p class="mt-4 max-w-2xl mx-auto text-lg text-text-medium">Our groundbreaking approach is gaining significant traction with key players across the ecosystem.</p>
+{% assign tr = site.data.traction %}
+<section id="traction" class="section">
+    <div class="max-w-3xl">
+        <h2 class="h2">Traction</h2>
+        <p class="lede mt-6">Pharma pilots, research collaborations and public programmes.</p>
     </div>
 
-    <div class="reveal-on-scroll">
-        <h5 class="text-lg font-semibold text-center text-text-light mb-4">Trusted by Leading Partners & Programs</h5>
-        <div class="relative w-full overflow-hidden h-24 md:h-32 carousel-container card-bg py-4">
-            <div class="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-bg-dark z-10 pointer-events-none"></div>
-            <div class="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-bg-dark z-10 pointer-events-none"></div>
-            
-            <div class="carousel-track h-full">
+    <div class="mt-14 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 features">
+        {% for f in tr.features %}
+        <article class="feature">
+            <p class="kicker">{{ f.kicker }}</p>
+            <h3 class="h4 mt-2">{{ f.title }}</h3>
+            <p class="mt-3 text-sm">{{ f.text }}</p>
+        </article>
+        {% endfor %}
+    </div>
+
+    <div class="impact-row mt-16 is-quiet">
+        {% for m in tr.measures %}
+        <div class="measure">
+            <p class="measure-value{% if m.value contains '[' %} is-placeholder{% endif %}">{{ m.value }}</p>
+            <p class="measure-label mt-2">{{ m.label }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-16">
+        <p class="group-name">Programmes, prizes and ecosystem</p>
+        <div class="relative w-full overflow-hidden carousel-container mt-5">
+            <div class="absolute inset-y-0 left-0 w-20 fade-left z-10 pointer-events-none"></div>
+            <div class="absolute inset-y-0 right-0 w-20 fade-right z-10 pointer-events-none"></div>
+            <div class="carousel-track">
                 <div class="carousel-slide">
-                    <img src="{{ '/assets/images/wilco_logo.svg' | relative_url }}" alt="Wilco" title="Wilco" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/iledefrance_logo.svg' | relative_url }}" alt="Région Île-de-France" title="Région Île-de-France" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/nvidia_logo.svg' | relative_url }}" alt="NVIDIA Inception" title="NVIDIA Inception" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/logo_ilab.webp' | relative_url }}" alt="i-Lab" title="i-Lab Innovation Prize" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/france2030_logo.svg' | relative_url }}" alt="France 2030" title="France 2030" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/spartners_logo.jpg' | relative_url }}" alt="Spartners" title="Spartners" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/genopole_logo.svg' | relative_url }}" alt="Genopole" title="Genopole" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/medicen_logo.png' | relative_url }}" alt="Medicen" title="Medicen" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/datacraft_logo.jpg' | relative_url }}" alt="Datacraft Awards" title="Datacraft Awards" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/bpifrance_logo.svg' | relative_url }}" alt="BPI France" title="BPI France" loading="lazy" class="partner-logo">
+                    {% for p in site.data.partners %}
+                    {% if p.logo %}<img src="{{ '/assets/images/' | append: p.logo | relative_url }}" alt="{{ p.name }}" title="{{ p.name }}" loading="lazy" class="partner-logo">
+                    {% else %}<span class="partner-text">{{ p.name }}</span>{% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="text-center mt-20 relative z-20 reveal-on-scroll" style="transition-delay: 150ms;">
-        <p class="text-lg font-semibold text-text-light mb-2">And Strong Commercial Interest</p>
-        <span id="loi-counter" class="text-6xl font-bold gradient-text">0</span>
-        <p class="mt-1 text-lg font-semibold text-text-light">Letters of Intent</p>
-        <p class="mt-1 text-sm text-text-medium">from AI-Biotech & Pharma leaders</p>
-    </div>
-
 </section>

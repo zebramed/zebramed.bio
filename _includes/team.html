@@ -1,35 +1,50 @@
-<section id="team">
-    <div class="text-center mb-16 reveal-on-scroll">
-        <h3 class="text-sm font-semibold tracking-widest text-accent-primary uppercase">The Architects</h3>
-        <h4 class="mt-4 text-3xl md:text-4xl font-bold tracking-tight">Meet The Founding Team</h4>
-        <p class="mt-4 max-w-2xl mx-auto text-lg text-text-medium">A multidisciplinary team with deep expertise across biology, engineering, and artificial intelligence.</p>
+<section id="team" class="section">
+    <div class="max-w-3xl">
+        <h2 class="h2">Team</h2>
+        <p class="lede mt-6">
+            Three founders across translational pharmacology, microfluidic hardware automation and
+            production multi-agent AI.
+        </p>
     </div>
 
-    <div class="pb-4 -mx-4 px-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 w-full py-4">
-            <div class="card-bg p-8 text-center reveal-on-scroll">
-                <img src="{{ '/assets/images/valerio-laghi.webp' | relative_url }}" alt="Valerio Laghi" loading="lazy" class="w-24 h-24 md:w-32 md:h-32 rounded-full mx-auto mb-4 md:mb-6 border-2 border-accent-primary-50">
-                <h5 class="text-xl font-semibold text-text-light">Valerio Laghi</h5>
-                <p class="gradient-text font-medium mt-1">Chief Executive Officer</p>
-                <p class="mt-4 text-sm text-text-medium">PhD in Immunology with a decade of experience in high-throughput zebrafish screening and automation.</p>
-            </div>
-            <div class="card-bg p-8 text-center reveal-on-scroll" style="transition-delay: 150ms;">
-                <img src="{{ '/assets/images/lorenzo-zolfanelli.webp' | relative_url }}" alt="Lorenzo Zolfanelli" loading="lazy" class="w-24 h-24 md:w-32 md:h-32 rounded-full mx-auto mb-4 md:mb-6 border-2 border-accent-secondary-50">
-                <h5 class="text-xl font-semibold text-text-light">Lorenzo Zolfanelli</h5>
-                <p class="gradient-text font-medium mt-1">Chief Scientific Officer</p>
-                <p class="mt-4 text-sm text-text-medium">PhD in Biophysics and former lead engineer for industrial-scale HTS screening platforms.</p>
-            </div>
-            <div class="card-bg p-8 text-center reveal-on-scroll" style="transition-delay: 300ms;">
-               <img src="{{ '/assets/images/guillaume-de-luca.webp' | relative_url }}" alt="Guillaume De Luca" loading="lazy" class="w-24 h-24 md:w-32 md:h-32 rounded-full mx-auto mb-4 md:mb-6 border-2 border-text-light-50">
-                <h5 class="text-xl font-semibold text-text-light">Guillaume De Luca</h5>
-                <p class="gradient-text font-medium mt-1">Chief Data Officer</p>
-                <p class="mt-4 text-sm text-text-medium">PhD in Engineering with deep expertise in creating data-driven and AI-based industrial solutions.</p>
+    <div class="mt-14 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-10 team">
+        {% for p in site.data.team %}
+        <article class="person">
+            <img src="{{ '/assets/images/' | append: p.photo | relative_url }}" alt="{{ p.name }}" loading="lazy" width="96" height="96" class="person-photo">
+            <h3 class="h4 mt-5">{{ p.name }}{% if p.title %}, {{ p.title }}{% endif %}</h3>
+            <p class="role mt-1">{{ p.role }}</p>
+            <p class="mt-4 text-sm">{{ p.bio }}</p>
+            {% if p.affiliations %}
+            <ul class="chips mt-4" aria-label="Affiliations">
+                {% for a in p.affiliations %}<li>{{ a }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+            <p class="mt-4 text-sm links">
+                {% if p.linkedin %}<a href="{{ p.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% endif %}
+                {% if p.page %}<a href="{{ p.page | relative_url }}">Profile</a>{% endif %}
+            </p>
+        </article>
+        {% endfor %}
+    </div>
+
+    <div class="mt-20 board">
+        <h3 class="h3">Board</h3>
+        {% for g in site.data.board.groups %}
+        <div class="mt-8">
+            <p class="group-name">{{ g.name }}</p>
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10">
+                {% for m in g.members %}
+                <article class="member">
+                    <h4 class="h5">{% if m.title %}{{ m.title }} {% endif %}{{ m.name }}</h4>
+                    <p class="mt-2 text-sm">{{ m.line }}</p>
+                    <p class="mt-2 text-sm links">
+                        {% if m.linkedin != "" %}<a href="{{ m.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% else %}<span class="pending-inline">[LinkedIn URL pending]</span>{% endif %}
+                    </p>
+                </article>
+                {% endfor %}
             </div>
         </div>
-    </div>
-
-    <div class="mt-20 text-center reveal-on-scroll">
-        <h5 class="text-2xl font-bold tracking-tight">Backed by World-Class Advisors</h5>
-        <p class="mt-4 max-w-3xl mx-auto text-lg text-text-medium">Our scientific and business advisors include world-class experts in biology automation, molecular libraries, and zebrafish neuroimmunology from universities and institutions like <span class="text-accent-primary">Institut Pasteur</span> and <span class="text-accent-primary">TEFOR</span>, alongside seasoned leaders in pharma market access strategy and deeptech startup operations.</p>
+        {% endfor %}
+        <p class="mt-10 text-sm muted max-w-2xl">{{ site.data.board.mentorship }}</p>
     </div>
 </section>

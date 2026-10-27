@@ -1,0 +1,5 @@
+# Link targets that are still to be decided. Empty means "not yet supplied";
+# the template renders the control with a visible pending state.
+whitepaper:            # PDF behind "Discover the Systemic Data Gap"
+pilot: "mailto:info@zebramed.bio?subject=Validation%20pilot"
+investors: "mailto:info@zebramed.bio?subject=Investor%20relations"

@@ -1,0 +1,130 @@
+{% comment %}
+Figure 1: the lab-in-the-loop cycle. Five stations on a ring. A pulse travels
+the ring and each station fills as it arrives; content accumulates and never
+resets. Under prefers-reduced-motion the ring renders complete and the
+buttons step it by hand. Every value drawn here is fictional.
+{% endcomment %}
+<figure class="fig fig-loop" data-figure="loop">
+    <svg class="ring" viewBox="0 0 480 480" role="img" data-turn="0"
+         aria-label="The lab-in-the-loop cycle. Five stations on a ring: design, run, measure, structure, reason. A signal travels the ring and each station fills as it arrives. At the centre, a turn counter and a context ring that thickens one notch per lap: the agent accumulates context every turn. Illustrative, with fictional data.">
+
+        <circle class="hair" cx="240" cy="250" r="152"/>
+        <circle class="pulse" cx="240" cy="250" r="152"/>
+
+        <g class="ctx" aria-hidden="true">
+            <circle class="hair-2 c1" cx="240" cy="250" r="34"/>
+            <circle class="hair-2 c2" cx="240" cy="250" r="41"/>
+            <circle class="hair-2 c3" cx="240" cy="250" r="48"/>
+        </g>
+        <text class="turn" x="240" y="247" text-anchor="middle">turn <tspan class="turn-n">01</tspan></text>
+        <text class="gloss" x="240" y="262" text-anchor="middle">context accumulates</text>
+
+        <!-- Design (top) -->
+        <g class="station" data-i="0" transform="translate(180,56)">
+            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
+            <g class="draw-area" transform="translate(10,2)" aria-hidden="true">
+                <text class="num" x="0" y="12">1</text><line class="live a" style="--d:0" x1="12" y1="9" x2="62" y2="9"/><text class="num a" style="--d:3" x="100" y="12" text-anchor="end">dose</text>
+                <text class="num" x="0" y="28">2</text><line class="hair-2 a" style="--d:1" x1="12" y1="25" x2="50" y2="25"/><text class="num a" style="--d:3" x="100" y="28" text-anchor="end">time</text>
+                <text class="num" x="0" y="44">3</text><line class="hair-2 a" style="--d:2" x1="12" y1="41" x2="36" y2="41"/><text class="num a" style="--d:3" x="100" y="44" text-anchor="end">edit</text>
+            </g>
+            <text class="name" x="60" y="68" text-anchor="middle">Design</text>
+            <text class="gloss" x="60" y="80" text-anchor="middle">rank the next experiments</text>
+        </g>
+
+        <!-- Run (right) -->
+        <g class="station" data-i="1" transform="translate(326,160)">
+            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
+            <g aria-hidden="true">
+                <g class="a" style="--d:0"><rect class="live" x="54" y="0" width="14" height="6" rx="1.5"/><line class="live" x1="58" y1="6" x2="58" y2="11"/><line class="live" x1="64" y1="6" x2="64" y2="11"/></g>
+                <g class="wells" transform="translate(16,22)">
+                    <circle class="hair-2" cx="0" cy="0" r="3.6"/><circle class="live-f a" style="--d:1" cx="0" cy="0" r="2.2"/>
+                    <circle class="hair-2" cx="15" cy="0" r="3.6"/><circle class="live-f a" style="--d:1" cx="15" cy="0" r="2.2"/>
+                    <circle class="hair-2" cx="30" cy="0" r="3.6"/><circle class="live-f a" style="--d:2" cx="30" cy="0" r="2.2"/>
+                    <circle class="hair-2" cx="45" cy="0" r="3.6"/><circle class="live-f a" style="--d:2" cx="45" cy="0" r="2.2"/>
+                    <circle class="hair-2" cx="60" cy="0" r="3.6"/><circle class="live-f a" style="--d:3" cx="60" cy="0" r="2.2"/>
+                    <circle class="hair-2" cx="75" cy="0" r="3.6"/><circle class="live-f a" style="--d:3" cx="75" cy="0" r="2.2"/>
+                    <circle class="hair-2" cx="0" cy="14" r="3.6"/><circle class="live-f a" style="--d:3" cx="0" cy="14" r="2.2"/>
+                    <circle class="hair-2" cx="15" cy="14" r="3.6"/><circle class="live-f a" style="--d:4" cx="15" cy="14" r="2.2"/>
+                    <circle class="flag a" style="--d:4" cx="30" cy="14" r="3.6"/>
+                    <circle class="hair-2" cx="45" cy="14" r="3.6"/><circle class="live-f a" style="--d:4" cx="45" cy="14" r="2.2"/>
+                    <circle class="hair-2" cx="60" cy="14" r="3.6"/><circle class="live-f a" style="--d:5" cx="60" cy="14" r="2.2"/>
+                    <circle class="hair-2" cx="75" cy="14" r="3.6"/><circle class="live-f a" style="--d:5" cx="75" cy="14" r="2.2"/>
+                    <circle class="hair-2" cx="0" cy="28" r="3.6"/><circle class="live-f a" style="--d:5" cx="0" cy="28" r="2.2"/>
+                    <circle class="hair-2" cx="15" cy="28" r="3.6"/><circle class="live-f a" style="--d:6" cx="15" cy="28" r="2.2"/>
+                    <circle class="hair-2" cx="30" cy="28" r="3.6"/><circle class="live-f a" style="--d:6" cx="30" cy="28" r="2.2"/>
+                    <circle class="hair-2" cx="45" cy="28" r="3.6"/><circle class="live-f a" style="--d:6" cx="45" cy="28" r="2.2"/>
+                    <circle class="flag a" style="--d:7" cx="60" cy="28" r="3.6"/>
+                    <circle class="hair-2" cx="75" cy="28" r="3.6"/><circle class="live-f a" style="--d:7" cx="75" cy="28" r="2.2"/>
+                </g>
+            </g>
+            <text class="name" x="60" y="68" text-anchor="middle">Run</text>
+            <text class="gloss" x="60" y="80" text-anchor="middle">dose and load the chip</text>
+        </g>
+
+        <!-- Measure (bottom right) -->
+        <g class="station" data-i="2" transform="translate(269,330)">
+            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
+            <g aria-hidden="true">
+                <g transform="translate(8,0) scale(1.05)">
+                    <path class="hair-2 draw" style="--len:260;--d:0" d="M8 18 C14 8 30 8 40 12 C55 15 75 16 98 15 L98 19 C75 20 55 22 42 24 C34 27 24 32 16 28 C9 25 6 22 8 18 Z"/>
+                    <line class="hair draw" style="--len:60;--d:1" x1="40" y1="15" x2="98" y2="17"/>
+                    <ellipse class="hair-2 draw" style="--len:40;--d:1" cx="24" cy="25" rx="8" ry="4.5"/>
+                    <circle class="hair-2" cx="16" cy="16" r="2.2"/>
+                    <rect class="live a" style="--d:2" x="27" y="18" width="8" height="6" rx="1" stroke-dasharray="2 1.5"/>
+                    <rect class="live a" style="--d:3" x="46" y="10" width="11" height="6" rx="1" stroke-dasharray="2 1.5"/>
+                </g>
+                <polyline class="res draw" style="--len:120;--d:4" points="10,48 22,46 30,52 40,42 48,50 58,47 68,52 76,41 86,49 98,46 112,48"/>
+            </g>
+            <text class="name" x="60" y="68" text-anchor="middle">Measure</text>
+            <text class="gloss" x="60" y="80" text-anchor="middle">image, track, sequence</text>
+        </g>
+
+        <!-- Structure (bottom left) -->
+        <g class="station" data-i="3" transform="translate(91,330)">
+            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
+            <g aria-hidden="true" transform="translate(8,0)">
+                <line class="hair-2 draw" style="--len:30;--d:1" x1="20" y1="22" x2="50" y2="12"/>
+                <line class="hair-2 draw" style="--len:30;--d:2" x1="50" y1="12" x2="84" y2="24"/>
+                <line class="hair-2 draw" style="--len:30;--d:2" x1="20" y1="22" x2="34" y2="48"/>
+                <line class="live draw"  style="--len:40;--d:3" x1="50" y1="12" x2="68" y2="50"/>
+                <line class="hair-2 draw" style="--len:30;--d:3" x1="34" y1="48" x2="68" y2="50"/>
+                <line class="hair-2 draw" style="--len:30;--d:4" x1="84" y1="24" x2="68" y2="50"/>
+                <circle class="hair-2 a" style="--d:0" cx="20" cy="22" r="3.8"/>
+                <circle class="live-f a" style="--d:1" cx="50" cy="12" r="3.8"/>
+                <circle class="hair-2 a" style="--d:2" cx="84" cy="24" r="3.8"/>
+                <circle class="hair-2 a" style="--d:2" cx="34" cy="48" r="3.8"/>
+                <circle class="live-f a" style="--d:3" cx="68" cy="50" r="3.8"/>
+                <text class="num a" style="--d:4" x="56" y="8">.7</text>
+            </g>
+            <text class="name" x="60" y="68" text-anchor="middle">Structure</text>
+            <text class="gloss" x="60" y="80" text-anchor="middle">organ states over time</text>
+        </g>
+
+        <!-- Reason (left) -->
+        <g class="station" data-i="4" transform="translate(34,160)">
+            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
+            <g aria-hidden="true" transform="translate(10,0)">
+                <rect class="live-f a" style="--d:0" x="0" y="4" width="4.5" height="4.5"/><line class="hair-2 a" style="--d:0" x1="10" y1="6" x2="56" y2="6"/><line class="res a" style="--d:1" x1="62" y1="6" x2="98" y2="6"/>
+                <rect class="live-f a" style="--d:1" x="0" y="16" width="4.5" height="4.5"/><line class="hair-2 a" style="--d:1" x1="10" y1="18" x2="46" y2="18"/><line class="res a" style="--d:2" x1="52" y1="18" x2="98" y2="18"/>
+                <rect class="live-f a" style="--d:2" x="0" y="28" width="4.5" height="4.5"/><line class="hair-2 a" style="--d:2" x1="10" y1="30" x2="66" y2="30"/><line class="res a" style="--d:3" x1="72" y1="30" x2="98" y2="30"/>
+                <text class="num" x="0" y="46">confidence</text>
+                <rect class="hair" x="0" y="49" width="98" height="4.5" rx="2.2"/>
+                <rect class="live-f a" style="--d:3" x="0" y="49" width="68" height="4.5" rx="2.2"/>
+                <line class="flag a" style="--d:4" x1="84" y1="45" x2="84" y2="58"/>
+            </g>
+            <text class="name" x="60" y="68" text-anchor="middle">Reason</text>
+            <text class="gloss" x="60" y="80" text-anchor="middle">trace, confidence, decision</text>
+        </g>
+
+        <text class="footnote" x="470" y="474" text-anchor="end">Illustrative</text>
+    </svg>
+
+    <figcaption class="fig-controls" aria-label="Hold the figure at a step">
+        <button type="button" data-play data-pause-label="Pause" data-play-label="Play">Pause</button>
+        <button type="button" data-hold="0" aria-pressed="false">Design</button>
+        <button type="button" data-hold="1" aria-pressed="false">Run</button>
+        <button type="button" data-hold="2" aria-pressed="false">Measure</button>
+        <button type="button" data-hold="3" aria-pressed="false">Structure</button>
+        <button type="button" data-hold="4" aria-pressed="false">Reason</button>
+    </figcaption>
+</figure>

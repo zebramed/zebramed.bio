@@ -1,0 +1,55 @@
+# Advisory board. Names and lines from the CEO's October 2026 draft.
+# Each member confirms their line and supplies a LinkedIn URL and photo
+# before publication; `linkedin: ""` renders no link.
+groups:
+  - name: Strategic board
+    members:
+      - name: Isabelle Vitali
+        role: President of the strategic board
+        line: >-
+          CEO of VIQ Healthcare Consulting and founding member of Future4Care.
+          Former global head of digital innovation at Sanofi and innovation
+          director at Roche.
+        linkedin: ""
+      - name: Domenico Lucatelli
+        role: Strategic board
+        line: >-
+          Global public affairs head at Angelini Pharma. Thirty years in
+          biopharma commercial, market access and institutional roles at
+          Novartis and Roche.
+        linkedin: ""
+      - name: Isabelle Hilali
+        role: Strategic board
+        line: >-
+          Founder and CEO of Datacraft, former EVP strategy and marketing at
+          Orange Healthcare, senior lecturer at X-HEC-UC Berkeley.
+        linkedin: ""
+  - name: Scientific board
+    members:
+      - name: Stephen J. Haggarty
+        title: Prof.
+        role: Scientific board
+        line: >-
+          Associate professor of neurology at Harvard Medical School and MGH,
+          director of chemical neurobiology. CNS chemical libraries and target
+          validation.
+        linkedin: ""
+      - name: Vincenzo Di Donato
+        title: Dr
+        role: Scientific board
+        line: >-
+          Co-founder and executive director at Gene4All, former scientific
+          director at ZeClinics. High-throughput CRISPR editing and zebrafish
+          disease models.
+        linkedin: ""
+      - name: Arthur Llau
+        title: Dr
+        role: Scientific board
+        line: >-
+          Chief scientist at Flowlity and professor of data science at Sorbonne
+          Université. Kaggle grandmaster; i-Lab and Google–McKinsey prize winner.
+        linkedin: ""
+mentorship: >-
+  Mentors from the DayOne (Basel), Creative Destruction Lab and HEC Challenge+
+  programmes advise the team. ZebraMed is a resident of Future4Care and the
+  Genopole biocluster.

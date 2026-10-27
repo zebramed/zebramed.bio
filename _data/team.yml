@@ -1,0 +1,38 @@
+# Founding team. Bios from the CEO's October 2026 draft, edited for tone.
+# Each person verifies their own line. `affiliations` render as text until
+# logo files arrive (add `logo: /assets/images/…` to switch).
+- name: Valerio Laghi
+  title: PhD
+  role: Chief Executive Officer, co-founder
+  photo: valerio-laghi.webp
+  page: /valerio-laghi
+  linkedin: https://www.linkedin.com/in/valerio-laghi/
+  bio: >-
+    PhD in immunology and infectiology at Institut Pasteur. Ten years leading
+    high-throughput zebrafish drug screening and bio-automation at Pasteur, after
+    running the P&L of a retail chain.
+  affiliations: [Institut Pasteur, Entrepreneur First, WILCO]
+
+- name: Lorenzo Zolfanelli
+  title: PhD
+  role: Chief Scientific Officer, co-founder
+  photo: lorenzo-zolfanelli.webp
+  page: /lorenzo-zolfanelli
+  linkedin: https://www.linkedin.com/in/lorenzo-zolfanelli/
+  bio: >-
+    PhD in biophysics, ESPCI Paris and Institut Pasteur. Architect of two
+    industrial high-throughput screening platforms, one of them photonic
+    instrumentation later acquired by Bio-Rad. Lead inventor of the ZebraChip stack.
+  affiliations: [ESPCI Paris, Institut Pasteur]
+
+- name: Guillaume De Luca
+  title: PhD
+  role: Chief Data Officer, co-founder
+  photo: guillaume-de-luca.webp
+  page: /guillaume-de-luca
+  linkedin: https://www.linkedin.com/in/guillaume-de-luca/
+  bio: >-
+    PhD engineer in data science, Sorbonne Université with Oxford and Warwick.
+    Entrepreneur First alumnus and former data science lead deploying industrial
+    deep-learning systems. Lead architect of XenoEx.
+  affiliations: [Sorbonne Université, University of Oxford, University of Warwick, Entrepreneur First]

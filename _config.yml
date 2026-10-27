@@ -1,7 +1,7 @@
 # Site settings
 title: ZebraMed
-description: "The Ground Truth Engine for AI-Driven Drug Discovery"
-tagline: "Generating systemic, in vivo data at industrial scale for predictive AI-driven drug discovery"
+description: "Drug discovery AI, grounded in whole-organism biology"
+tagline: "ZebraMed builds the Multi-Species Systemic Interactome and XenoEx, an interpretable multi-agent AI that reasons over it"
 email: info@zebramed.bio
 url: "https://zebramed.bio"
 baseurl: ""

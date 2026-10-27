@@ -1,0 +1,148 @@
+{% comment %}
+Figure 4: the platform in one view. Three panels: the biofoundry produces a
+perturbation profile; the interactome is the graph it feeds; XenoEx reasons
+over the graph and either delivers or designs the next run, which the return
+flow carries back to the biofoundry. Connectors are drawn by motion.js into
+the .flows overlay. All values fictional.
+{% endcomment %}
+<figure class="fig fig-abstract" data-figure="abstract" role="group"
+        aria-label="The platform. Left: the automated biofoundry, a chip of larvae being dosed and imaged. Centre: the systemic interactome, a graph of organ states, behaviours and transcripts over time, fed by a perturbation profile and mapped to human terms. Right: XenoEx, a decision trace with a confidence bar; above the threshold it delivers a dossier, below it designs the next run, which flows back to the biofoundry. Illustrative, with fictional data.">
+    <svg class="flows" aria-hidden="true"></svg>
+
+    <!-- Biofoundry -->
+    <div class="panel panel-sm">
+        <div class="panel-head"><span class="panel-title">Biofoundry</span><span class="panel-sub">dose, load, image</span></div>
+        <svg viewBox="0 0 200 236" aria-hidden="true">
+            <g class="a" style="--d:0"><rect class="live" x="86" y="6" width="18" height="7" rx="1.5"/><line class="live" x1="91" y1="13" x2="91" y2="20"/><line class="live" x1="99" y1="13" x2="99" y2="20"/></g>
+            <g transform="translate(28,34)">
+                {% for r in (0..5) %}{% for c in (0..7) %}{% assign cx = c | times: 20 %}{% assign cy = r | times: 16 %}{% assign arm = c | divided_by: 2 %}
+                <circle class="hair-2" cx="{{ cx }}" cy="{{ cy }}" r="4.6"/>
+                {% assign k = r | times: 8 | plus: c %}
+                {% if k == 10 or k == 37 %}<circle class="flag" cx="{{ cx }}" cy="{{ cy }}" r="4.6"/>
+                {% elsif arm == 0 %}<circle class="hair-2" cx="{{ cx }}" cy="{{ cy }}" r="2.4"/>
+                {% else %}<circle class="live-f" cx="{{ cx }}" cy="{{ cy }}" r="3" fill-opacity="{{ arm | times: 0.22 | plus: 0.3 }}"/>{% endif %}
+                {% endfor %}{% endfor %}
+            </g>
+            <text class="t-mono" x="38" y="138" text-anchor="middle">vehicle</text>
+            <text class="t-mono" x="78" y="138" text-anchor="middle">C1</text>
+            <text class="t-mono" x="118" y="138" text-anchor="middle">C2</text>
+            <text class="t-mono" x="158" y="138" text-anchor="middle">C3</text>
+
+            <rect class="hair" x="14" y="152" width="172" height="62" rx="4"/>
+            <g transform="translate(26,160) scale(1.5)">
+                <path class="hair-2" d="M8 18 C14 8 30 8 40 12 C55 15 75 16 98 15 L98 19 C75 20 55 22 42 24 C34 27 24 32 16 28 C9 25 6 22 8 18 Z"/>
+                <line class="hair" x1="40" y1="15" x2="98" y2="17"/>
+                <ellipse class="hair-2" cx="24" cy="25" rx="8" ry="4.5"/>
+                <circle class="hair-2" cx="16" cy="16" r="2.2"/>
+                <rect class="live" x="27" y="18" width="8" height="6" rx="1" stroke-dasharray="2 1.5"/>
+                <rect class="live" x="46" y="10" width="11" height="6" rx="1" stroke-dasharray="2 1.5"/>
+            </g>
+            <text class="t-small" x="14" y="230">lateral imaging, same larva, several timepoints</text>
+        </svg>
+    </div>
+
+    <!-- Interactome -->
+    <div class="panel panel-lg">
+        <div class="panel-head"><span class="panel-title">Multi-Species Systemic Interactome</span><span class="panel-sub">organ states, behaviours and transcripts over time, mapped to human terms</span></div>
+        <svg viewBox="0 0 440 300" aria-hidden="true">
+            <!-- inputs: perturbation profile -->
+            <g transform="translate(316,14)">
+                <text class="t-small" x="0" y="8">perturbation profile</text>
+                {% for r in (0..5) %}{% for c in (0..4) %}{% assign v = r | times: 7 | plus: c | times: 13 | modulo: 10 %}{% assign op = v | times: 0.08 | plus: 0.08 %}
+                <rect x="{{ c | times: 17 }}" y="{{ r | times: 13 | plus: 16 }}" width="15" height="11" rx="1.5" class="live-f" fill-opacity="{{ op }}"/>
+                {% endfor %}{% endfor %}
+                <path class="live" d="M0 150 C 30 150, 40 112, 56 108 C 70 104, 80 102, 86 102" />
+                <line class="hair-2" x1="0" y1="150" x2="86" y2="150"/>
+                <text class="t-mono" x="0" y="164">dose response</text>
+            </g>
+            <path class="hair-2 input-arrow" d="M312 70 C 290 70, 282 96, 262 104" marker-end="url(#ia)"/>
+            <path class="hair-2 input-arrow" d="M312 150 C 290 150, 282 150, 262 160" marker-end="url(#ia)"/>
+            <defs><marker id="ia" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L8 4 L0 8 z" class="hair-f"/></marker></defs>
+
+            <!-- the graph -->
+            <g class="graph" transform="translate(0,0)">
+                <line class="edge" style="stroke-width:2.2" x1="150" y1="90" x2="190" y2="70"/>
+                <line class="edge" style="stroke-width:1.4" x1="150" y1="90" x2="110" y2="140"/>
+                <line class="edge" style="stroke-width:1" x1="70" y1="80" x2="150" y2="90"/>
+                <line class="edge" style="stroke-width:2.6" x1="190" y1="70" x2="250" y2="110"/>
+                <line class="edge" style="stroke-width:1.2" x1="110" y1="140" x2="160" y2="190"/>
+                <line class="edge" style="stroke-width:1.8" x1="190" y1="70" x2="210" y2="150"/>
+                <line class="edge" style="stroke-width:1" x1="210" y1="150" x2="160" y2="190"/>
+                <line class="edge" style="stroke-width:1.6" x1="160" y1="190" x2="240" y2="210"/>
+                <line class="edge" style="stroke-width:1" x1="60" y1="200" x2="110" y2="140"/>
+                <line class="edge" style="stroke-width:1.2" x1="60" y1="200" x2="110" y2="250"/>
+                <line class="edge" style="stroke-width:1" x1="110" y1="250" x2="160" y2="190"/>
+                <line class="edge" style="stroke-width:1.4" x1="250" y1="110" x2="210" y2="150"/>
+                <line class="edge edge-live" x1="150" y1="90" x2="160" y2="190"/>
+
+                <circle class="node n-morph" cx="150" cy="90" r="6"/>
+                <circle class="node n-morph" cx="190" cy="70" r="7"/>
+                <circle class="node n-morph" cx="110" cy="140" r="5"/>
+                <circle class="node n-morph" cx="210" cy="150" r="5.5"/>
+                <circle class="node n-morph" cx="160" cy="190" r="7.5"/>
+                <circle class="node n-behav" cx="70" cy="80" r="5"/>
+                <circle class="node n-behav" cx="60" cy="200" r="5.5"/>
+                <circle class="node n-tx" cx="250" cy="110" r="6"/>
+                <circle class="node n-tx" cx="240" cy="210" r="5"/>
+                <circle class="node n-tx" cx="110" cy="250" r="4.5"/>
+
+                <text class="t-mono" x="200" y="60">pericardium, t₃</text>
+                <text class="t-mono" x="156" y="82">pericardium, t₂</text>
+                <text class="t-mono" x="168" y="206">liver, t₃</text>
+                <text class="t-mono" x="258" y="106">cyp3a, t₃</text>
+                <text class="t-mono" x="20" y="76">startle, t₂</text>
+                <text class="t-mono" x="14" y="218">locomotion, t₃</text>
+                <text class="t-mono" x="246" y="226">hsp70, t₂</text>
+                <text class="t-mono" x="118" y="266">nppa, t₃</text>
+                <text class="t-mono" x="60" y="156">yolk, t₂</text>
+                <text class="t-mono" x="216" y="166">swim bladder, t₃</text>
+            </g>
+
+            <!-- legend -->
+            <g transform="translate(14,284)">
+                <circle class="node n-morph" cx="4" cy="-3" r="3.5"/><text class="t-small" x="12" y="0">morphology</text>
+                <circle class="node n-behav" cx="86" cy="-3" r="3.5"/><text class="t-small" x="94" y="0">behaviour</text>
+                <circle class="node n-tx" cx="160" cy="-3" r="3.5"/><text class="t-small" x="168" y="0">transcript</text>
+            </g>
+
+            <!-- human terms -->
+            <g transform="translate(316,196)">
+                <text class="t-small" x="0" y="8">human terms</text>
+                <text class="t-mono" x="0" y="26">pericardium → pericardium</text>
+                <text class="t-mono" x="0" y="42">liver → liver</text>
+                <text class="t-mono" x="0" y="58">startle → acoustic startle</text>
+                <text class="t-mono" x="0" y="74">swim bladder → no direct match</text>
+                <circle class="res-f" cx="112" cy="23" r="2.5"/><circle class="res-f" cx="112" cy="39" r="2.5"/><circle class="res-f" cx="112" cy="55" r="2.5"/><circle class="flag" cx="112" cy="71" r="2.5"/>
+            </g>
+        </svg>
+    </div>
+
+    <!-- XenoEx -->
+    <div class="panel panel-sm">
+        <div class="panel-head"><span class="panel-title">XenoEx</span><span class="panel-sub">reason, decide</span></div>
+        <svg viewBox="0 0 200 236" aria-hidden="true">
+            <text class="t-small" x="14" y="14">decision trace</text>
+            {% for i in (0..4) %}{% assign y = i | times: 16 | plus: 26 %}{% assign w = i | times: 11 | modulo: 40 | plus: 40 %}
+            <rect class="live-f" x="14" y="{{ y }}" width="5" height="5"/>
+            <line class="hair-2" x1="24" y1="{{ y | plus: 2.5 }}" x2="{{ w | plus: 24 }}" y2="{{ y | plus: 2.5 }}"/>
+            <line class="res" x1="{{ w | plus: 30 }}" y1="{{ y | plus: 2.5 }}" x2="186" y2="{{ y | plus: 2.5 }}"/>
+            {% endfor %}
+            <text class="t-mono" x="24" y="118">tool</text><text class="t-mono" x="140" y="118">result</text>
+
+            <text class="t-small" x="14" y="142">confidence</text>
+            <rect class="hair" x="14" y="148" width="172" height="6" rx="3"/>
+            <rect class="live-f" x="14" y="148" width="108" height="6" rx="3"/>
+            <line class="flag" x1="140" y1="142" x2="140" y2="160"/>
+            <text class="t-mono" x="144" y="140">threshold</text>
+
+            <g transform="translate(14,180)">
+                <text class="t-small" x="0" y="0">above: deliver a dossier</text>
+                <text class="t-mono muted-t" x="0" y="14">toxicity · efficacy · mechanism · biomarkers</text>
+                <text class="t-small live-t" x="0" y="38">below: design the next run</text>
+                <line class="live" x1="0" y1="44" x2="150" y2="44"/>
+            </g>
+        </svg>
+    </div>
+
+    <figcaption class="fig-caption">Each pass through the loop adds to the interactome; XenoEx asks for a run only when it needs one. Illustrative, fictional data.</figcaption>
+</figure>
