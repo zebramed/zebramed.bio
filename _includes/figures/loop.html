@@ -5,11 +5,25 @@ resets. Under prefers-reduced-motion the ring renders complete and the
 buttons step it by hand. Every value drawn here is fictional.
 {% endcomment %}
 <figure class="fig fig-loop" data-figure="loop">
-    <svg class="ring" viewBox="0 0 480 480" role="img" data-turn="0"
+    <svg class="loop-ring" viewBox="0 0 480 480" role="img" data-turn="0"
          aria-label="The lab-in-the-loop cycle. Five stations on a ring: design, run, measure, structure, reason. A signal travels the ring and each station fills as it arrives. At the centre, a turn counter and a context ring that thickens one notch per lap: the agent accumulates context every turn. Illustrative, with fictional data.">
 
-        <circle class="hair" cx="240" cy="250" r="152"/>
-        <circle class="pulse" cx="240" cy="250" r="152"/>
+        <!-- The ring is cut where the stations sit, so the page background shows
+             through at any viewport (a painted navy box shows on the gradient). -->
+        <defs>
+            <mask id="loop-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="480" height="480">
+                <rect width="480" height="480" fill="#fff"/>
+                <rect x="176" y="50" width="128" height="92" rx="10" fill="#000"/>
+                <rect x="322" y="154" width="128" height="92" rx="10" fill="#000"/>
+                <rect x="265" y="324" width="128" height="92" rx="10" fill="#000"/>
+                <rect x="87" y="324" width="128" height="92" rx="10" fill="#000"/>
+                <rect x="30" y="154" width="128" height="92" rx="10" fill="#000"/>
+            </mask>
+        </defs>
+        <g mask="url(#loop-cut)">
+            <circle class="hair" cx="240" cy="250" r="152"/>
+            <circle class="pulse" cx="240" cy="250" r="152"/>
+        </g>
 
         <g class="ctx" aria-hidden="true">
             <circle class="hair-2 c1" cx="240" cy="250" r="34"/>
@@ -21,7 +35,6 @@ buttons step it by hand. Every value drawn here is fictional.
 
         <!-- Design (top) -->
         <g class="station" data-i="0" transform="translate(180,56)">
-            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
             <g class="draw-area" transform="translate(10,2)" aria-hidden="true">
                 <text class="num" x="0" y="12">1</text><line class="live a" style="--d:0" x1="12" y1="9" x2="62" y2="9"/><text class="num a" style="--d:3" x="100" y="12" text-anchor="end">dose</text>
                 <text class="num" x="0" y="28">2</text><line class="hair-2 a" style="--d:1" x1="12" y1="25" x2="50" y2="25"/><text class="num a" style="--d:3" x="100" y="28" text-anchor="end">time</text>
@@ -33,7 +46,6 @@ buttons step it by hand. Every value drawn here is fictional.
 
         <!-- Run (right) -->
         <g class="station" data-i="1" transform="translate(326,160)">
-            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
             <g aria-hidden="true">
                 <g class="a" style="--d:0"><rect class="live" x="54" y="0" width="14" height="6" rx="1.5"/><line class="live" x1="58" y1="6" x2="58" y2="11"/><line class="live" x1="64" y1="6" x2="64" y2="11"/></g>
                 <g class="wells" transform="translate(16,22)">
@@ -63,7 +75,6 @@ buttons step it by hand. Every value drawn here is fictional.
 
         <!-- Measure (bottom right) -->
         <g class="station" data-i="2" transform="translate(269,330)">
-            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
             <g aria-hidden="true">
                 <g transform="translate(8,0) scale(1.05)">
                     <path class="hair-2 draw" style="--len:260;--d:0" d="M8 18 C14 8 30 8 40 12 C55 15 75 16 98 15 L98 19 C75 20 55 22 42 24 C34 27 24 32 16 28 C9 25 6 22 8 18 Z"/>
@@ -81,7 +92,6 @@ buttons step it by hand. Every value drawn here is fictional.
 
         <!-- Structure (bottom left) -->
         <g class="station" data-i="3" transform="translate(91,330)">
-            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
             <g aria-hidden="true" transform="translate(8,0)">
                 <line class="hair-2 draw" style="--len:30;--d:1" x1="20" y1="22" x2="50" y2="12"/>
                 <line class="hair-2 draw" style="--len:30;--d:2" x1="50" y1="12" x2="84" y2="24"/>
@@ -102,7 +112,6 @@ buttons step it by hand. Every value drawn here is fictional.
 
         <!-- Reason (left) -->
         <g class="station" data-i="4" transform="translate(34,160)">
-            <rect class="mask" x="-4" y="-6" width="128" height="92" rx="10"/>
             <g aria-hidden="true" transform="translate(10,0)">
                 <rect class="live-f a" style="--d:0" x="0" y="4" width="4.5" height="4.5"/><line class="hair-2 a" style="--d:0" x1="10" y1="6" x2="56" y2="6"/><line class="res a" style="--d:1" x1="62" y1="6" x2="98" y2="6"/>
                 <rect class="live-f a" style="--d:1" x="0" y="16" width="4.5" height="4.5"/><line class="hair-2 a" style="--d:1" x1="10" y1="18" x2="46" y2="18"/><line class="res a" style="--d:2" x1="52" y1="18" x2="98" y2="18"/>
@@ -119,7 +128,7 @@ buttons step it by hand. Every value drawn here is fictional.
         <text class="footnote" x="470" y="474" text-anchor="end">Illustrative</text>
     </svg>
 
-    <figcaption class="fig-controls" aria-label="Hold the figure at a step">
+    <figcaption class="fig-controls" aria-label="Figure controls">
         <button type="button" data-play data-pause-label="Pause" data-play-label="Play">Pause</button>
         <button type="button" data-hold="0" aria-pressed="false">Design</button>
         <button type="button" data-hold="1" aria-pressed="false">Run</button>

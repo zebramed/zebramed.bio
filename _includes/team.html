@@ -27,24 +27,31 @@
         {% endfor %}
     </div>
 
+    {% assign prod = false %}{% if jekyll.environment == "production" %}{% assign prod = true %}{% endif %}
+    {% assign board_shown = 0 %}
+    {% for g in site.data.board.groups %}{% for m in g.members %}{% unless prod and m.pending %}{% assign board_shown = board_shown | plus: 1 %}{% endunless %}{% endfor %}{% endfor %}
     <div class="mt-20 board">
+        {% if board_shown > 0 %}
         <h3 class="h3">Board</h3>
         {% for g in site.data.board.groups %}
+        {% assign g_shown = 0 %}{% for m in g.members %}{% unless prod and m.pending %}{% assign g_shown = g_shown | plus: 1 %}{% endunless %}{% endfor %}
+        {% if g_shown == 0 %}{% continue %}{% endif %}
         <div class="mt-8">
             <p class="group-name">{{ g.name }}</p>
             <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10">
                 {% for m in g.members %}
+                {% if prod and m.pending %}{% continue %}{% endif %}
                 <article class="member">
                     <h4 class="h5">{% if m.title %}{{ m.title }} {% endif %}{{ m.name }}</h4>
                     <p class="mt-2 text-sm">{{ m.line }}</p>
-                    <p class="mt-2 text-sm links">
-                        {% if m.linkedin != "" %}<a href="{{ m.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% else %}<span class="pending-inline">[LinkedIn URL pending]</span>{% endif %}
-                    </p>
+                    {% if m.linkedin != "" %}<p class="mt-2 text-sm links"><a href="{{ m.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a></p>{% endif %}
+                    {% if m.pending %}<p class="mt-2 pending-inline">Pending: {{ m.pending }}.</p>{% endif %}
                 </article>
                 {% endfor %}
             </div>
         </div>
         {% endfor %}
-        <p class="mt-10 text-sm muted max-w-2xl">{{ site.data.board.mentorship }}</p>
+        {% endif %}
+        <p class="{% if board_shown > 0 %}mt-10 {% endif %}text-sm muted max-w-2xl">{{ site.data.board.mentorship }}</p>
     </div>
 </section>

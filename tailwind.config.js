@@ -6,6 +6,9 @@ module.exports = {
     './*.html',
     './assets/js/**/*.js'
   ],
+  // The scanner turns any matching word into a utility; "ring" appears in figure
+  // comments and its utility draws a 3px blue box-shadow. Not used on purpose.
+  blocklist: ['ring'],
   theme: {
     extend: {
       colors: {

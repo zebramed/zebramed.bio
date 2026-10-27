@@ -1,13 +1,19 @@
 {% assign im = site.data.impact %}
+{% assign prod = false %}{% if jekyll.environment == "production" %}{% assign prod = true %}{% endif %}
+{% assign shown = 0 %}{% for m in im.measures %}{% unless prod and m.pending %}{% assign shown = shown | plus: 1 %}{% endunless %}{% endfor %}
+{% if shown > 0 %}
 <section id="impact" class="section impact">
     <p class="h3 max-w-2xl">{{ im.statement }}</p>
-    <div class="impact-row mt-10">
+    <div class="impact-row mt-10" style="--cols: {{ shown }}">
         {% for m in im.measures %}
+        {% if prod and m.pending %}{% continue %}{% endif %}
         <div class="measure">
-            <p class="measure-value{% if m.value contains '[' %} is-placeholder{% endif %}"{% if m.count != "" %} data-count="{{ m.count }}"{% endif %}>{{ m.value }}</p>
+            <p class="measure-value{% if m.value contains '[' or m.pending %} is-placeholder{% endif %}"{% if m.count != "" %} data-count="{{ m.count }}"{% endif %}>{{ m.value }}</p>
             <p class="measure-label mt-2">{{ m.label }}</p>
+            {% if m.pending %}<p class="measure-label mt-2 pending-inline">Pending: {{ m.pending }}.</p>{% endif %}
         </div>
         {% endfor %}
     </div>
     <p class="mt-6 text-sm muted">{{ im.basis }}</p>
 </section>
+{% endif %}

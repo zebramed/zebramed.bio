@@ -37,30 +37,14 @@ the .flows overlay. All values fictional.
                 <rect class="live" x="27" y="18" width="8" height="6" rx="1" stroke-dasharray="2 1.5"/>
                 <rect class="live" x="46" y="10" width="11" height="6" rx="1" stroke-dasharray="2 1.5"/>
             </g>
-            <text class="t-small" x="14" y="230">lateral imaging, same larva, several timepoints</text>
+            <text class="t-small" x="14" y="230">lateral imaging, same larva over time</text>
         </svg>
     </div>
 
-    <!-- Interactome -->
-    <div class="panel panel-lg">
-        <div class="panel-head"><span class="panel-title">Multi-Species Systemic Interactome</span><span class="panel-sub">organ states, behaviours and transcripts over time, mapped to human terms</span></div>
-        <svg viewBox="0 0 440 300" aria-hidden="true">
-            <!-- inputs: perturbation profile -->
-            <g transform="translate(316,14)">
-                <text class="t-small" x="0" y="8">perturbation profile</text>
-                {% for r in (0..5) %}{% for c in (0..4) %}{% assign v = r | times: 7 | plus: c | times: 13 | modulo: 10 %}{% assign op = v | times: 0.08 | plus: 0.08 %}
-                <rect x="{{ c | times: 17 }}" y="{{ r | times: 13 | plus: 16 }}" width="15" height="11" rx="1.5" class="live-f" fill-opacity="{{ op }}"/>
-                {% endfor %}{% endfor %}
-                <path class="live" d="M0 150 C 30 150, 40 112, 56 108 C 70 104, 80 102, 86 102" />
-                <line class="hair-2" x1="0" y1="150" x2="86" y2="150"/>
-                <text class="t-mono" x="0" y="164">dose response</text>
-            </g>
-            <path class="hair-2 input-arrow" d="M312 70 C 290 70, 282 96, 262 104" marker-end="url(#ia)"/>
-            <path class="hair-2 input-arrow" d="M312 150 C 290 150, 282 150, 262 160" marker-end="url(#ia)"/>
-            <defs><marker id="ia" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L8 4 L0 8 z" class="hair-f"/></marker></defs>
-
-            <!-- the graph -->
-            <g class="graph" transform="translate(0,0)">
+    <!-- Interactome. The graph is captured once and drawn in two variants:
+         wide (graph, inputs, human terms) and compact (graph only, for phones). -->
+    {% capture ix_graph %}
+            <g class="graph">
                 <line class="edge" style="stroke-width:2.2" x1="150" y1="90" x2="190" y2="70"/>
                 <line class="edge" style="stroke-width:1.4" x1="150" y1="90" x2="110" y2="140"/>
                 <line class="edge" style="stroke-width:1" x1="70" y1="80" x2="150" y2="90"/>
@@ -87,33 +71,52 @@ the .flows overlay. All values fictional.
                 <circle class="node n-tx" cx="110" cy="250" r="4.5"/>
 
                 <text class="t-mono" x="200" y="60">pericardium, t₃</text>
-                <text class="t-mono" x="156" y="82">pericardium, t₂</text>
+                <text class="t-mono" x="159" y="87">pericardium, t₂</text>
                 <text class="t-mono" x="168" y="206">liver, t₃</text>
-                <text class="t-mono" x="258" y="106">cyp3a, t₃</text>
-                <text class="t-mono" x="20" y="76">startle, t₂</text>
-                <text class="t-mono" x="14" y="218">locomotion, t₃</text>
+                <text class="t-mono" x="258" y="129">cyp3a, t₃</text>
+                <text class="t-mono" x="62" y="78" text-anchor="end">startle, t₂</text>
+                <text class="t-mono" x="6" y="222">locomotion, t₃</text>
                 <text class="t-mono" x="246" y="226">hsp70, t₂</text>
                 <text class="t-mono" x="118" y="266">nppa, t₃</text>
-                <text class="t-mono" x="60" y="156">yolk, t₂</text>
-                <text class="t-mono" x="216" y="166">swim bladder, t₃</text>
+                <text class="t-mono" x="100" y="137" text-anchor="end">yolk, t₂</text>
+                <text class="t-mono" x="216" y="167">swim bladder, t₃</text>
             </g>
 
-            <!-- legend -->
-            <g transform="translate(14,284)">
+            <g class="legend" transform="translate(14,284)">
                 <circle class="node n-morph" cx="4" cy="-3" r="3.5"/><text class="t-small" x="12" y="0">morphology</text>
                 <circle class="node n-behav" cx="86" cy="-3" r="3.5"/><text class="t-small" x="94" y="0">behaviour</text>
                 <circle class="node n-tx" cx="160" cy="-3" r="3.5"/><text class="t-small" x="168" y="0">transcript</text>
             </g>
+    {% endcapture %}
+    <div class="panel panel-lg">
+        <div class="panel-head"><span class="panel-title">Multi-Species Systemic Interactome</span><span class="panel-sub">organ states, behaviours and transcripts over time, mapped to human terms</span></div>
+        <svg class="ix-wide" viewBox="0 0 450 300" aria-hidden="true">
+            <defs><marker id="ia" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L8 4 L0 8 z" class="hair-f"/></marker></defs>
 
-            <!-- human terms -->
-            <g transform="translate(316,196)">
-                <text class="t-small" x="0" y="8">human terms</text>
-                <text class="t-mono" x="0" y="26">pericardium → pericardium</text>
-                <text class="t-mono" x="0" y="42">liver → liver</text>
-                <text class="t-mono" x="0" y="58">startle → acoustic startle</text>
-                <text class="t-mono" x="0" y="74">swim bladder → no direct match</text>
-                <circle class="res-f" cx="112" cy="23" r="2.5"/><circle class="res-f" cx="112" cy="39" r="2.5"/><circle class="res-f" cx="112" cy="55" r="2.5"/><circle class="flag" cx="112" cy="71" r="2.5"/>
+            <!-- inputs: perturbation profile -->
+            <g transform="translate(312,14)">
+                <text class="t-small" x="0" y="8">perturbation profile</text>
+                {% for r in (0..5) %}{% for c in (0..4) %}{% assign v = r | times: 7 | plus: c | times: 13 | modulo: 10 %}{% assign op = v | times: 0.08 | plus: 0.08 %}
+                <rect x="{{ c | times: 17 }}" y="{{ r | times: 13 | plus: 16 }}" width="15" height="11" rx="1.5" class="live-f" fill-opacity="{{ op }}"/>
+                {% endfor %}{% endfor %}
+                <path class="live" d="M0 150 C 30 150, 40 112, 56 108 C 70 104, 80 102, 86 102" />
+                <line class="hair-2" x1="0" y1="150" x2="86" y2="150"/>
+                <text class="t-mono" x="0" y="164">dose response</text>
             </g>
+            <path class="hair-2 input-arrow" d="M306 66 C 286 66, 276 92, 261 104" marker-end="url(#ia)"/>
+            <path class="hair-2 input-arrow" d="M306 156 C 282 156, 250 150, 220 150" marker-end="url(#ia)"/>
+{{ ix_graph }}
+            <!-- human terms: the agreement dot sits before each pair -->
+            <g transform="translate(312,196)">
+                <text class="t-small" x="0" y="8">human terms</text>
+                <circle class="res-f" cx="2.5" cy="23" r="2.5"/><text class="t-mono" x="9" y="26">pericardium → pericardium</text>
+                <circle class="res-f" cx="2.5" cy="39" r="2.5"/><text class="t-mono" x="9" y="42">liver → liver</text>
+                <circle class="res-f" cx="2.5" cy="55" r="2.5"/><text class="t-mono" x="9" y="58">startle → acoustic startle</text>
+                <circle class="flag" cx="2.5" cy="71" r="2.5"/><text class="t-mono" x="9" y="74">swim bladder → no match</text>
+            </g>
+        </svg>
+        <svg class="ix-compact" viewBox="0 46 308 246" aria-hidden="true">
+{{ ix_graph }}
         </svg>
     </div>
 
@@ -137,9 +140,10 @@ the .flows overlay. All values fictional.
 
             <g transform="translate(14,180)">
                 <text class="t-small" x="0" y="0">above: deliver a dossier</text>
-                <text class="t-mono muted-t" x="0" y="14">toxicity · efficacy · mechanism · biomarkers</text>
-                <text class="t-small live-t" x="0" y="38">below: design the next run</text>
-                <line class="live" x1="0" y1="44" x2="150" y2="44"/>
+                <text class="t-mono muted-t" x="0" y="14">toxicity · efficacy</text>
+                <text class="t-mono muted-t" x="0" y="25">mechanism · biomarkers</text>
+                <text class="t-small live-t" x="0" y="46">below: design the next run</text>
+                <line class="live" x1="0" y1="52" x2="150" y2="52"/>
             </g>
         </svg>
     </div>

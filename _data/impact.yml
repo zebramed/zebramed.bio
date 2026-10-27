@@ -1,8 +1,9 @@
-# Impact row. Values render literally; "[METRIC]" stays visible until a
-# sourced figure replaces it. `count` is used for the count-up only when
-# it is a number.
-statement: "A whole-organism loop changes three things for a programme."
-basis: "We project these from the platform's six-week cycle against a conventional rodent programme."
+# Impact row. Values render literally. A measure with `pending:` is not
+# cleared: review builds show it with the reason in amber, production builds
+# (JEKYLL_ENV=production) leave it out. Delete the `pending:` line to publish.
+# `count` drives the count-up only when it is a number.
+statement: "What a whole-organism loop changes for a programme."
+basis: "Time and spend are projected from the platform's six-week cycle against a conventional rodent programme."
 measures:
   - value: "6 weeks"
     count: ""
@@ -10,6 +11,8 @@ measures:
   - value: "2×"
     count: ""
     label: "closer to human systemic responses than standard cell assays"
+    pending: "the business plan states this three ways (55% higher, 2×, 50 to 60% closer); reconcile and cite one"
   - value: "[METRIC]"
     count: ""
-    label: "lower preclinical spend before any mammalian cohort. Figure pending a source."
+    label: "lower preclinical spend before any mammalian cohort"
+    pending: "a sourced figure"

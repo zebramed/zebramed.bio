@@ -91,25 +91,19 @@
   });
 
   /* ---------- Figure 2: the wall chart draws once ---------- */
+  // The series carry pathLength="1000", so CSS draws them from .is-drawn alone;
+  // nothing is measured (one of the two chart variants is always display:none).
   document.querySelectorAll('[data-figure="wall"]').forEach(root => {
-    const lines = [...root.querySelectorAll('.series')];
-    lines.forEach(l => {
-      const len = l.getTotalLength();
-      l.style.setProperty('--len', len);
-      l.style.strokeDasharray = len;
-      l.style.strokeDashoffset = reduced() ? 0 : len;
-    });
     let drawn = false;
     const draw = () => {
       if (drawn) return; drawn = true;
       root.classList.add('is-drawn');
-      lines.forEach(l => { l.style.strokeDashoffset = 0; });
     };
     const replay = root.querySelector('[data-replay]');
     if (replay) replay.addEventListener('click', () => {
-      drawn = false; root.classList.remove('is-drawn');
-      lines.forEach(l => { l.style.transition = 'none'; l.style.strokeDashoffset = l.style.strokeDasharray; });
-      requestAnimationFrame(() => requestAnimationFrame(() => { lines.forEach(l => { l.style.transition = ''; }); draw(); }));
+      drawn = false;
+      root.classList.add('no-anim'); root.classList.remove('is-drawn');
+      requestAnimationFrame(() => requestAnimationFrame(() => { root.classList.remove('no-anim'); draw(); }));
     });
     figures.push({ el: root, enter() { draw(); }, leave() {}, onMotionChange() { if (reduced()) draw(); } });
     io.observe(root);
@@ -139,10 +133,11 @@
         const xs = b[2].x + b[2].w * 0.5, xe = b[0].x + b[0].w * 0.5;
         ret.setAttribute('d', `M${xs} ${b[2].y + b[2].h} V${yb} H${xe} V${b[0].y + b[0].h + 6}`);
       } else {
-        const x = b[0].x + 28;
+        // stacked: the return runs in the gutter the CSS leaves left of the panels
+        const x = b[0].x - 12;
         fwd1.setAttribute('d', `M${b[0].x + b[0].w * 0.5} ${b[0].y + b[0].h} V${b[1].y}`);
         fwd2.setAttribute('d', `M${b[1].x + b[1].w * 0.5} ${b[1].y + b[1].h} V${b[2].y}`);
-        ret.setAttribute('d', `M${b[2].x} ${b[2].y + b[2].h * 0.5} H${x - 14} V${b[0].y + b[0].h * 0.5} H${b[0].x}`);
+        ret.setAttribute('d', `M${b[2].x} ${b[2].y + b[2].h * 0.5} H${x} V${b[0].y + b[0].h * 0.5} H${b[0].x}`);
       }
     };
     layout();

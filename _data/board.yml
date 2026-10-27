@@ -1,6 +1,9 @@
 # Advisory board. Names and lines from the CEO's October 2026 draft.
 # Each member confirms their line and supplies a LinkedIn URL and photo
 # before publication; `linkedin: ""` renders no link.
+# A member with `pending:` has not yet agreed to appear: review builds show
+# them with the reason in amber, production builds (JEKYLL_ENV=production)
+# leave them out. Delete the `pending:` line once they agree.
 groups:
   - name: Strategic board
     members:
@@ -11,6 +14,7 @@ groups:
           Former global head of digital innovation at Sanofi and innovation
           director at Roche.
         linkedin: ""
+        pending: consent to appear, and a LinkedIn URL
       - name: Domenico Lucatelli
         role: Strategic board
         line: >-
@@ -18,12 +22,14 @@ groups:
           biopharma commercial, market access and institutional roles at
           Novartis and Roche.
         linkedin: ""
+        pending: consent to appear, and a LinkedIn URL
       - name: Isabelle Hilali
         role: Strategic board
         line: >-
           Founder and CEO of Datacraft, former EVP strategy and marketing at
           Orange Healthcare, senior lecturer at X-HEC-UC Berkeley.
         linkedin: ""
+        pending: consent to appear, and a LinkedIn URL
   - name: Scientific board
     members:
       - name: Stephen J. Haggarty
@@ -34,6 +40,7 @@ groups:
           director of chemical neurobiology. CNS chemical libraries and target
           validation.
         linkedin: ""
+        pending: consent to appear, and a LinkedIn URL
       - name: Vincenzo Di Donato
         title: Dr
         role: Scientific board
@@ -42,6 +49,7 @@ groups:
           director at ZeClinics. High-throughput CRISPR editing and zebrafish
           disease models.
         linkedin: ""
+        pending: consent to appear, and a LinkedIn URL
       - name: Arthur Llau
         title: Dr
         role: Scientific board
@@ -49,6 +57,7 @@ groups:
           Chief scientist at Flowlity and professor of data science at Sorbonne
           Université. Kaggle grandmaster; i-Lab and Google–McKinsey prize winner.
         linkedin: ""
+        pending: consent to appear, and a LinkedIn URL
 mentorship: >-
   Mentors from the DayOne (Basel), Creative Destruction Lab and HEC Challenge+
   programmes advise the team. ZebraMed is a resident of Future4Care and the

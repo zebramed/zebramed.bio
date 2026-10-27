@@ -1,25 +1,37 @@
-# Traction items. Anything in [square brackets] is a placeholder that renders
-# visibly and must be cleared or sourced before publication. See
-# docs/ceo-copy-merge.md §4 for the reasoning behind each.
+# Traction items. An item with `pending:` is not cleared for publication:
+# review builds show it with the reason in amber, production builds
+# (JEKYLL_ENV=production) leave it out. Delete the `pending:` line to publish.
+# See docs/ceo-copy-merge.md §4 for the reasoning behind each.
+# Not yet here: pharma challenge selections (e.g. Ipsen STEP4NAM), once the
+# partners clear them.
+# `lede` is the phrase each feature adds to the section's one-line summary.
 features:
   - kicker: Pharma validation
+    lede: pharma pilots
     title: Paid validation pilots with a top-50 pharma company
     text: >-
       Two funded pilots: systemic and off-target toxicity across a set of
       small-molecule and ASO candidates first, then CNS efficacy, mechanism of
-      action and shelved-asset rescue. [Partner name and terms pending the
-      partner's clearance.]
+      action and shelved-asset rescue.
+    pending: >-
+      the partner's clearance, for the name and terms and for this scope,
+      which may be enough to identify them
   - kicker: Research collaborations
+    lede: research collaborations
     title: Joint research with Institut Imagine, TEFOR (CNRS/CEA) and Sorbonne ISIR
     text: >-
       Active collaborations on disease models, zebrafish resources and
-      automation. [Pharma challenge selections pending the partners' clearance.]
+      automation.
 measures:
   - value: "[VALIDATION METRIC]"
-    label: Liver-toxicity prediction performance. Pending a sourced, fold-by-fold figure.
+    label: Liver-toxicity prediction performance
+    pending: a sourced, fold-by-fold figure
   - value: "[PLATFORM METRIC]"
-    label: Biofoundry throughput. Pending a dated run log.
+    label: Biofoundry throughput
+    pending: a dated run log
   - value: "[FUNDING]"
-    label: Non-dilutive and equity funding secured. Pending a disclosure decision.
+    label: Non-dilutive and equity funding secured
+    pending: a disclosure decision
   - value: "[IP STATUS]"
-    label: Hardware and workflow patent filings. Pending counsel's wording.
+    label: Hardware and workflow patent filings
+    pending: counsel's wording

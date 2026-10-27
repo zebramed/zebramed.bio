@@ -1,0 +1,69 @@
+{% comment %}
+One rendering of the wall chart. figures/wall.html draws it twice: a wide
+variant and a compact one for phones, so text stays legible at both widths.
+Parameters (strings, converted below): cls, vbw, vbh, x0, pw (plot width),
+y0, ph (plot height), phase_y, sub_y, legend_x, legend_y, legend_dy,
+label_pos ("inside" | "above").
+Until wall_chart.yml says status: sourced, the y axis carries no numbers:
+the shape is a schematic, and numbered gridlines would read as data.
+{% endcomment %}
+{% assign wc = site.data.wall_chart %}
+{% assign vbw = include.vbw | plus: 0 %}{% assign vbh = include.vbh | plus: 0 %}
+{% assign x0 = include.x0 | plus: 0 %}{% assign pw = include.pw | times: 1.0 %}
+{% assign y0 = include.y0 | plus: 0 %}{% assign ph = include.ph | times: 1.0 %}
+{% assign y1 = y0 | plus: ph %}{% assign x1 = x0 | plus: pw %}
+{% assign yk = ph | divided_by: -100.0 %}
+<svg class="{{ include.cls }}" viewBox="0 0 {{ vbw }} {{ vbh }}" role="img"
+     aria-label="Asset survival through preclinical, Phase I and Phase II. One line, traditional pharma, declines steadily from the start. The other, AI-designed candidates, stays high through Phase I and collapses against a brick wall over Phase II. Schematic.">
+    <defs>
+        <pattern id="bricks-{{ include.cls }}" width="28" height="14" patternUnits="userSpaceOnUse">
+            <rect width="28" height="14" fill="none"/>
+            <path d="M0 0 H28 M0 7 H28 M14 0 V7 M0 7 V14 M28 7 V14" class="brick"/>
+        </pattern>
+    </defs>
+
+    {% assign wx = wc.wall.from | times: pw | plus: x0 %}
+    {% assign ww = wc.wall.to | minus: wc.wall.from | times: pw %}
+    <rect class="wall" x="{{ wx }}" y="{{ y0 }}" width="{{ ww }}" height="{{ ph }}" fill="url(#bricks-{{ include.cls }})"/>
+    {% if include.label_pos == "above" %}
+    <text class="wall-label" x="{{ x1 }}" y="{{ y0 | minus: 10 }}" text-anchor="end">{{ wc.wall.label }}</text>
+    {% else %}
+    <text class="wall-label" x="{{ wx | plus: 14 }}" y="{{ y0 | plus: 30 }}">{{ wc.wall.label }}</text>
+    {% endif %}
+
+    <!-- axes -->
+    <line class="axis" x1="{{ x0 }}" y1="{{ y1 }}" x2="{{ x1 }}" y2="{{ y1 }}"/>
+    <line class="axis" x1="{{ x0 }}" y1="{{ y0 }}" x2="{{ x0 }}" y2="{{ y1 }}"/>
+    {% if wc.status == "sourced" %}
+    {% for t in (0..5) %}{% assign yv = t | times: 20 %}{% assign yp = yv | times: yk | plus: y1 %}
+    <text class="tick" x="{{ x0 | minus: 8 }}" y="{{ yp | plus: 3 }}" text-anchor="end">{{ yv }}%</text>
+    {% if t > 0 %}<line class="grid" x1="{{ x0 }}" y1="{{ yp }}" x2="{{ x1 }}" y2="{{ yp }}"/>{% endif %}
+    {% endfor %}
+    {% endif %}
+    <text class="tick axis-label" x="{{ x0 }}" y="{{ y0 | minus: 12 }}">{{ wc.y_label }}</text>
+
+    <!-- phases -->
+    {% for p in wc.phases %}
+    {% assign px0 = p.from | times: pw | plus: x0 %}
+    {% assign pxm = p.to | plus: p.from | times: pw | divided_by: 2.0 | plus: x0 %}
+    {% if forloop.index > 1 %}<line class="grid" x1="{{ px0 }}" y1="{{ y0 }}" x2="{{ px0 }}" y2="{{ y1 }}"/>{% endif %}
+    <text class="phase" x="{{ pxm }}" y="{{ include.phase_y }}" text-anchor="middle">{{ p.label }}</text>
+    <text class="phase-sub" x="{{ pxm }}" y="{{ include.sub_y }}" text-anchor="middle">{{ p.sub }}</text>
+    {% endfor %}
+
+    <!-- series: pathLength lets CSS draw them in without measuring -->
+    {% for s in wc.series %}
+    {% capture d %}{% assign raw = s.points | split: " " %}{% for pt in raw %}{% assign xy = pt | split: "," %}{% assign px = xy[0] | times: pw | plus: x0 | round: 1 %}{% assign py = xy[1] | times: yk | plus: y1 | round: 1 %}{% if forloop.first %}M{% else %} L{% endif %}{{ px }},{{ py }}{% endfor %}{% endcapture %}
+    <path class="series series-{{ s.style }}" pathLength="1000" d="{{ d | strip }}"/>
+    {% endfor %}
+
+    <!-- legend -->
+    {% assign lx = include.legend_x | plus: 0 %}
+    {% for s in wc.series %}
+    {% assign ly = forloop.index0 | times: include.legend_dy | plus: include.legend_y %}
+    <line class="series-{{ s.style }} legend-swatch" x1="{{ lx }}" y1="{{ ly }}" x2="{{ lx | plus: 24 }}" y2="{{ ly }}"/>
+    <text class="legend" x="{{ lx | plus: 32 }}" y="{{ ly | plus: 4 }}">{{ s.name }}</text>
+    {% endfor %}
+
+    {% if wc.status != "sourced" and jekyll.environment != "production" %}<text class="pending" x="{{ x1 }}" y="{{ vbh | minus: 8 }}" text-anchor="end">Data pending</text>{% endif %}
+</svg>
