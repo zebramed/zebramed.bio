@@ -1,4 +1,4 @@
-<section id="platform" class="section">
+<section id="platform" class="section" data-select-group>
     <div class="max-w-3xl">
         <h2 class="h2">The platform</h2>
         <p class="lede mt-6">
@@ -11,8 +11,9 @@
         {% include figures/abstract.html %}
     </div>
 
-    <div class="mt-16 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 blocks">
-        <div class="block">
+    <p class="select-hint">Select a part of the platform to read about it.</p>
+    <div class="mt-16 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 blocks" aria-live="polite">
+        <div class="block" id="pt-biofoundry" data-select-panel="biofoundry">
             <h3 class="h4">The automated biofoundry</h3>
             <p class="mt-3">
                 Transparent zebrafish larvae share 82% of human disease-associated genes and carry a
@@ -22,7 +23,7 @@
                 framework of the FDA Modernization Act 2.0.
             </p>
         </div>
-        <div class="block">
+        <div class="block" id="pt-interactome" data-select-panel="interactome">
             <h3 class="h4">The Multi-Species Systemic Interactome</h3>
             <p class="mt-3">
                 The interactome is our data asset: continuous morphology, behavioural matrices and
@@ -32,7 +33,7 @@
                 clinical priors.
             </p>
         </div>
-        <div class="block">
+        <div class="block" id="pt-xenoex" data-select-panel="xenoex">
             <h3 class="h4">XenoEx, interpretable multi-agent AI</h3>
             <p class="mt-3">
                 XenoEx reasons over the interactome in steps a scientist can read, audit and redirect.

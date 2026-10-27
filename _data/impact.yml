@@ -2,17 +2,22 @@
 # cleared: review builds show it with the reason in amber, production builds
 # (JEKYLL_ENV=production) leave it out. Delete the `pending:` line to publish.
 # `count` drives the count-up only when it is a number.
+#
+# Sources: the 2x and -50% figures are the business plan's USP statement
+# (zebramed-bp, bp/04-market/03-unique-selling-proposition-usp-core.md:11):
+# "a 50% absolute reduction in preclinical timeline duration and capital
+# expenditures and a 2x higher translatability towards humans in comparison to
+# other in vitro technologies". Note the plan states translatability elsewhere
+# as "55% higher" (executive summary) and "50% to 60% closer" (same file, :19).
 statement: "What a whole-organism loop changes for a programme."
-basis: "Time and spend are projected from the platform's six-week cycle against a conventional rodent programme."
+basis: "Projected from the platform's six-week cycle, against a conventional rodent programme and standard in vitro models."
 measures:
   - value: "6 weeks"
     count: ""
     label: "from candidate to systemic read-out, in place of an 18 to 24 month rodent programme"
   - value: "2×"
     count: ""
-    label: "closer to human systemic responses than standard cell assays"
-    pending: "the business plan states this three ways (55% higher, 2×, 50 to 60% closer); reconcile and cite one"
-  - value: "[METRIC]"
+    label: "human translational value compared to standard in vitro models"
+  - value: "−50%"
     count: ""
-    label: "lower preclinical spend before any mammalian cohort"
-    pending: "a sourced figure"
+    label: "preclinical spend before the first mammalian cohort"

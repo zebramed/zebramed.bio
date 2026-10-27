@@ -55,6 +55,34 @@ document.addEventListener('DOMContentLoaded', function () {
         resizeTimer = setTimeout(initSeamlessCarousel, 250);
     });
 
+    // --- Select a part to read about it ---
+    // [data-select-group] holds controls ([data-select="key"]) and descriptions
+    // ([data-select-panel="key"]). Without JS every description shows; with it,
+    // one at a time, starting with the first control.
+    document.querySelectorAll('[data-select-group]').forEach(group => {
+        const controls = [...group.querySelectorAll('[data-select]')];
+        const panels = [...group.querySelectorAll('[data-select-panel]')];
+        if (!controls.length || !panels.length) return;
+        const show = key => {
+            controls.forEach(c => {
+                const on = c.dataset.select === key;
+                c.classList.toggle('is-active', on);
+                c.setAttribute('aria-pressed', String(on));
+            });
+            panels.forEach(p => p.classList.toggle('is-active', p.dataset.selectPanel === key));
+        };
+        controls.forEach(c => {
+            if (c.tagName !== 'BUTTON') { c.setAttribute('role', 'button'); c.tabIndex = 0; }
+            c.addEventListener('click', () => show(c.dataset.select));
+            c.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(c.dataset.select); }
+            });
+        });
+        group.querySelectorAll('[data-select-bar]').forEach(bar => { bar.hidden = false; });
+        group.classList.add('is-enhanced');
+        show(controls[0].dataset.select);
+    });
+
     // --- Sticky header, mobile menu, active section ---
     const siteHeader = document.getElementById('site-header');
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
