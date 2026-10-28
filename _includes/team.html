@@ -39,6 +39,7 @@
                 {% for m in g.members %}
                 {% if prod and m.pending %}{% continue %}{% endif %}
                 <article class="member">
+                    {% if m.photo %}<img src="{{ '/assets/images/' | append: m.photo | relative_url }}" alt="{{ m.name }}" loading="lazy" width="56" height="56" class="member-photo">{% endif %}
                     <h4 class="h4">{% if m.title %}{{ m.title }} {% endif %}{{ m.name }}</h4>
                     <p class="mt-2 text-sm">{{ m.line }}</p>
                     {% if m.linkedin != "" %}<p class="mt-2 text-sm links"><a href="{{ m.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a></p>{% endif %}

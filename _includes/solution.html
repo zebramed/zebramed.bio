@@ -1,4 +1,4 @@
-<section id="platform" class="section band">
+<section id="platform" class="section band band-deep">
   <div class="wrap">
     <header class="section-head">
         <h2 class="title">The platform</h2>
@@ -8,8 +8,14 @@
         </p>
     </header>
 
-    <div class="rows">
-        <article class="row">
+    <div class="platform-select" data-select-group>
+    <div class="select-bar" role="group" aria-label="Parts of the platform" data-select-bar hidden>
+        <button type="button" data-select="biofoundry" aria-controls="pt-biofoundry"><span class="label">Run</span><span class="select-name">Biofoundry</span></button>
+        <button type="button" data-select="interactome" aria-controls="pt-interactome"><span class="label">Structure</span><span class="select-name">Interactome</span></button>
+        <button type="button" data-select="xenoex" aria-controls="pt-xenoex"><span class="label">Reason</span><span class="select-name">XenoEx</span></button>
+    </div>
+    <div class="rows" aria-live="polite">
+        <article class="row" id="pt-biofoundry" data-select-panel="biofoundry">
             <figure class="plate">
                 {% include figures/biofoundry.html %}
             </figure>
@@ -26,10 +32,10 @@
             </div>
         </article>
 
-        <article class="row is-flipped">
+        <article class="row is-flipped" id="pt-interactome" data-select-panel="interactome">
             <figure class="plate">
                 {% include figures/interactome.html %}
-                <figcaption class="plate-note">Organ states in blue, behaviour in cyan, transcripts in grey.</figcaption>
+                <figcaption class="plate-note">Organ states in teal, behaviour in green, transcripts in grey.</figcaption>
             </figure>
             <div class="row-text">
                 <p class="label">Structure</p>
@@ -44,7 +50,7 @@
             </div>
         </article>
 
-        <article class="row">
+        <article class="row" id="pt-xenoex" data-select-panel="xenoex">
             <figure class="plate">
                 {% include figures/xenoex.html %}
             </figure>
@@ -60,6 +66,7 @@
                 </p>
             </div>
         </article>
+    </div>
     </div>
 
     <p class="plate-legal">Figures are illustrative, with fictional data.</p>

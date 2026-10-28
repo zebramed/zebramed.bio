@@ -8,6 +8,7 @@ groups:
   - name: Strategic board
     members:
       - name: Isabelle Vitali
+        photo: isabelle-vitali.png
         role: President of the strategic board
         line: >-
           CEO of VIQ Healthcare Consulting and founding member of Future4Care.
@@ -16,6 +17,7 @@ groups:
         linkedin: ""
         pending: consent to appear, and a LinkedIn URL
       - name: Domenico Lucatelli
+        photo: domenico-lucatelli.png
         role: Strategic board
         line: >-
           Global public affairs head at Angelini Pharma. Thirty years in
@@ -24,6 +26,7 @@ groups:
         linkedin: ""
         pending: consent to appear, and a LinkedIn URL
       - name: Isabelle Hilali
+        photo: isabelle-hilali.png
         role: Strategic board
         line: >-
           Founder and CEO of Datacraft, former EVP strategy and marketing at
@@ -33,6 +36,7 @@ groups:
   - name: Scientific board
     members:
       - name: Stephen J. Haggarty
+        photo: stephen-haggarty.png
         title: Prof.
         role: Scientific board
         line: >-
@@ -42,6 +46,7 @@ groups:
         linkedin: ""
         pending: consent to appear, and a LinkedIn URL
       - name: Vincenzo Di Donato
+        photo: vincenzo-di-donato.png
         title: Dr
         role: Scientific board
         line: >-
@@ -51,6 +56,7 @@ groups:
         linkedin: ""
         pending: consent to appear, and a LinkedIn URL
       - name: Arthur Llau
+        photo: arthur-llau.png
         title: Dr
         role: Scientific board
         line: >-

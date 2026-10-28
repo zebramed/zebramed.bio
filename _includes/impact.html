@@ -2,7 +2,7 @@
 {% assign prod = false %}{% if jekyll.environment == "production" %}{% assign prod = true %}{% endif %}
 {% assign shown = 0 %}{% for m in im.measures %}{% unless prod and m.pending %}{% assign shown = shown | plus: 1 %}{% endunless %}{% endfor %}
 {% if shown > 0 %}
-<section id="impact" class="section band band-deep impact">
+<section id="impact" class="section band impact">
   <div class="wrap">
     <h2 class="title title-sm text-center">{{ im.statement }}</h2>
     <div class="numerals" style="--cols: {{ shown }}">

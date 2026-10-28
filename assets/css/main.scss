@@ -27,24 +27,25 @@ Version:    3.0 (refactor/2026-10, restyle)
 @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/assets/fonts/inter/Inter-SemiBold.woff2') format('woff2'); }
 @font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/inter/Inter-Bold.woff2') format('woff2'); }
 @font-face { font-family: 'Barlow'; font-style: normal; font-weight: 300; font-display: swap; src: url('/assets/fonts/barlow/Barlow-Light.woff2') format('woff2'); }
+@font-face { font-family: 'Barlow'; font-style: italic; font-weight: 300; font-display: swap; src: url('/assets/fonts/barlow/Barlow-LightItalic.woff2') format('woff2'); }
 @font-face { font-family: 'Barlow'; font-style: normal; font-weight: 500; font-display: swap; src: url('/assets/fonts/barlow/Barlow-Medium.woff2') format('woff2'); }
 
 /* 1. TOKENS
-   Colours come from the logo file: a navy ground, the logo's sky blue for
-   actions and live elements, its light cyan for results and highlights.
+   The ZebraMed palette: a navy ground, mint for actions and the live
+   element, green for results and highlights.
 -------------------------------------------------------------------*/
 :root {
     --color-bg-dark: #171F56;
     --color-bg-dark-rgb: 23, 31, 86;
     --color-bg-deep: #11174a;
     --color-text-light: #ffffff;
-    --color-text-bright: #eef2fb;
-    --color-text-medium: #c4cbe0;
-    --color-text-light-rgb: 196, 203, 224;
-    --color-accent-primary: #32aafb;      /* logo sky: actions, the live element */
-    --color-accent-primary-rgb: 50, 170, 251;
-    --color-accent-secondary: #80d4ff;    /* logo cyan: results, highlights */
-    --color-accent-secondary-rgb: 128, 212, 255;
+    --color-text-bright: #e6f1ff;
+    --color-text-medium: #ccd6f6;
+    --color-text-light-rgb: 204, 214, 246;
+    --color-accent-primary: #64ffda;      /* mint: actions, the live element */
+    --color-accent-primary-rgb: 100, 255, 218;
+    --color-accent-secondary: #a8ff78;    /* green: results, highlights */
+    --color-accent-secondary-rgb: 168, 255, 120;
     --color-flag: #f5b85c;                /* exclusions, thresholds, pending */
     --color-line: #9fb0d0;                /* structure strokes, used at low opacity */
     --color-line-rgb: 159, 176, 208;
@@ -86,7 +87,13 @@ p { max-width: 62ch; color: var(--color-text-medium); }
     font-family: var(--font-family-display);
     font-weight: 300; text-transform: uppercase; letter-spacing: 0.05em;
     font-size: clamp(1.875rem, 3.6vw, 2.875rem); line-height: 1.08;
-    color: var(--color-text-light);
+    color: var(--color-accent-primary);
+}
+/* the vision line under the hero title */
+.vision {
+    font-family: var(--font-family-display); font-style: italic; font-weight: 300;
+    font-size: clamp(1.375rem, 2.4vw, 1.75rem); line-height: 1.3; letter-spacing: 0.01em;
+    color: var(--color-accent-secondary); margin-top: 1.25rem;
 }
 .title-sm { font-size: clamp(1.5rem, 2.6vw, 2rem); letter-spacing: 0.04em; }
 .h3 { font-family: var(--font-family-display); font-weight: 500; font-size: 1.5rem; line-height: 1.2; color: var(--color-text-light); }
@@ -127,7 +134,7 @@ p { max-width: 62ch; color: var(--color-text-medium); }
 
 .logo-mask {
     display: inline-block; width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--color-accent-secondary), var(--color-accent-primary));
+    background-color: var(--color-accent-primary);
     -webkit-mask: url('/assets/images/zebramed_logo.svg') no-repeat center / contain;
     mask: url('/assets/images/zebramed_logo.svg') no-repeat center / contain;
 }
@@ -182,8 +189,8 @@ p { max-width: 62ch; color: var(--color-text-medium); }
 }
 .btn-sm { padding: 0.55rem 1rem; font-size: 0.8125rem; }
 @media (max-width: 479px) { .header-actions .btn-sm { padding: 0.45rem 0.75rem; font-size: 0.75rem; letter-spacing: 0.08em; } .brand-title { font-size: 1.25rem; } .brand .logo-mask { width: 32px; height: 32px; } }
-.btn-solid { background: var(--color-accent-primary); color: #0b1240; border: 1px solid var(--color-accent-primary); }
-.btn-solid:hover { background: #63c0fc; border-color: #63c0fc; }
+.btn-solid { background: var(--color-accent-primary); color: var(--color-bg-dark); border: 1px solid var(--color-accent-primary); }
+.btn-solid:hover { background: #8fffe6; border-color: #8fffe6; }
 .btn-outline { background: transparent; color: var(--color-text-light); border: 1px solid rgba(var(--color-accent-primary-rgb), 0.6); }
 .btn-outline:hover { background: rgba(var(--color-accent-primary-rgb), 0.1); border-color: var(--color-accent-primary); }
 .btn.is-pending { opacity: 0.55; cursor: not-allowed; }
@@ -309,7 +316,7 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .ix .n-behav { fill: var(--color-accent-secondary); }
 .ix .n-tx    { fill: var(--color-text-medium); }
 /* a halo in the plate colour keeps labels clear where an edge passes */
-.ix text { paint-order: stroke; stroke: #1c2459; stroke-width: 4px; stroke-linejoin: round; }
+.ix text { paint-order: stroke; stroke: #191f50; stroke-width: 4px; stroke-linejoin: round; }
 
 /* 6. SECTIONS
 -------------------------------------------------------------------*/
@@ -324,7 +331,7 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 /* a halftone field behind the ring, thinning towards the edges */
 .hero-art::before {
     content: ''; position: absolute; inset: -14% -20% -14% -14%; z-index: 0; pointer-events: none;
-    background-image: radial-gradient(rgba(var(--color-accent-secondary-rgb), 0.3) 1.1px, transparent 1.7px);
+    background-image: radial-gradient(rgba(var(--color-accent-primary-rgb), 0.26) 1.1px, transparent 1.7px);
     background-size: 12px 12px;
     -webkit-mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.15), #000 55%, transparent 100%);
     mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.15), #000 55%, transparent 100%);
@@ -400,6 +407,34 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 }
 .row-text > p:not(.label) { margin-top: 1.25rem; }
 
+/* platform: select a part to see its figure and text (main.js adds .is-enhanced
+   and unhides the bar; without JS all three rows show) */
+.select-bar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin-top: 4rem; }
+.select-bar[hidden] { display: none; }
+.select-bar button {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem;
+    padding: 1rem 0 0; background: none; border: 0; border-top: 2px solid rgba(var(--color-line-rgb), 0.25);
+    font: inherit; text-align: left; cursor: pointer; transition: border-color 200ms ease;
+}
+.select-bar .label { color: rgba(var(--color-text-light-rgb), 0.6); }
+.select-name {
+    font-family: var(--font-family-display); font-weight: 300; text-transform: uppercase; letter-spacing: 0.05em;
+    font-size: clamp(1.125rem, 2vw, 1.5rem); color: var(--color-text-medium); transition: color 200ms ease;
+}
+@media (max-width: 479px) { .select-name { font-size: 0.875rem; letter-spacing: 0.03em; } }
+.select-bar button:hover { border-top-color: rgba(var(--color-accent-primary-rgb), 0.6); }
+.select-bar button.is-active { border-top-color: var(--color-accent-primary); }
+.select-bar button.is-active .label { color: var(--color-accent-secondary); }
+.select-bar button.is-active .select-name { color: var(--color-accent-primary); }
+.is-enhanced .rows { margin-top: 3rem; }
+.is-enhanced [data-select-panel]:not(.is-active) { display: none; }
+.is-enhanced .row.is-active { animation: select-in 300ms ease; }
+@keyframes select-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (min-width: 900px) {
+    .is-enhanced .row.is-flipped { grid-template-columns: 1.1fr 1fr; }
+    .is-enhanced .row.is-flipped .plate { order: 0; }
+}
+
 /* team */
 .person-photo { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(var(--color-line-rgb), 0.3); }
 .person-name { font-family: var(--font-family-display); font-weight: 500; font-size: 1.375rem; line-height: 1.2; color: var(--color-text-light); margin-top: 1.5rem; }
@@ -410,6 +445,7 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .board { margin-top: 6rem; padding-top: 4rem; border-top: 1px solid rgba(var(--color-line-rgb), 0.14); }
 .board > div { margin-top: 2.5rem; }
 .member p { font-size: 0.9375rem; }
+.member-photo { display: block; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(var(--color-line-rgb), 0.3); margin-bottom: 0.875rem; }
 .mentors { margin-top: 3rem; font-size: 0.875rem; color: rgba(var(--color-text-light-rgb), 0.62); max-width: 60ch; }
 .mentors.is-alone { margin-top: 0; }
 
@@ -431,7 +467,7 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .closing { background: var(--color-bg-deep); overflow: hidden; text-align: center; }
 .closing::before {
     content: ''; position: absolute; inset: 0; pointer-events: none;
-    background-image: radial-gradient(rgba(var(--color-accent-secondary-rgb), 0.24) 1px, transparent 1.6px);
+    background-image: radial-gradient(rgba(var(--color-accent-primary-rgb), 0.2) 1px, transparent 1.6px);
     background-size: 14px 14px;
     -webkit-mask-image: radial-gradient(ellipse 70% 90% at 50% 100%, #000, transparent 70%);
     mask-image: radial-gradient(ellipse 70% 90% at 50% 100%, #000, transparent 70%);
@@ -455,4 +491,5 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     .fig-wall .series { transition: none; stroke-dashoffset: 0 !important; }
     .fig-wall .wall, .fig-wall .wall-label { opacity: 1; transition: none; }
     .cue svg, .nav-link::after, .btn, .site-header { transition: none; }
+    .is-enhanced .row.is-active { animation: none; }
 }
