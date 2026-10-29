@@ -12,7 +12,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'bg-dark': '#171F56',
+        'bg-dark': '#11174a',
         'text-light': '#ffffff',
         'text-bright': '#e6f1ff',
         'text-medium': '#ccd6f6',
