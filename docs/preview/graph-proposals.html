@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZebraMed — Systemic Translation Graph: figure proposals (not for publication)</title>
+<style>
+/* ---------------------------------------------------------------
+   MOCK ONLY. Self-contained. docs/ is untracked and excluded from
+   the Jekyll build; never publish. Open straight from disk.
+   Figure classes copied from assets/css/main.scss (restyle/2026-10).
+---------------------------------------------------------------- */
+@font-face{font-family:Inter;font-weight:400;font-display:swap;src:url('../../assets/fonts/inter/Inter-Regular.woff2') format('woff2')}
+@font-face{font-family:Inter;font-weight:500;font-display:swap;src:url('../../assets/fonts/inter/Inter-Medium.woff2') format('woff2')}
+@font-face{font-family:Inter;font-weight:600;font-display:swap;src:url('../../assets/fonts/inter/Inter-SemiBold.woff2') format('woff2')}
+
+:root{
+  --bg:#0b1036;            /* restyle band-deep: the Platform section */
+  --plate-fill:#12173c;    /* the plate's tint over --bg, used to mask edges under nodes */
+  --text-light:#fff;
+  --text-bright:#e6f1ff;
+  --text-medium:#ccd6f6;
+  --line:#9fb0d0;
+  --live:#64ffda;          /* mint: what XenoEx is reading now */
+  --result:#a8ff78;        /* green: human terms */
+  --flag:#f5b85c;          /* amber: no match */
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text-bright);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6}
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.bar{position:sticky;top:0;z-index:5;display:flex;gap:1.5rem;align-items:center;padding:.6rem 1.25rem;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08);font-size:.8rem;color:var(--text-medium)}
+.bar strong{color:var(--text-light);font-weight:600}
+.bar label{display:inline-flex;align-items:center;gap:.35rem;cursor:pointer}
+.bar input{accent-color:var(--live)}
+
+h1{font-size:clamp(1.9rem,3.6vw,2.6rem);font-weight:600;letter-spacing:-.025em;line-height:1.12;color:var(--live);margin:3.5rem 0 0}
+h2{font-size:1.5rem;font-weight:600;letter-spacing:-.015em;color:var(--text-light);margin:.4rem 0 0}
+h3{font-size:.8rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--result);margin:1.5rem 0 .25rem}
+p,li{color:var(--text-medium);max-width:64ch}
+ul{padding-left:1.1rem;margin:.25rem 0}
+.lede{font-size:1.125rem}
+.kicker{font-size:.8rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--result)}
+.muted{color:rgba(204,214,246,.6);font-size:.875rem}
+.brief{display:grid;gap:2rem;margin-top:2.5rem}
+@media(min-width:900px){.brief{grid-template-columns:1fr 1fr}}
+.key{display:grid;grid-template-columns:auto 1fr;gap:.5rem 1rem;align-items:center;font-size:.9rem;color:var(--text-medium)}
+.key svg{width:44px;height:14px;overflow:visible}
+
+.proposal{display:grid;gap:2rem;align-items:start;padding:4.5rem 0;border-top:1px solid rgba(159,176,208,.14)}
+@media(min-width:900px){.proposal{grid-template-columns:1.1fr 1fr;gap:4rem}}
+.plate{margin:0;padding:1.75rem;border-radius:1rem;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));border:1px solid rgba(159,176,208,.16)}
+.plate-note{margin-top:.75rem;font-size:.8125rem;color:rgba(204,214,246,.6)}
+body.phone .plate{max-width:320px;padding:.75rem}
+table{border-collapse:collapse;width:100%;margin-top:1.5rem;font-size:.9rem}
+th,td{text-align:left;padding:.6rem .75rem;border-top:1px solid rgba(159,176,208,.18);color:var(--text-medium);vertical-align:top}
+th{color:var(--text-light);font-weight:600}
+td.y{color:var(--result)} td.p{color:var(--text-medium)} td.n{color:var(--flag)}
+
+/* ---------- figure language (as main.scss) ---------- */
+.plate-svg{display:block;width:100%;height:auto;overflow:visible}
+.plate-svg text{font-family:Inter,system-ui,sans-serif}
+.hair  {stroke:var(--line);stroke-opacity:.32;fill:none;stroke-width:1}
+.hair-2{stroke:var(--line);stroke-opacity:.62;fill:none;stroke-width:1.25}
+.live  {stroke:var(--live);fill:none;stroke-width:1.5}
+.live-f{fill:var(--live)}
+.res   {stroke:var(--result);fill:none;stroke-width:1.5}
+.res-f {fill:var(--result)}
+.flag  {stroke:var(--flag);fill:none;stroke-width:1.5}
+.f-head{fill:var(--text-medium);fill-opacity:.7;font-size:12.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase}
+.f-label{fill:var(--text-medium);font-size:14.5px}
+.f-strong{fill:var(--text-light)}
+/* current figure (.ix) */
+.ix .edge{stroke:var(--line);stroke-opacity:.45;stroke-width:1.5}
+.ix .edge-live{stroke:var(--live);stroke-width:2.5;stroke-opacity:.95}
+.ix .carry{stroke:var(--result);stroke-opacity:.55;stroke-width:1.25;stroke-dasharray:3 4}
+.ix .node{stroke:var(--bg);stroke-width:2}
+.ix .n-morph{fill:var(--live)} .ix .n-behav{fill:var(--result)} .ix .n-tx{fill:var(--text-medium)}
+.ix text{paint-order:stroke;stroke:var(--plate-fill);stroke-width:4px;stroke-linejoin:round}
+
+/* ---------- new for the proposals ---------- */
+.f-note  {fill:var(--text-medium);fill-opacity:.8;font-size:12.5px}
+.n-gene  {fill:var(--text-medium)}                                         /* gene-expression change */
+.n-obs   {fill:var(--plate-fill);stroke:var(--line);stroke-opacity:.85;stroke-width:1.5}  /* phenotype or behaviour */
+.n-faint {fill:var(--line);fill-opacity:.35}                               /* the rest of the graph */
+.e-faint {stroke:var(--line);stroke-opacity:.2;stroke-width:1}
+.e-core  {stroke:var(--line);stroke-opacity:.42;stroke-width:1.25}
+.live-ring{fill:var(--plate-fill);stroke:var(--live);stroke-width:2}
+.client-box {fill:none;stroke:var(--line);stroke-opacity:.8;stroke-width:1.25;stroke-dasharray:4 3}
+.client-line{fill:none;stroke:var(--line);stroke-opacity:.6;stroke-width:1.25;stroke-dasharray:4 3}
+.client-live{fill:none;stroke:var(--live);stroke-width:1.5;stroke-dasharray:4 3}
+.b-orth{fill:none;stroke:var(--result);stroke-width:1.5;stroke-dasharray:6 4}             /* orthology */
+.b-onto{fill:none;stroke:var(--result);stroke-width:2.75;stroke-dasharray:0.1 5.5;stroke-linecap:round} /* ontology */
+.b-aop {fill:none;stroke:var(--result);stroke-width:2}                                     /* adverse outcome pathway */
+/* round 2 */
+.lvl        {fill:#fff;fill-opacity:.025}                                   /* level stripe */
+.n-faint-ring{fill:var(--plate-fill);stroke:var(--line);stroke-opacity:.4;stroke-width:1.25}
+.card       {fill:var(--plate-fill);stroke:var(--live);stroke-opacity:.8;stroke-width:1.25}
+.leader     {fill:none;stroke:var(--live);stroke-width:1.25;stroke-dasharray:3 3}
+.aop-bracket{fill:none;stroke:var(--result);stroke-opacity:.6;stroke-width:1.25}
+details.round1{border-top:1px solid rgba(159,176,208,.14);padding:2rem 0}
+details.round1>summary{cursor:pointer;color:var(--text-medium);font-weight:500}
+details.round1>summary:hover{color:var(--text-light)}
+</style>
+</head>
+<body>
+
+<!-- shared arrowheads (not display:none, or Firefox drops the markers) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="m-live" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#64ffda"/></marker>
+    <marker id="m-hair" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#9fb0d0" fill-opacity=".7"/></marker>
+    <marker id="m-res"  viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#a8ff78"/></marker>
+  </defs>
+</svg>
+
+<div class="bar">
+  <strong>Platform figure 2 · proposals</strong>
+  <span>Mock only, fictional data. restyle/2026-10 palette.</span>
+  <label><input type="checkbox" id="phone"> Plates at phone width</label>
+</div>
+
+<main class="wrap">
+  <p class="kicker" style="margin-top:3rem">Translate</p>
+  <h1>Redrawing the Systemic Translation Graph</h1>
+  <p class="lede">Round 2: fuller versions of A and B, where every node says what it is. Same rules as the other plates (420 wide, no text under 12.5px, mint for what XenoEx is reading, green for human terms); they run taller. Round 1, with C and the current figure, is collapsed at the bottom.</p>
+
+  <div class="brief">
+    <div>
+      <h3>What the figure has to say</h3>
+      <ul>
+        <li>It is <strong>organised knowledge</strong>, not the dataset: links between gene-expression changes and the phenotypes and behaviours seen with them.</li>
+        <li>The links follow <strong>mechanistic chains</strong>, step by step.</li>
+        <li>Three kinds of bridge reach human biology: <strong>orthology</strong>, shared <strong>ontologies</strong>, <strong>adverse outcome pathways</strong>.</li>
+        <li><strong>Zebrafish is the core</strong>; a client's own data (cell lines, organoids, other species) is placed in the same graph and read in human terms.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Shared key</h3>
+      <div class="key">
+        <svg viewBox="0 0 44 14"><circle class="n-gene" cx="22" cy="7" r="4.5"/></svg><span>gene-expression change</span>
+        <svg viewBox="0 0 44 14"><circle class="n-obs" cx="22" cy="7" r="6"/></svg><span>phenotype (cell or organ)</span>
+        <svg viewBox="0 0 44 14"><path class="n-obs" d="M22 0 L29 7 L22 14 L15 7 Z"/></svg><span>behaviour</span>
+        <svg viewBox="0 0 44 14"><circle class="res-f" cx="22" cy="7" r="5"/></svg><span>human term, tagged with its vocabulary (HGNC genes, HPO phenotypes) and its AOP role (KE key event, AO adverse outcome)</span>
+        <svg viewBox="0 0 44 14"><rect class="client-box" x="15" y="0" width="14" height="14"/></svg><span>client data</span>
+        <svg viewBox="0 0 44 14"><line class="live" x1="2" y1="7" x2="42" y2="7"/></svg><span>the path XenoEx is reading</span>
+        <svg viewBox="0 0 44 14"><line class="b-orth" x1="2" y1="7" x2="42" y2="7"/></svg><span>orthology</span>
+        <svg viewBox="0 0 44 14"><line class="b-onto" x1="2" y1="7" x2="42" y2="7"/></svg><span>ontology</span>
+        <svg viewBox="0 0 44 14"><line class="b-aop" x1="2" y1="7" x2="42" y2="7"/></svg><span>adverse outcome pathway</span>
+      </div>
+      <p class="muted">dpf: days post-fertilisation, the larva's age when the change was seen.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ A2 -->
+  <section class="proposal">
+    <figure class="plate" style="margin:0">
+      <svg class="plate-svg" viewBox="0 0 420 356" role="img"
+           aria-label="The chain in full. Levels from gene to organism. A cell line covers gene and cell, an organoid gene to organ; only the zebrafish reaches the organism. In zebrafish, cyp3a and fasn rise at 2 days, lipid rises at 3 days and increases liver size at 5 days, which precedes reduced swimming. Orthology maps the genes to CYP3A4 and FASN; ontologies map lipid to steatosis, liver size to hepatomegaly and swimming to fatigue. In human, an adverse outcome pathway runs from steatosis and hepatomegaly, both key events, to liver injury, the adverse outcome. Fictional.">
+        <!-- level stripes and heads -->
+        <rect class="lvl" x="30" y="0" width="114" height="356"/>
+        <rect class="lvl" x="232" y="0" width="82" height="356"/>
+        <rect class="lvl" x="368" y="0" width="52" height="356"/>
+        <text class="f-head" x="87" y="14" text-anchor="middle">gene</text>
+        <text class="f-head" x="186" y="14" text-anchor="middle">cell</text>
+        <text class="f-head" x="274" y="14" text-anchor="middle">organ</text>
+        <text class="f-head" x="416" y="14" text-anchor="end">organism</text>
+
+        <!-- client models, placed by the levels they can observe -->
+        <text class="f-head" x="14" y="30">client</text>
+        <rect class="client-box" x="34" y="38" width="180" height="24" rx="12"/>
+        <text class="f-label" x="124" y="55" text-anchor="middle">cell line</text>
+        <rect class="client-box" x="34" y="68" width="266" height="24" rx="12"/>
+        <text class="f-label" x="167" y="85" text-anchor="middle">organoid</text>
+
+        <!-- zebrafish: observations with direction and time -->
+        <text class="f-head" x="14" y="112">zebrafish</text>
+        <line class="live"   x1="82"  y1="126" x2="176" y2="143" marker-end="url(#m-live)"/>
+        <line class="hair-2" x1="116" y1="166" x2="177" y2="150" marker-end="url(#m-hair)"/>
+        <line class="live"   x1="195" y1="146" x2="264" y2="146" marker-end="url(#m-live)"/>
+        <line class="hair-2" x1="283" y1="146" x2="381" y2="146" marker-end="url(#m-hair)"/>
+        <text class="f-note" x="230" y="138" text-anchor="middle">increases</text>
+        <text class="f-note" x="334" y="138" text-anchor="middle">precedes</text>
+        <circle class="live-f" cx="76" cy="124" r="5.5"/>
+        <circle class="n-gene" cx="110" cy="168" r="5.5"/>
+        <circle class="live-ring" cx="186" cy="146" r="8"/>
+        <circle class="live-ring" cx="274" cy="146" r="8"/>
+        <path class="n-obs" d="M392 137 L401 146 L392 155 L383 146 Z"/>
+        <text class="f-label f-strong" x="76" y="146" text-anchor="middle">cyp3a ↑</text>
+        <text class="f-note" x="76" y="161" text-anchor="middle">2 dpf</text>
+        <text class="f-label" x="110" y="190" text-anchor="middle">fasn ↑</text>
+        <text class="f-note" x="110" y="205" text-anchor="middle">2 dpf</text>
+        <text class="f-label f-strong" x="186" y="172" text-anchor="middle">lipid ↑</text>
+        <text class="f-note" x="186" y="187" text-anchor="middle">3 dpf</text>
+        <text class="f-label f-strong" x="274" y="172" text-anchor="middle">liver size ↑</text>
+        <text class="f-note" x="274" y="187" text-anchor="middle">5 dpf</text>
+        <text class="f-label" x="416" y="174" text-anchor="end">swim ↓</text>
+        <text class="f-note" x="392" y="189" text-anchor="middle">5 dpf</text>
+
+        <!-- bridges -->
+        <line class="b-orth" x1="76"  y1="167" x2="76"  y2="251"/>
+        <line class="b-orth" x1="110" y1="211" x2="110" y2="289"/>
+        <line class="b-onto" x1="186" y1="194" x2="186" y2="269"/>
+        <line class="b-onto" x1="274" y1="194" x2="274" y2="269"/>
+        <line class="b-onto" x1="392" y1="196" x2="392" y2="269"/>
+        <text class="f-note" x="116" y="236">orthology</text>
+        <text class="f-note" x="192" y="236">ontology</text>
+
+        <!-- human: vocabulary terms, with their role in the pathway -->
+        <text class="f-head" x="14" y="242">human</text>
+        <line class="hair-2" x1="82"  y1="259" x2="177" y2="274" marker-end="url(#m-hair)"/>
+        <line class="hair-2" x1="116" y1="294" x2="178" y2="279" marker-end="url(#m-hair)"/>
+        <line class="b-aop"  x1="192" y1="276" x2="266" y2="276" marker-end="url(#m-res)"/>
+        <line class="b-aop"  x1="280" y1="276" x2="325" y2="276" marker-end="url(#m-res)"/>
+        <line class="hair-2" x1="350" y1="276" x2="384" y2="276" marker-end="url(#m-hair)"/>
+        <circle class="res-f" cx="76"  cy="258" r="5"/>
+        <circle class="res-f" cx="110" cy="296" r="5"/>
+        <circle class="res-f" cx="186" cy="276" r="5"/>
+        <circle class="res-f" cx="274" cy="276" r="5"/>
+        <circle class="res-f" cx="338" cy="276" r="6"/><circle class="res" cx="338" cy="276" r="11"/>
+        <circle class="res-f" cx="392" cy="276" r="5"/>
+        <text class="f-label f-strong" x="76" y="280" text-anchor="middle">CYP3A4</text>
+        <text class="f-note" x="76" y="295" text-anchor="middle">HGNC</text>
+        <text class="f-label f-strong" x="110" y="318" text-anchor="middle">FASN</text>
+        <text class="f-note" x="110" y="333" text-anchor="middle">HGNC</text>
+        <text class="f-label f-strong" x="186" y="298" text-anchor="middle">steatosis</text>
+        <text class="f-note" x="186" y="313" text-anchor="middle">HPO · KE</text>
+        <text class="f-label f-strong" x="274" y="298" text-anchor="middle">hepatomegaly</text>
+        <text class="f-note" x="274" y="313" text-anchor="middle">HPO · KE</text>
+        <text class="f-label f-strong" x="338" y="258" text-anchor="middle">liver injury</text>
+        <text class="f-note" x="338" y="298" text-anchor="middle">AO</text>
+        <text class="f-label f-strong" x="392" y="298" text-anchor="middle">fatigue</text>
+        <text class="f-note" x="392" y="313" text-anchor="middle">HPO</text>
+        <path class="aop-bracket" d="M150 322 V328 H352 V322"/>
+        <text class="f-note" x="251" y="346" text-anchor="middle">adverse outcome pathway</text>
+      </svg>
+      <figcaption class="plate-note">One mechanism through the graph, from gene to organism. Client models sit at the levels they can observe; only the zebrafish reaches the whole organism. Each human term carries its vocabulary and its role in the pathway. Fictional.</figcaption>
+    </figure>
+    <div>
+      <p class="kicker">Proposal A2</p>
+      <h2>The chain, in full</h2>
+      <p>Same reading as A (client, zebrafish, human; gene to organism), with the parts A left out.</p>
+      <h3>What changed</h3>
+      <ul>
+        <li><strong>Nodes say what they are.</strong> Shape gives the type (gene, phenotype, behaviour). Zebrafish nodes carry a direction and the age they were seen at. Human nodes carry their vocabulary (HGNC, HPO) and their role in the pathway (key event, adverse outcome).</li>
+        <li><strong>Edges say what they mean</strong> ("increases", "precedes"), not only that two things are linked.</li>
+        <li><strong>Convergence:</strong> two gene changes feed one cell event, so it reads as a network, not a line.</li>
+        <li><strong>A fourth level, the organism,</strong> with a behaviour (swimming). The organoid now covers up to the organ, so the stripe only the zebrafish reaches is visible.</li>
+        <li><strong>The AOP is drawn as its own chain</strong> on the human side, ending in the adverse outcome, with a bracket naming it.</li>
+      </ul>
+      <h3>Risks</h3>
+      <ul>
+        <li>Twice the content of A; it needs the caption to explain dpf, KE and AO.</li>
+        <li>For your team to check: cyp3a and fasn up → lipid → liver size; swimming ↓ ↔ fatigue is the weakest mapping.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ B2 -->
+  <section class="proposal">
+    <figure class="plate" style="margin:0">
+      <svg class="plate-svg" viewBox="0 0 420 392" role="img"
+           aria-label="A neighbourhood of the translation graph with one node opened. Typed nodes: genes, phenotypes, a behaviour; faint nodes are the rest of the graph. A client's cell line lands on fasn. Liver branch: cyp3a and fasn feed lipid, which feeds liver size; cyp3a maps to CYP3A4 by orthology, liver size to hepatomegaly by ontology, and hepatomegaly leads to liver injury by an adverse outcome pathway. Heart branch, lit: kcnh2a down decreases heart rate, which precedes reduced startle; heart rate maps to bradycardia and startle to the startle reflex. The startle node is opened: behaviour, 5 days, tap stimulus, 48 larvae, 38% below vehicle. Fictional.">
+        <text class="f-head" x="14" y="22">client</text>
+        <text class="f-head" x="110" y="22">zebrafish</text>
+        <text class="f-head" x="300" y="22">human</text>
+
+        <!-- the rest of the graph, typed too -->
+        <line class="e-faint" x1="62"  y1="72"  x2="60"  y2="110"/>
+        <line class="e-faint" x1="60"  y1="110" x2="113" y2="126"/>
+        <line class="e-faint" x1="150" y1="176" x2="124" y2="221"/>
+        <line class="e-faint" x1="150" y1="176" x2="250" y2="170"/>
+        <line class="e-faint" x1="250" y1="170" x2="236" y2="128"/>
+        <line class="e-faint" x1="90"  y1="276" x2="117" y2="231"/>
+        <line class="e-faint" x1="90"  y1="276" x2="160" y2="286"/>
+        <circle class="n-faint-ring" cx="62" cy="72" r="4"/>
+        <circle class="n-faint" cx="60" cy="110" r="3"/>
+        <circle class="n-faint" cx="150" cy="176" r="3"/>
+        <circle class="n-faint-ring" cx="250" cy="170" r="4"/>
+        <circle class="n-faint" cx="90" cy="276" r="3"/>
+        <path class="n-faint-ring" d="M160 281 L165 286 L160 291 L155 286 Z"/>
+
+        <!-- client data lands on fasn -->
+        <rect class="client-box" x="14" y="162" width="16" height="16"/>
+        <text class="f-label" x="14" y="200">cell line</text>
+        <line class="client-line" x1="30" y1="168" x2="113" y2="131"/>
+
+        <!-- liver branch -->
+        <line class="hair-2" x1="161" y1="70"  x2="174" y2="119" marker-end="url(#m-hair)"/>
+        <line class="hair-2" x1="124" y1="128" x2="167" y2="128" marker-end="url(#m-hair)"/>
+        <line class="hair-2" x1="184" y1="127" x2="222" y2="121" marker-end="url(#m-hair)"/>
+        <circle class="n-gene" cx="160" cy="64" r="5.5"/>
+        <circle class="n-gene" cx="118" cy="128" r="5.5"/>
+        <circle class="n-obs" cx="176" cy="128" r="7"/>
+        <circle class="n-obs" cx="232" cy="120" r="8"/>
+        <text class="f-label f-strong" x="150" y="69" text-anchor="end">cyp3a ↑</text>
+        <text class="f-label" x="118" y="114" text-anchor="middle">fasn ↑</text>
+        <text class="f-label" x="176" y="150" text-anchor="middle">lipid ↑</text>
+        <text class="f-label f-strong" x="232" y="102" text-anchor="middle">liver size ↑</text>
+
+        <!-- heart branch, lit -->
+        <line class="live" x1="126" y1="226" x2="200" y2="226" marker-end="url(#m-live)" style="stroke-width:2"/>
+        <line class="live" x1="214" y1="234" x2="235" y2="286" marker-end="url(#m-live)" style="stroke-width:2"/>
+        <text class="f-note" x="163" y="243" text-anchor="middle">decreases</text>
+        <text class="f-note" x="218" y="266" text-anchor="end">precedes</text>
+        <circle class="live-f" cx="120" cy="226" r="5.5"/>
+        <circle class="live-ring" cx="210" cy="226" r="8"/>
+        <path class="live-ring" d="M240 287 L249 296 L240 305 L231 296 Z"/>
+        <text class="f-label f-strong" x="110" y="231" text-anchor="end">kcnh2a ↓</text>
+        <text class="f-label f-strong" x="210" y="208" text-anchor="middle">heart rate ↓</text>
+
+        <!-- bridges -->
+        <line class="b-orth" x1="166" y1="64"  x2="294" y2="64"/>
+        <line class="b-onto" x1="241" y1="120" x2="294" y2="120"/>
+        <line class="b-onto" x1="219" y1="226" x2="294" y2="226"/>
+        <line class="b-onto" x1="249" y1="296" x2="294" y2="296"/>
+        <text class="f-note" x="228" y="56" text-anchor="middle">orthology</text>
+        <text class="f-note" x="258" y="243" text-anchor="middle">ontology</text>
+
+        <!-- human terms -->
+        <line class="b-aop" x1="300" y1="126" x2="300" y2="157" marker-end="url(#m-res)"/>
+        <text class="f-note" x="292" y="146" text-anchor="end">AOP</text>
+        <circle class="res-f" cx="300" cy="64" r="5"/>
+        <circle class="res-f" cx="300" cy="120" r="5"/>
+        <circle class="res-f" cx="300" cy="170" r="6"/><circle class="res" cx="300" cy="170" r="11"/>
+        <circle class="res-f" cx="300" cy="226" r="5"/>
+        <circle class="res-f" cx="300" cy="296" r="5"/>
+        <text class="f-label f-strong" x="312" y="69">CYP3A4</text>
+        <text class="f-note" x="312" y="85">HGNC</text>
+        <text class="f-label f-strong" x="312" y="125">hepatomegaly</text>
+        <text class="f-note" x="312" y="141">HPO · KE</text>
+        <text class="f-label f-strong" x="318" y="175">liver injury</text>
+        <text class="f-note" x="318" y="191">AO</text>
+        <text class="f-label f-strong" x="312" y="231">bradycardia</text>
+        <text class="f-note" x="312" y="247">HPO</text>
+        <text class="f-label f-strong" x="312" y="301">startle reflex</text>
+        <text class="f-note" x="312" y="317">behaviour</text>
+
+        <!-- one node, opened -->
+        <line class="leader" x1="194" y1="322" x2="230" y2="299"/>
+        <rect class="card" x="14" y="304" width="180" height="80" rx="8"/>
+        <text class="f-label f-strong" x="26" y="326">startle ↓</text>
+        <text class="f-note" x="26" y="344">behaviour · 5 dpf</text>
+        <text class="f-note" x="26" y="360">tap stimulus · n = 48</text>
+        <text class="f-note" x="26" y="376">−38% vs vehicle</text>
+      </svg>
+      <figcaption class="plate-note">A neighbourhood of the graph with one node opened. Every node is a typed observation or term; faint ones are the rest of the graph. One exposure, two organs: the lit path is the one XenoEx is reading. Fictional.</figcaption>
+    </figure>
+    <div>
+      <p class="kicker">Proposal B2</p>
+      <h2>The neighbourhood, with one node opened</h2>
+      <p>Same idea as B (the graph as XenoEx reads it), with real structure and one node shown in full.</p>
+      <h3>What changed</h3>
+      <ul>
+        <li><strong>One node opened</strong> in a card: what it is, when, how it was measured, how many larvae, how big the effect. That makes "nodes with meanings" literal: each one is a record, not a dot.</li>
+        <li><strong>Two branches, liver and heart, from one exposure.</strong> That is the systemic point a cell assay cannot make.</li>
+        <li><strong>Typed nodes everywhere,</strong> faint ones included (dot, ring, diamond), so the background reads as more of the same knowledge, not decoration.</li>
+        <li><strong>Edges carry relations</strong> ("decreases", "precedes"), and the AOP step runs on the human side, from hepatomegaly (key event) to liver injury (adverse outcome).</li>
+        <li><strong>Human terms tagged</strong> with their vocabulary and role, as in A2.</li>
+      </ul>
+      <h3>Risks</h3>
+      <ul>
+        <li>The card adds text. On the site it could later open on tap for any node, but that is more build work; static, it shows one.</li>
+        <li>For your team to check: kcnh2a ↓ → heart rate ↓ → bradycardia (KCNH2 is hERG, the standard cardiac-safety gene); startle ↓ ↔ startle reflex.</li>
+      </ul>
+    </div>
+  </section>
+
+  <details class="round1">
+  <summary>Round 1: A, B, C and the current figure</summary>
+
+  <!-- ============================================================ A -->
+  <section class="proposal">
+    <figure class="plate" style="margin:0">
+      <svg class="plate-svg" viewBox="0 0 420 310" role="img"
+           aria-label="One path through the translation graph. A client's cell line covers the gene and cell steps; the zebrafish adds the organ step. Each zebrafish step is bridged to its human counterpart: cyp3a to CYP3A4 by orthology, lipid build-up to steatosis by ontology, liver size to liver injury by an adverse outcome pathway. Fictional.">
+        <!-- row heads -->
+        <text class="f-head" x="14" y="50">client</text>
+        <text class="f-head" x="14" y="134">zebrafish</text>
+        <text class="f-head" x="14" y="240">human</text>
+
+        <!-- client model: covers gene and cell -->
+        <rect class="client-box" x="104" y="33" width="172" height="26" rx="13"/>
+        <text class="f-label" x="190" y="51" text-anchor="middle">cell line</text>
+        <line class="client-line" x1="130" y1="59" x2="130" y2="122"/>
+        <line class="client-line" x1="240" y1="59" x2="240" y2="120"/>
+
+        <!-- zebrafish chain, read by XenoEx -->
+        <line class="live" x1="138" y1="130" x2="226" y2="130" marker-end="url(#m-live)"/>
+        <line class="live" x1="250" y1="130" x2="336" y2="130" marker-end="url(#m-live)"/>
+        <circle class="live-f" cx="130" cy="130" r="6"/>
+        <circle class="live-ring" cx="240" cy="130" r="8"/>
+        <circle class="live-ring" cx="350" cy="130" r="8"/>
+        <text class="f-label f-strong" x="130" y="158" text-anchor="middle">cyp3a ↑</text>
+        <text class="f-label f-strong" x="240" y="158" text-anchor="middle">lipid ↑</text>
+        <text class="f-label f-strong" x="350" y="158" text-anchor="middle">liver size ↑</text>
+
+        <!-- bridges -->
+        <line class="b-orth" x1="130" y1="170" x2="130" y2="226"/>
+        <line class="b-onto" x1="240" y1="170" x2="240" y2="226"/>
+        <line class="b-aop"  x1="350" y1="170" x2="350" y2="222"/>
+        <text class="f-note" x="140" y="202">orthology</text>
+        <text class="f-note" x="250" y="202">ontology</text>
+        <text class="f-note" x="360" y="202">AOP</text>
+
+        <!-- human chain -->
+        <line class="hair-2" x1="137" y1="236" x2="229" y2="236" marker-end="url(#m-hair)"/>
+        <line class="hair-2" x1="247" y1="236" x2="335" y2="236" marker-end="url(#m-hair)"/>
+        <circle class="res-f" cx="130" cy="236" r="5"/>
+        <circle class="res-f" cx="240" cy="236" r="5"/>
+        <circle class="res-f" cx="350" cy="236" r="6"/><circle class="res" cx="350" cy="236" r="11"/>
+        <text class="f-label f-strong" x="130" y="266" text-anchor="middle">CYP3A4</text>
+        <text class="f-label f-strong" x="240" y="266" text-anchor="middle">steatosis</text>
+        <text class="f-label f-strong" x="350" y="266" text-anchor="middle">liver injury</text>
+
+        <!-- levels -->
+        <text class="f-head" x="130" y="300" text-anchor="middle">gene</text>
+        <text class="f-head" x="240" y="300" text-anchor="middle">cell</text>
+        <text class="f-head" x="350" y="300" text-anchor="middle">organ</text>
+      </svg>
+      <figcaption class="plate-note">One path through the graph. The client's cell line covers the first two steps; the zebrafish adds the organ, in a living body. Each step reaches its human counterpart. Fictional.</figcaption>
+    </figure>
+    <div>
+      <p class="kicker">Proposal A</p>
+      <h2>The chain: one mechanism, step by step</h2>
+      <p>One worked example, read across biological levels. Three rows: what the client's model can see, what the zebrafish adds, what each step means in human terms.</p>
+      <h3>Why</h3>
+      <ul>
+        <li>Draws your definition almost literally: a gene change linked to a phenotype, the mechanistic chain, and each kind of bridge named exactly where it applies.</li>
+        <li>Shows client data placed by level. A cell line stops at the cell; the organ step, in a living body, is the zebrafish's contribution. That is the Problem section's argument ("an isolated cell has no body"), made visible.</li>
+        <li>Toxicologists and regulators recognise the AOP shape: molecular event, key events, adverse outcome.</li>
+      </ul>
+      <h3>Speaks to</h3>
+      <p>Pharma scientists, safety and toxicology teams, NAM reviewers.</p>
+      <h3>Risks</h3>
+      <ul>
+        <li>Reads as one example rather than a graph; the tidy rows can feel like a slide.</li>
+        <li>The biology is fictional but has to be plausible: your team should check the chain (cyp3a → lipid build-up → liver size; CYP3A4 → steatosis → liver injury).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ B -->
+  <section class="proposal">
+    <figure class="plate" style="margin:0">
+      <svg class="plate-svg" viewBox="0 0 420 310" role="img"
+           aria-label="The translation graph as XenoEx reads it. Faint nodes are the rest of the graph. A client's cell-line result lands on the zebrafish gene cyp3a; a lit path runs to an organ change, liver size, and across an adverse outcome pathway to human liver injury. cyp3a also bridges to human CYP3A4 by orthology, and a behaviour, startle, to the human startle reflex by ontology. Fictional.">
+        <text class="f-head" x="14" y="22">client</text>
+        <text class="f-head" x="110" y="22">zebrafish</text>
+        <text class="f-head" x="300" y="22">human</text>
+
+        <!-- the rest of the graph -->
+        <line class="e-faint" x1="128" y1="72" x2="178" y2="52"/>
+        <line class="e-faint" x1="178" y1="52" x2="250" y2="58"/>
+        <line class="e-faint" x1="128" y1="72" x2="116" y2="124"/>
+        <line class="e-faint" x1="116" y1="124" x2="168" y2="138"/>
+        <line class="e-faint" x1="168" y1="138" x2="206" y2="114"/>
+        <line class="e-faint" x1="264" y1="160" x2="223" y2="117"/>
+        <line class="e-faint" x1="266" y1="224" x2="264" y2="160"/>
+        <line class="e-faint" x1="118" y1="250" x2="207" y2="261"/>
+        <line class="e-faint" x1="300" y1="58" x2="300" y2="99"/>
+        <circle class="n-faint" cx="128" cy="72" r="3"/>
+        <circle class="n-faint" cx="178" cy="52" r="3"/>
+        <circle class="n-faint" cx="250" cy="58" r="3"/>
+        <circle class="n-faint" cx="116" cy="124" r="3"/>
+        <circle class="n-faint" cx="168" cy="138" r="3"/>
+        <circle class="n-faint" cx="264" cy="160" r="3"/>
+        <circle class="n-faint" cx="266" cy="224" r="3"/>
+        <circle class="n-faint" cx="118" cy="250" r="3"/>
+        <circle class="n-faint" cx="300" cy="58" r="3"/>
+
+        <!-- client data lands on a zebrafish gene -->
+        <rect class="client-box" x="24" y="262" width="16" height="16" style="stroke:var(--live);stroke-opacity:1"/>
+        <text class="f-label" x="32" y="300" text-anchor="middle">cell line</text>
+        <line class="client-live" x1="40" y1="266" x2="145" y2="199"/>
+
+        <!-- zebrafish: gene → organ (lit), gene → behaviour -->
+        <line class="hair-2" x1="154" y1="200" x2="209" y2="256"/>
+        <line class="live" x1="154" y1="189" x2="207" y2="119" marker-end="url(#m-live)" style="stroke-width:2"/>
+        <circle class="live-f" cx="150" cy="195" r="6"/>
+        <circle class="live-ring" cx="215" cy="110" r="9"/>
+        <circle class="n-obs" cx="215" cy="262" r="8"/>
+        <text class="f-label f-strong" x="142" y="178" text-anchor="end">cyp3a ↑</text>
+        <text class="f-label f-strong" x="215" y="92" text-anchor="middle">liver size ↑</text>
+        <text class="f-label" x="215" y="290" text-anchor="middle">startle ↓</text>
+
+        <!-- bridges -->
+        <line class="b-aop"  x1="225" y1="110" x2="287" y2="110" marker-end="url(#m-res)"/>
+        <line class="b-orth" x1="157" y1="195" x2="294" y2="195"/>
+        <line class="b-onto" x1="224" y1="262" x2="294" y2="262"/>
+        <text class="f-note" x="256" y="130" text-anchor="middle">AOP</text>
+        <text class="f-note" x="228" y="187" text-anchor="middle">orthology</text>
+        <text class="f-note" x="258" y="254" text-anchor="middle">ontology</text>
+
+        <!-- human, with one known relation -->
+        <line class="hair" x1="300" y1="121" x2="300" y2="189"/>
+        <circle class="res-f" cx="300" cy="110" r="6"/><circle class="res" cx="300" cy="110" r="11"/>
+        <circle class="res-f" cx="300" cy="195" r="5"/>
+        <circle class="res-f" cx="300" cy="262" r="5"/>
+        <text class="f-label f-strong" x="318" y="115">liver injury</text>
+        <text class="f-label f-strong" x="312" y="200">CYP3A4</text>
+        <text class="f-label f-strong" x="312" y="267">startle reflex</text>
+      </svg>
+      <figcaption class="plate-note">The graph as XenoEx reads it. A client's result lands on a zebrafish gene; the lit path follows it to an organ change and across to human terms. Faint nodes are the rest of the graph. Fictional.</figcaption>
+    </figure>
+    <div>
+      <p class="kicker">Proposal B</p>
+      <h2>The path: the graph as XenoEx reads it</h2>
+      <p>The graph's texture in the background, with one lit path from a client's result, through the zebrafish core, across a bridge into human terms. Gene, phenotype and behaviour each appear once, and so does each bridge.</p>
+      <h3>Why</h3>
+      <ul>
+        <li>Makes "graph" visible: nodes and edges, many of them unlabelled, which says there is more than the example.</li>
+        <li>Connects to the next plate: XenoEx's decision trace is a walk along exactly this kind of path. It also matches the hero loop's "structure" station.</li>
+        <li>Closest to the current figure, so the least redesign; keeps the mint-is-live rule used across the site.</li>
+      </ul>
+      <h3>Speaks to</h3>
+      <p>AI-literate investors, data and ML partners.</p>
+      <h3>Risks</h3>
+      <ul>
+        <li>Faint nodes can read as decoration, the generic "AI network" picture.</li>
+        <li>The busiest of the three on a phone (ten labels).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ C -->
+  <section class="proposal">
+    <figure class="plate" style="margin:0">
+      <svg class="plate-svg" viewBox="0 0 420 310" role="img"
+           aria-label="Any model in, human out. Client data from a cell line, an organoid and a rodent study lands in the zebrafish core, a graph of genes, phenotypes and behaviour. Three kinds of bridge carry results to human terms: genes by orthology, phenotypes by ontologies, outcomes by adverse outcome pathways. The organoid's path to an outcome is lit. Fictional.">
+        <text class="f-head" x="14" y="22">clients</text>
+        <text class="f-head" x="200" y="22" text-anchor="middle">zebrafish core</text>
+        <text class="f-head" x="300" y="22">human</text>
+
+        <!-- client models -->
+        <text class="f-label" x="14" y="74">cell line</text>
+        <rect class="client-box" x="20" y="82" width="14" height="14"/>
+        <text class="f-label" x="14" y="144">organoid</text>
+        <rect class="client-box" x="20" y="152" width="14" height="14" style="stroke:var(--live);stroke-opacity:1"/>
+        <text class="f-label" x="14" y="214">rodent</text>
+        <rect class="client-box" x="20" y="222" width="14" height="14"/>
+        <line class="client-line" x1="34" y1="89"  x2="155" y2="108"/>
+        <line class="client-live" x1="34" y1="159" x2="143" y2="160"/>
+        <line class="client-line" x1="34" y1="229" x2="163" y2="207"/>
+
+        <!-- the core -->
+        <circle class="hair" cx="200" cy="158" r="80"/>
+        <g>
+          <line class="e-core" x1="160" y1="110" x2="205" y2="92"/>
+          <line class="e-core" x1="160" y1="110" x2="205" y2="145"/>
+          <line class="e-core" x1="160" y1="110" x2="150" y2="160"/>
+          <line class="e-core" x1="150" y1="160" x2="168" y2="205"/>
+          <line class="e-core" x1="168" y1="205" x2="205" y2="190"/>
+          <line class="e-core" x1="168" y1="205" x2="200" y2="228"/>
+          <line class="e-core" x1="205" y1="92"  x2="205" y2="145"/>
+          <line class="e-core" x1="205" y1="92"  x2="248" y2="112"/>
+          <line class="e-core" x1="205" y1="145" x2="248" y2="112"/>
+          <line class="e-core" x1="205" y1="145" x2="258" y2="165"/>
+          <line class="e-core" x1="248" y1="112" x2="258" y2="165"/>
+          <line class="e-core" x1="258" y1="165" x2="238" y2="210"/>
+          <line class="e-core" x1="200" y1="228" x2="238" y2="210"/>
+          <!-- lit path -->
+          <line class="live" x1="150" y1="160" x2="205" y2="145" style="stroke-width:2"/>
+          <line class="live" x1="205" y1="145" x2="205" y2="190" style="stroke-width:2"/>
+          <line class="live" x1="205" y1="190" x2="238" y2="210" style="stroke-width:2"/>
+        </g>
+        <circle class="n-gene" cx="160" cy="110" r="4.5"/>
+        <circle class="live-ring" cx="150" cy="160" r="6"/>
+        <circle class="n-gene" cx="168" cy="205" r="4.5"/>
+        <circle class="n-obs" cx="205" cy="92" r="6"/>
+        <circle class="live-f" cx="205" cy="145" r="5"/>
+        <circle class="n-gene" cx="248" cy="112" r="4.5"/>
+        <circle class="n-obs" cx="258" cy="165" r="6"/>
+        <circle class="live-ring" cx="238" cy="210" r="6"/>
+        <circle class="live-ring" cx="205" cy="190" r="6"/>
+        <circle class="n-gene" cx="200" cy="228" r="4.5"/>
+        <text class="f-note" x="200" y="262" text-anchor="middle">genes · phenotypes · behaviour</text>
+
+        <!-- bridges out -->
+        <line class="b-orth" x1="253" y1="109" x2="294" y2="84"/>
+        <line class="b-onto" x1="265" y1="164" x2="294" y2="158"/>
+        <line class="b-aop"  x1="244" y1="213" x2="286" y2="229" marker-end="url(#m-res)"/>
+
+        <!-- human outputs -->
+        <circle class="res-f" cx="300" cy="82" r="5"/>
+        <text class="f-label f-strong" x="312" y="87">genes</text>
+        <text class="f-note" x="312" y="104">via orthology</text>
+        <circle class="res-f" cx="300" cy="158" r="5"/>
+        <text class="f-label f-strong" x="312" y="163">phenotypes</text>
+        <text class="f-note" x="312" y="180">via ontologies</text>
+        <circle class="res-f" cx="300" cy="232" r="6"/><circle class="res" cx="300" cy="232" r="11"/>
+        <text class="f-label f-strong" x="318" y="237">outcomes</text>
+        <text class="f-note" x="318" y="254">via AOPs</text>
+      </svg>
+      <figcaption class="plate-note">Any model in, human out. Client data lands in the zebrafish core; three kinds of bridge carry the result to human terms. Fictional.</figcaption>
+    </figure>
+    <div>
+      <p class="kicker">Proposal C</p>
+      <h2>The hub: any model in, human out</h2>
+      <p>Client models on the left land in a zebrafish core; on the right, three kinds of human-relevant output, each labelled with the bridge that produces it.</p>
+      <h3>Why</h3>
+      <ul>
+        <li>Tells the commercial story in one look: clients keep their own models and get answers in human terms.</li>
+        <li>Zebrafish is literally the core, and the three bridges become the vocabulary of the offer (genes, phenotypes, outcomes).</li>
+        <li>Names no specific biology, so there is the least to fact-check.</li>
+      </ul>
+      <h3>Speaks to</h3>
+      <p>Investors, business development, a client's head of R&amp;D.</p>
+      <h3>Risks</h3>
+      <ul>
+        <li>The most abstract: a scientist learns little from an unlabelled core.</li>
+        <li>Hub diagrams are common in pitch decks; it may look like everyone else's.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================ now -->
+  <section class="proposal">
+    <figure class="plate" style="margin:0">
+      <svg class="plate-svg ix" viewBox="0 0 420 310" role="img" aria-label="The current figure, for comparison.">
+        <text class="f-head" x="14" y="22">zebrafish</text>
+        <text class="f-head" x="300" y="22">human</text>
+        <line class="edge" x1="110" y1="110" x2="232" y2="72"/>
+        <line class="edge" x1="90" y1="188" x2="110" y2="110"/>
+        <line class="edge" x1="90" y1="188" x2="220" y2="150"/>
+        <line class="edge" x1="90" y1="188" x2="238" y2="224"/>
+        <line class="edge" x1="130" y1="258" x2="220" y2="150"/>
+        <line class="edge" x1="130" y1="258" x2="238" y2="224"/>
+        <line class="edge" x1="130" y1="258" x2="214" y2="286"/>
+        <line class="edge edge-live" x1="110" y1="110" x2="220" y2="150"/>
+        <line class="carry" x1="244" y1="72" x2="290" y2="72"/>
+        <line class="carry" x1="234" y1="150" x2="290" y2="150"/>
+        <line class="carry" x1="249" y1="224" x2="290" y2="224"/>
+        <line class="carry" x1="225" y1="286" x2="290" y2="286"/>
+        <circle class="node n-morph" cx="232" cy="72" r="9"/>
+        <circle class="node n-morph" cx="220" cy="150" r="12"/>
+        <circle class="node n-behav" cx="238" cy="224" r="8"/>
+        <circle class="node n-morph" cx="214" cy="286" r="8"/>
+        <circle class="node n-morph" cx="110" cy="110" r="8"/>
+        <circle class="node n-tx" cx="90" cy="188" r="8"/>
+        <circle class="node n-tx" cx="130" cy="258" r="7"/>
+        <text class="f-label" x="232" y="52" text-anchor="middle">pericardium</text>
+        <text class="f-label" x="220" y="126" text-anchor="middle">liver</text>
+        <text class="f-label" x="238" y="204" text-anchor="middle">startle</text>
+        <text class="f-label" x="214" y="266" text-anchor="middle">swim bladder</text>
+        <text class="f-label" x="94" y="115" text-anchor="end">yolk</text>
+        <text class="f-label" x="74" y="193" text-anchor="end">cyp3a</text>
+        <text class="f-label" x="114" y="263" text-anchor="end">hsp70</text>
+        <circle class="res-f" cx="300" cy="72" r="4"/><text class="f-label f-strong" x="312" y="77">pericardium</text>
+        <circle class="res-f" cx="300" cy="150" r="4"/><text class="f-label f-strong" x="312" y="155">liver</text>
+        <circle class="res-f" cx="300" cy="224" r="4"/><text class="f-label f-strong" x="312" y="229">startle reflex</text>
+        <circle class="flag" cx="300" cy="286" r="4"/><text class="f-label" x="312" y="291">no match</text>
+      </svg>
+      <figcaption class="plate-note">Organ states in teal, behaviour in green, transcripts in grey.</figcaption>
+    </figure>
+    <div>
+      <p class="kicker">Now</p>
+      <h2>The current figure</h2>
+      <p>Drawn for the old definition: a graph of zebrafish states with every link carried across the same way.</p>
+      <h3>What it misses</h3>
+      <ul>
+        <li>One kind of bridge for everything; orthology, ontologies and AOPs are not told apart.</li>
+        <li>No client data, so "any model in" is invisible.</li>
+        <li>No direction: nothing reads as a mechanistic chain.</li>
+        <li>Colour means node type here (teal organ, green behaviour), while everywhere else on the site mint means "live" and green means "result".</li>
+      </ul>
+    </div>
+  </section>
+  </details>
+
+  <section style="padding:4rem 0 6rem;border-top:1px solid rgba(159,176,208,.14)">
+    <p class="kicker">Side by side</p>
+    <h2>A2 or B2</h2>
+    <table>
+      <thead><tr><th></th><th>A2 · Chain, in full</th><th>B2 · Neighbourhood, one node opened</th></tr></thead>
+      <tbody>
+        <tr><th>What a node means</th><td class="y">Type, direction, age; vocabulary and AOP role</td><td class="y">Type and direction; one node shown as a full record</td></tr>
+        <tr><th>Mechanistic chain</th><td class="y">Gene to organism, the subject</td><td class="p">Two short branches</td></tr>
+        <tr><th>Three bridges</th><td class="y">All, in place</td><td class="y">All, in place</td></tr>
+        <tr><th>Where client data lands</th><td class="y">By level: the stripe only zebrafish reaches</td><td class="p">On one node</td></tr>
+        <tr><th>Reads as a graph</th><td class="p">Converging network on a grid</td><td class="y">Yes</td></tr>
+        <tr><th>Systemic point</th><td class="p">Organism level only zebrafish reaches</td><td class="y">One exposure, two organs</td></tr>
+        <tr><th>Legible on a phone</th><td class="p">Dense but ordered</td><td class="p">Dense, freer layout</td></tr>
+      </tbody>
+    </table>
+    <h3>Recommendation</h3>
+    <p>A2 for the plate: it carries the row's whole promise (mechanism, three bridges, client data by level) in an order a scientist can check left to right. B2's opened-node card is the strongest single idea for "nodes with meanings"; it could be added to A2 on the liver-size node, or become a tap interaction later.</p>
+  </section>
+</main>
+
+<script>
+document.getElementById('phone').addEventListener('change', function (e) {
+  document.body.classList.toggle('phone', e.target.checked);
+});
+</script>
+</body>
+</html>
