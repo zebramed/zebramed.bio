@@ -1,0 +1,18 @@
+{% comment %}
+The platform as one scrolling story: the pinned figure. Drawn by assets/js/platform.js on wide
+screens without reduced motion; elsewhere it stays hidden and the three panes show instead.
+Clips from ZebraMed imaging and tracking; heatmap from simulated data; candidates, targets and
+values are fictional.
+{% endcomment %}
+<div class="pf-sticky" data-pf-sticky hidden>
+    <div class="pf-stage" data-pf-stage data-media="{{ '/assets/media/platform/' | relative_url }}" role="img"
+         aria-label="The platform, illustrated. A systemic backbone of organs, functions and molecular signals. Whole-organism data, imaged, tracked and sequenced, connects to it and spreads through it; cell cultures, organoids and an organ-on-chip can plug in. XenoEx queries the backbone to rank four candidates by human risk, sends a validation run to the biofoundry where it is unsure, then, asked about a disease, proposes three new targets inside the backbone. Fictional values.">
+        <svg class="pf-layer" data-layer="backbone" aria-hidden="true"></svg>
+        <svg class="pf-layer" data-layer="links" aria-hidden="true"></svg>
+        <svg class="pf-layer" data-layer="context" aria-hidden="true"></svg>
+        <svg class="pf-layer" data-layer="xeno" aria-hidden="true"></svg>
+        <svg class="pf-layer" data-layer="chrome" aria-hidden="true"></svg>
+        <svg class="pf-layer" data-layer="output" aria-hidden="true"></svg>
+    </div>
+    <p class="pf-narration" data-pf-narration><span class="label" data-pf-step></span><span class="pf-n-text" data-pf-text></span></p>
+</div>

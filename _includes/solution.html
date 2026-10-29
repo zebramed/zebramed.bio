@@ -8,12 +8,13 @@
         </p>
     </header>
 
-    <div class="platform-select" data-select-group>
+    <div class="platform-select" data-select-group data-platform>
     <div class="select-bar" role="group" aria-label="Parts of the platform" data-select-bar hidden>
         <button type="button" data-select="biofoundry" aria-controls="pt-biofoundry"><span class="label">Run</span><span class="select-name">Biofoundry</span></button>
         <button type="button" data-select="interactome" aria-controls="pt-interactome"><span class="label">Translate</span><span class="select-name">Translation graph</span></button>
         <button type="button" data-select="xenoex" aria-controls="pt-xenoex"><span class="label">Reason</span><span class="select-name">XenoEx</span></button>
     </div>
+    <div class="pf-story" data-pf-story>
     <div class="rows" aria-live="polite">
         <article class="row" id="pt-biofoundry" data-select-panel="biofoundry">
             <figure class="plate">
@@ -67,6 +68,8 @@
                 </p>
             </div>
         </article>
+    </div>
+    {% include figures/platform.html %}
     </div>
     </div>
 

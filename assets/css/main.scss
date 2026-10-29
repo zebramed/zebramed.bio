@@ -435,6 +435,57 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     .is-enhanced .row.is-flipped .plate { order: 0; }
 }
 
+/* platform as one scrolling story (platform.js adds .is-scrolly on wide screens without
+   reduced motion): the figure stays pinned on the right, the three texts scroll past as
+   chapters, the bar marks progress through each and jumps to it */
+.pf-sticky[hidden] { display: none; }
+.platform-select.is-scrolly .select-bar {
+    position: sticky; top: 4.5rem; z-index: 20;
+    margin-top: 3rem; padding: 0.25rem 0 0.75rem; background: var(--color-bg-deep);
+    /* the background runs the full width, so chapter text scrolls out of sight under it */
+    box-shadow: 0 0 0 100vmax var(--color-bg-deep); clip-path: inset(0 -100vmax);
+}
+.is-scrolly .select-bar button { position: relative; padding-top: 0.6rem; flex-direction: row; align-items: baseline; gap: 0.75rem; }
+.is-scrolly .select-bar button::before {
+    content: ''; position: absolute; left: 0; right: 0; top: -2px; height: 2px;
+    background: var(--color-accent-primary); transform-origin: left; transform: scaleX(var(--p, 0));
+}
+.is-scrolly .select-bar button.is-active { border-top-color: rgba(var(--color-line-rgb), 0.25); }
+.is-scrolly .select-name { font-size: 1.125rem; }
+.is-scrolly .pf-story {
+    --pf-w: min(calc(100vw - 4rem), 90rem);
+    display: grid; grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr); gap: 3.5rem; align-items: start;
+    position: relative; width: var(--pf-w); left: 50%; margin-left: calc(var(--pf-w) / -2);
+}
+.is-scrolly .rows { grid-column: 1; grid-row: 1; display: block; margin-top: 0; }
+.platform-select.is-enhanced.is-scrolly [data-select-panel] { display: block; min-height: var(--h, 100vh); }
+.platform-select.is-scrolly .row.is-active { animation: none; }
+.is-scrolly .row .plate { display: none; }
+.is-scrolly .row-text { position: sticky; top: calc(var(--pf-top, 9rem) + 1.5rem); padding-top: 1.5rem; }
+.is-scrolly .row-text .row-title { font-size: 1.625rem; }
+.is-scrolly .row-text > p:not(.label) { font-size: 0.975rem; }
+.pf-sticky {
+    grid-column: 2; grid-row: 1; align-self: start;
+    position: sticky; top: var(--pf-top, 9rem); height: calc(100vh - var(--pf-top, 9rem));
+    display: flex; flex-direction: column; justify-content: center; padding-bottom: 1rem;
+}
+.pf-stage {
+    position: relative; width: 100%; aspect-ratio: 1000 / 540; margin-inline: auto; overflow: hidden;
+    max-width: calc((100vh - var(--pf-top, 9rem) - 8.5rem) * 1.852);
+    border-radius: 1rem; border: 1px solid rgba(var(--color-line-rgb), 0.14);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+}
+.pf-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.pf-narration { width: 100%; max-width: 62ch; min-height: 4.4em; margin: 1rem auto 0; }
+.pf-narration .label { display: block; }
+.pf-n-text { display: block; margin-top: 0.3rem; font-size: 1rem; line-height: 1.5; color: var(--color-text-light); }
+.pf-narration.is-fresh { animation: select-in 400ms ease; }
+.pf-stage text { font-family: var(--font-family-sans); }
+.pf-stage .t-head { font-family: var(--font-family-display); fill: var(--color-text-medium); fill-opacity: 0.8; font-size: 12.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; }
+.pf-stage .t-label { fill: var(--color-text-medium); font-size: 14px; }
+.pf-stage .t-strong { fill: var(--color-text-light); font-weight: 500; }
+.pf-stage .t-note { fill: var(--color-text-medium); fill-opacity: 0.78; font-size: 12.5px; }
+
 /* team */
 .person-photo { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(var(--color-line-rgb), 0.3); }
 .person-name { font-family: var(--font-family-sans); font-weight: 600; letter-spacing: -0.015em; font-size: 1.375rem; line-height: 1.2; color: var(--color-text-light); margin-top: 1.5rem; }
