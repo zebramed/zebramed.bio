@@ -3,15 +3,15 @@
     <header class="section-head">
         <h2 class="title">The platform</h2>
         <p class="lede">
-            A biofoundry produces whole-organism data. The interactome structures that data and maps
-            it onto human biology, and XenoEx reasons over the result to decide what to run next.
+            A biofoundry produces whole-organism data. The translation graph links it, and the data
+            clients bring, to human biology, and XenoEx reasons over the graph to decide what to run next.
         </p>
     </header>
 
     <div class="platform-select" data-select-group>
     <div class="select-bar" role="group" aria-label="Parts of the platform" data-select-bar hidden>
         <button type="button" data-select="biofoundry" aria-controls="pt-biofoundry"><span class="label">Run</span><span class="select-name">Biofoundry</span></button>
-        <button type="button" data-select="interactome" aria-controls="pt-interactome"><span class="label">Structure</span><span class="select-name">Interactome</span></button>
+        <button type="button" data-select="interactome" aria-controls="pt-interactome"><span class="label">Translate</span><span class="select-name">Translation graph</span></button>
         <button type="button" data-select="xenoex" aria-controls="pt-xenoex"><span class="label">Reason</span><span class="select-name">XenoEx</span></button>
     </div>
     <div class="rows" aria-live="polite">
@@ -38,14 +38,15 @@
                 <figcaption class="plate-note">Organ states in teal, behaviour in green, transcripts in grey.</figcaption>
             </figure>
             <div class="row-text">
-                <p class="label">Structure</p>
-                <h3 class="row-title">The Multi-Species Systemic Interactome</h3>
+                <p class="label">Translate</p>
+                <h3 class="row-title">The Systemic Translation Graph</h3>
                 <p>
-                    The interactome is our data asset: continuous morphology, behavioural matrices and
-                    transcriptomics, co-registered over several days on the same individuals, in cohorts
-                    large enough to show population variability. We add client in vitro and organoid data
-                    and external omics, then map the result onto human biology through cross-species
-                    orthology and clinical priors.
+                    The graph organises what we know into one structure. Its core is zebrafish data:
+                    changes in gene expression, linked to the phenotypes and behaviours observed with
+                    them. Orthology, shared ontologies and OECD adverse outcome pathways connect each
+                    link to its human counterpart, step by mechanistic step. Data from a client's own
+                    models, such as cell lines, organoids or other species, is placed in the same graph,
+                    so its results can be read in human terms.
                 </p>
             </div>
         </article>
@@ -58,7 +59,7 @@
                 <p class="label">Reason</p>
                 <h3 class="row-title">XenoEx, interpretable multi-agent AI</h3>
                 <p>
-                    XenoEx reasons over the interactome in steps a scientist can read, audit and redirect.
+                    XenoEx reasons over the graph in steps a scientist can read, audit and redirect.
                     It humanises signatures, scores candidates for systemic efficacy and multi-organ
                     toxicity, re-evaluates shelved assets and ranks target hypotheses. When its confidence
                     falls under the client's agreed threshold, it designs the validation run and sends it
