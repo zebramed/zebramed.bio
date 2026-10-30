@@ -1219,11 +1219,13 @@ playBtn.addEventListener('click', () => {
   if (ended) { userPaused = false; playerJump(0); return; }
   userPaused = !userPaused; updatePlay(); startTick();
 });
+// the step on screen, or the one a fade is already heading to (so quick repeated clicks keep stepping)
+const stepNow = () => (fade ? fade.i : stopAt(clockT));
 group.querySelector('[data-pf-prev]').addEventListener('click', () => {
-  const i = stopAt(clockT);
-  playerJump(clockT - STOPS[i].start > 1500 || i === 0 ? i : i - 1);   // to this step's start, or the one before
+  const i = stepNow();
+  playerJump(!fade && (clockT - STOPS[i].start > 1500 || i === 0) ? i : Math.max(0, i - 1));   // to this step's start, or the one before
 });
-group.querySelector('[data-pf-next]').addEventListener('click', () => playerJump(Math.min(STOPS.length - 1, stopAt(clockT) + 1)));
+group.querySelector('[data-pf-next]').addEventListener('click', () => playerJump(Math.min(STOPS.length - 1, stepNow() + 1)));
 // plays while most of the figure is on screen
 new IntersectionObserver(entries => { inView = entries[0].intersectionRatio >= .6; startTick(); }, { threshold: [0, .6, 1] }).observe(stage);
 
