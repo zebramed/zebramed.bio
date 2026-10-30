@@ -469,11 +469,27 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     position: sticky; top: var(--pf-top, 9rem); height: calc(100vh - var(--pf-top, 9rem));
     display: flex; flex-direction: column; justify-content: center; padding-bottom: 1rem;
 }
+.pf-frame { position: relative; width: 100%; margin-inline: auto; max-width: calc((100vh - var(--pf-top, 9rem) - 8.5rem) * 1.852); }
 .pf-stage {
-    position: relative; width: 100%; aspect-ratio: 1000 / 540; margin-inline: auto; overflow: hidden;
-    max-width: calc((100vh - var(--pf-top, 9rem) - 8.5rem) * 1.852);
+    position: relative; width: 100%; aspect-ratio: 1000 / 540; overflow: hidden;
     border-radius: 1rem; border: 1px solid rgba(var(--color-line-rgb), 0.14);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+}
+/* after a few seconds at rest without scrolling: the story goes on */
+.pf-hint {
+    position: absolute; left: 1rem; bottom: 1rem; transform: translateY(6px);
+    display: flex; align-items: center; gap: 0.5rem; margin: 0; max-width: none; white-space: nowrap;
+    padding: 0.45rem 1.1rem; border-radius: 999px; font-size: 0.875rem; color: var(--color-text-light);
+    background: rgba(var(--color-bg-dark-rgb), 0.94); border: 1px solid rgba(var(--color-accent-primary-rgb), 0.35);
+    opacity: 0; visibility: hidden; transition: opacity 400ms ease, transform 400ms ease, visibility 0s linear 400ms;
+}
+.pf-hint.is-shown { opacity: 1; visibility: visible; transform: none; transition: opacity 400ms ease, transform 400ms ease; }
+.pf-hint svg { color: var(--color-accent-primary); animation: pf-nudge 1.6s ease-in-out infinite; }
+@keyframes pf-nudge { 50% { transform: translateY(3px); } }
+.pf-hint-or { color: rgba(var(--color-text-light-rgb), 0.6); }
+.pf-hint button {
+    font: inherit; color: var(--color-accent-primary); background: none; border: 0; padding: 0; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 3px;
 }
 .pf-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .pf-narration { width: 100%; max-width: 62ch; min-height: 4.4em; margin: 1rem auto 0; }

@@ -1046,12 +1046,26 @@ function tick(now) {
     } else clockSpeed = 0;
   }
   render(clockT);
+  // resting a while with more to come: remind the reader the story goes on
+  const resting = !walking && !paused && !hold && clockSpeed === 0 && beatIdx >= 0 && beatIdx < BEATS.length - 1;
+  if (!resting) atRestSince = 0; else if (!atRestSince) atRestSince = now;
+  showHint(resting && now - Math.max(atRestSince, lastScrollAt) > HINT_AFTER);
   raf = requestAnimationFrame(tick);
 }
 function startTick() {
   if (raf || !on || drive !== 'steps' || !visible) return;
   lastNow = performance.now();
   raf = requestAnimationFrame(tick);
+}
+
+// the hint: shown after HINT_AFTER ms at rest without scrolling, gone as soon as the reader scrolls
+const HINT_AFTER = 4000;
+const hint = group.querySelector('[data-pf-hint]');
+let lastScrollAt = 0, atRestSince = 0, hintOn = false;
+function showHint(s) {
+  if (s === hintOn) return;
+  hintOn = s;
+  hint.classList.toggle('is-shown', s);
 }
 
 // motion that plays by itself needs a way to stop it
@@ -1065,9 +1079,10 @@ function setPaused(p) {
 }
 pauseBtn.addEventListener('click', () => setPaused(!paused));
 
-// the walkthrough: the story plays from the start at its own pace and the page follows; any scroll by the reader stops it
+// the walkthrough: the story plays at its own pace and the page follows; any scroll by the reader stops it.
+// The button plays it from the start, the hint from where the reader is.
 const walkBtn = group.querySelector('[data-pf-walk]');
-function setWalking(w) {
+function setWalking(w, fromStart = true) {
   if (w === walking) return;
   walking = w;
   walkBtn.setAttribute('aria-pressed', String(w));
@@ -1075,12 +1090,14 @@ function setWalking(w) {
   if (w) {
     if (paused) setPaused(false);
     hold = false;
-    clockT = 0;
-    window.scrollTo({ top: yForClock(0), behavior: 'instant' });
+    if (fromStart || beatIdx < 0) clockT = 0;
+    showHint(false);
+    window.scrollTo({ top: yForClock(clockT), behavior: 'instant' });
     startTick();
   }
 }
 walkBtn.addEventListener('click', () => setWalking(!walking));
+group.querySelector('[data-pf-hint-play]').addEventListener('click', () => setWalking(true, false));
 const SCROLL_KEYS = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '];
 ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(type => window.addEventListener(type, e => {
   if (!walking || walkBtn.contains(e.target)) return;
@@ -1101,6 +1118,7 @@ function onScroll() {
   } else {
     chaptersScrub(window.scrollY);
     beatIdx = beatAtScroll(window.scrollY);
+    if (!walking) { lastScrollAt = performance.now(); showHint(false); }
     startTick();
   }
 }
@@ -1176,8 +1194,11 @@ const domReady = document.readyState === 'loading'
   ? new Promise(r => document.addEventListener('DOMContentLoaded', r, { once: true })) : Promise.resolve();
 Promise.all([domReady, document.fonts.ready]).then(() => {
   evaluate();
+  const params = new URLSearchParams(window.location.search);
+  // ?walkthrough (e.g. in a link sent to someone) starts the walkthrough as soon as the page is ready
+  if (on && drive === 'steps' && params.has('walkthrough') && !params.has('pf-t')) { setWalking(true); return; }
   // ?pf-t=<ms> opens the page at that moment of the story and holds it there (for review)
-  const at = new URLSearchParams(window.location.search).get('pf-t');
+  const at = params.get('pf-t');
   if (!on || at === null) return;
   const t = +at;
   if (drive === 'scrub') {
