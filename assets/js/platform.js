@@ -898,9 +898,10 @@ const drive = new URLSearchParams(window.location.search).get('drive') === 'scru
 let clockSpeed = 0, paused = false, hold = false;
 
 let narrIdx = -1;
+// the step on screen at time t: the last one that has started
+function beatAt(t) { let i = 0; BEATS.forEach((b, k) => { if (t >= b.t) i = k; }); return i; }
 function narrate(t) {
-  let i = 0;
-  BEATS.forEach((b, k) => { if (t >= b.t) i = k; });
+  const i = beatAt(t);
   if (i === narrIdx) return;
   narrIdx = i;
   nStep.textContent = BEATS[i].narr;
@@ -985,26 +986,30 @@ function follow() {
 }
 
 // ---------- steps: the scroll picks the step, the step plays in time ----------
-// Same layout as scrub (chapter text pinned on the left, the step line under the figure), but each step
-// is a stretch of scroll: reaching it plays the step in time. Steps scrolled past are never skipped,
-// only played faster; scrolling back rewinds.
+// Each step is a stretch of scroll: reaching it plays the step in time. Steps scrolled past are never
+// skipped, only played faster; scrolling back rewinds. What is shown (figure, step line, chapter text,
+// bar) follows the playback, so it always agrees; the scroll only says where the story should go.
 const stepIdx = c => BEATS.map((b, i) => [b, i]).filter(([b]) => b.ch === c.key || (c === CHAPTERS[0] && !b.ch)).map(([, i]) => i);
 let stepY = [], beatIdx = -1, clockT = 0, raf = 0, lastNow = 0, walking = false;
 function layoutSteps() {
   const vh = window.innerHeight, top = pinTop();
-  // about a screen per step, a little more for longer steps
+  // about a screen per step, a little more for longer steps; then a stretch holding the end
   const hs = BEATS.map((b, i) => vh * Math.min(1.05, .55 + .035 * (b.rest - (i ? BEATS[i - 1].rest : 0)) / 1000));
-  // chapters are as tall as their steps; the last one also holds the end
-  CHAPTERS.forEach((c, ci) => {
-    const h = stepIdx(c).reduce((a, i) => a + hs[i], 0) + (ci === CHAPTERS.length - 1 ? vh * .8 + vh - top : 0);
-    c.el.style.setProperty('--h', `${Math.round(h)}px`);
-  });
-  stepY = [];
-  chapterY = CHAPTERS.map((c, ci) => {
-    let y = docY(c.el) - top - (ci === 0 ? vh * .2 : 0);   // the backbone starts just before the figure is pinned
-    const y0 = y;
-    stepIdx(c).forEach(i => { stepY[i] = [y, y + hs[i]]; y += hs[i]; });
-    return [y0, y];
+  story.style.setProperty('--story-h', `${Math.round(hs.reduce((a, h) => a + h, 0) + vh * .8 + vh - top)}px`);
+  let y = docY(story) - top - vh * .2;   // the backbone starts just before the figure is pinned
+  stepY = hs.map(h => { const s = [y, y + h]; y += h; return s; });
+  chapterY = CHAPTERS.map(c => { const ids = stepIdx(c); return [stepY[ids[0]][0], stepY[ids[ids.length - 1]][1]]; });
+}
+// chapter text and bar: the chapter that is playing is shown; the bar fills solid with what has played
+// and faintly with where the reader has scrolled to
+function chaptersSteps() {
+  const y = window.scrollY;
+  setActiveChapter(Math.max(0, CHAPTERS.findIndex(c => c.key === BEATS[beatAt(clockT)].ch)));
+  CHAPTERS.forEach((c, i) => {
+    if (!c.btn) return;
+    const ids = stepIdx(c), t0 = ids[0] ? BEATS[ids[0] - 1].rest : 0, t1 = BEATS[ids[ids.length - 1]].rest;
+    c.btn.style.setProperty('--p', clamp((clockT - t0) / (t1 - t0)).toFixed(3));
+    c.btn.style.setProperty('--s', clamp((y - chapterY[i][0]) / (chapterY[i][1] - chapterY[i][0])).toFixed(3));
   });
 }
 function beatAtScroll(y) {
@@ -1046,6 +1051,7 @@ function tick(now) {
     } else clockSpeed = 0;
   }
   render(clockT);
+  chaptersSteps();
   // resting a while with more to come: remind the reader the story goes on
   const resting = !walking && !paused && !hold && clockSpeed === 0 && beatIdx >= 0 && beatIdx < BEATS.length - 1;
   if (!resting) atRestSince = 0; else if (!atRestSince) atRestSince = now;
@@ -1116,7 +1122,6 @@ function onScroll() {
     target = timeAt(window.scrollY);
     if (!following) { following = true; requestAnimationFrame(follow); }
   } else {
-    chaptersScrub(window.scrollY);
     beatIdx = beatAtScroll(window.scrollY);
     if (!walking) { lastScrollAt = performance.now(); showHint(false); }
     startTick();
@@ -1129,11 +1134,17 @@ window.addEventListener('resize', () => {
   resizeTimer = setTimeout(() => { if (on) { layoutScroll(); onScroll(); } }, 150);
 });
 
-// the Run / Translate / Reason buttons jump to their chapter
+// the Run / Translate / Reason buttons jump to their chapter (in steps, the chapter then plays from its start)
 CHAPTERS.forEach((c, i) => c.btn && c.btn.addEventListener('click', () => {
   if (!on) return;
   setWalking(false);
-  window.scrollTo({ top: chapterY[i][0] + 2, behavior: 'smooth' });
+  if (drive === 'scrub') { window.scrollTo({ top: chapterY[i][0] + 2, behavior: 'smooth' }); return; }
+  const first = stepIdx(c)[0];
+  hold = false;
+  clockT = first ? BEATS[first - 1].rest : 0;
+  window.scrollTo({ top: stepY[first][0] + 2, behavior: 'instant' });
+  beatIdx = first;
+  startTick();
 }));
 
 // clips play only while the story is on screen (browsers may also pause muted video; restart it)
@@ -1166,13 +1177,14 @@ function setOn(want) {
       // arriving mid-page (reload, link): show where that step rests, no catching up
       beatIdx = beatAtScroll(window.scrollY);
       clockT = restOf(beatIdx);
-      chaptersScrub(window.scrollY);
       render(clockT);
+      chaptersSteps();
       startTick();
     }
   } else {
     setWalking(false);
-    CHAPTERS.forEach(c => { c.el.style.removeProperty('--h'); if (c.btn) c.btn.style.removeProperty('--p'); });
+    story.style.removeProperty('--story-h');
+    CHAPTERS.forEach(c => { c.el.style.removeProperty('--h'); if (c.btn) { c.btn.style.removeProperty('--p'); c.btn.style.removeProperty('--s'); } });
     if (S) S.insets.forEach(r => r.video && r.video.pause());
   }
 }
@@ -1210,7 +1222,7 @@ Promise.all([domReady, document.fonts.ready]).then(() => {
     BEATS.forEach((b, i) => { if (t >= b.t) k = i; });
     window.scrollTo({ top: stepY[k][0] + 4, behavior: 'instant' });
     hold = true; clockT = t;
-    beatIdx = k; chaptersScrub(window.scrollY);
+    beatIdx = k; chaptersSteps();
   }
   render(t);
 });
