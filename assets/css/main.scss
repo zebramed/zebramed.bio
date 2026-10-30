@@ -485,6 +485,29 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .pf-stage .t-label { fill: var(--color-text-medium); font-size: 14px; }
 .pf-stage .t-strong { fill: var(--color-text-light); font-weight: 500; }
 .pf-stage .t-note { fill: var(--color-text-medium); fill-opacity: 0.78; font-size: 12.5px; }
+.pf-controls {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;
+    margin: 0.75rem auto 0; font-size: 0.8125rem; color: rgba(var(--color-text-light-rgb), 0.55);
+}
+.pf-controls a { color: inherit; }
+.pf-controls a[aria-current] { color: var(--color-accent-primary); text-decoration: none; }
+.pf-pause {
+    font: inherit; color: var(--color-text-medium); background: none; cursor: pointer;
+    border: 1px solid rgba(var(--color-line-rgb), 0.35); border-radius: 999px; padding: 0.2rem 0.9rem;
+}
+.pf-pause:hover { color: var(--color-text-light); border-color: var(--color-accent-primary); }
+.pf-scrub .pf-pause { visibility: hidden; }
+/* steps: one short paragraph per step; the step plays when its paragraph reaches 60% of the screen */
+.pf-beat { display: none; }
+.is-scrolly.pf-steps .pf-beat { display: block; min-height: 68vh; padding-top: 1.25rem; opacity: 0.3; transition: opacity 300ms ease; }
+.is-scrolly.pf-steps .pf-beat.is-current { opacity: 1; }
+/* the first step (the backbone) starts once the figure is pinned */
+.is-scrolly.pf-steps .rows > .pf-beat:first-child { padding-top: calc(60vh - var(--pf-top, 9rem) - 3rem); }
+.is-scrolly.pf-steps .rows > :last-child .pf-beat:last-child { min-height: calc(100vh - var(--pf-top, 9rem)); }
+.pf-beat-text { margin-top: 0.4rem; font-size: 1.0625rem; line-height: 1.55; color: var(--color-text-light); }
+.platform-select.is-enhanced.is-scrolly.pf-steps [data-select-panel] { min-height: 0; }
+.is-scrolly.pf-steps .row-text { position: static; padding-top: 5rem; }
+.is-scrolly.pf-steps .pf-narration { display: none; }
 
 /* team */
 .person-photo { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(var(--color-line-rgb), 0.3); }

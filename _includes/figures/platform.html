@@ -15,4 +15,9 @@ values are fictional.
         <svg class="pf-layer" data-layer="output" aria-hidden="true"></svg>
     </div>
     <p class="pf-narration" data-pf-narration><span class="label" data-pf-step></span><span class="pf-n-text" data-pf-text></span></p>
+    <div class="pf-controls">
+        <button type="button" class="pf-pause" data-pf-pause aria-pressed="false">Pause</button>
+        {% comment %}test only: compare the two ways of driving the story{% endcomment %}
+        <span class="pf-drive" data-pf-drive>test: <a href="?drive=steps#platform" data-drive="steps">steps</a> &middot; <a href="?drive=scrub#platform" data-drive="scrub">scrub</a></span>
+    </div>
 </div>
