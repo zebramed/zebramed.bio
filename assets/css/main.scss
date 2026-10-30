@@ -505,6 +505,24 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 }
 .platform-select.is-enhanced.is-scrolly.pf-player [data-select-panel].is-active { opacity: 1; visibility: visible; transition: opacity 500ms ease; }
 .is-scrolly.pf-player .row-text { position: static; padding-top: 0; }
+/* narrower than the two-column layout: one column, the figure first, then the chapter text */
+.pf-narrow.is-scrolly .pf-story { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; width: auto; left: 0; margin-left: 0; }
+.pf-narrow.is-scrolly .pf-sticky { grid-column: 1; grid-row: 1; }
+.pf-narrow.is-scrolly .rows { grid-column: 1; grid-row: 2; }
+.pf-narrow .select-bar button { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+.pf-narrow .select-name { font-size: clamp(0.875rem, 3.4vw, 1.125rem); }
+.pf-narrow .pf-controls { flex-wrap: wrap; justify-content: center; }
+.pf-narrow .pf-drive { display: none; }
+.pf-narrow .pf-narration { min-height: 0; }
+/* the portrait figure, sized so that it, the step line and the controls fit the screen together */
+.pf-compact .pf-stage { aspect-ratio: 400 / 600; }
+.is-scrolly.pf-player.pf-compact .pf-frame { max-width: calc((100svh - 18.5rem) * 0.667); }
+/* small phones: the bar keeps Run / Translate / Reason only */
+@media (max-width: 559px) {
+    .pf-narrow .select-name { display: none; }
+    .pf-narrow .select-bar { margin-top: 2rem; }
+    .pf-narrow.is-scrolly .pf-story { gap: 1.25rem; }
+}
 .pf-sticky {
     grid-column: 2; grid-row: 1; align-self: start;
     position: sticky; top: var(--pf-top, 9rem); height: calc(100vh - var(--pf-top, 9rem));
@@ -615,4 +633,6 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     .fig-wall .wall, .fig-wall .wall-label { opacity: 1; transition: none; }
     .cue svg, .nav-link::after, .btn, .site-header { transition: none; }
     .is-enhanced .row.is-active { animation: none; }
+    .pf-narration.is-fresh { animation: none; }
+    .platform-select.is-enhanced.is-scrolly.pf-player [data-select-panel] { transition: none; }
 }

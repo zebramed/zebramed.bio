@@ -16,7 +16,8 @@ const story = group.querySelector('[data-pf-story]');
 const bar = group.querySelector('[data-select-bar]');
 const narr = group.querySelector('[data-pf-narration]');
 const nStep = group.querySelector('[data-pf-step]'), nText = group.querySelector('[data-pf-text]');
-const wideQ = window.matchMedia('(min-width: 1024px) and (min-height: 620px)');
+const wideQ = window.matchMedia('(min-width: 1024px) and (min-height: 620px)');   // room for the scroll-driven tests
+const layoutQ = window.matchMedia('(min-width: 720px)');                          // the wide figure; below, the portrait one
 const reduceQ = window.matchMedia('(prefers-reduced-motion: reduce)');
 const MEDIA = stage.dataset.media || '/assets/media/platform/';
 
@@ -216,18 +217,38 @@ const READ = [
   return { ch, from, to, start: from, text, label: ch ? CHAPTER_LABEL[ch] : 'Systemic backbone', narr: ch ? CHAPTER_LABEL[ch] : 'Systemic backbone' };
 });
 
-// ---------- layout (viewBox units) ----------
-const L = {
-  w: 1000, h: 540,
-  bb: { x: 300, y: 92, w: 376, h: 376 }, bbTitle: { x: 488, y: 40 },
-  heads: { whole: { x: 24, y: 46 }, models: { x: 24, y: 292 } },
-  slots: {
-    imaged: { x: 24, y: 66, w: 152, h: 38 }, tracked: { x: 24, y: 118, w: 42, h: 42 }, sequenced: { x: 24, y: 174, w: 58, h: 42 },
-    cells: { x: 24, y: 308, w: 42, h: 42 }, organoids: { x: 24, y: 364, w: 42, h: 42 }, chip: { x: 24, y: 420, w: 42, h: 42 },
+// ---------- layouts (viewBox units) ----------
+// wide: inputs and models on the left, XenoEx on the right. compact (phones, narrow windows): inputs in a row
+// on top, models in a row below, and the XenoEx panel rising over the bottom of the figure in Reason.
+// xp: where things sit inside the XenoEx panel.
+const LAYOUTS = {
+  wide: {
+    kind: 'wide', w: 1000, h: 540,
+    bb: { x: 300, y: 92, w: 376, h: 376 }, bbTitle: { x: 488, y: 40 },
+    heads: { whole: { x: 24, y: 46 }, models: { x: 24, y: 292 } },
+    slots: {
+      imaged: { x: 24, y: 66, w: 152, h: 38 }, tracked: { x: 24, y: 118, w: 42, h: 42 }, sequenced: { x: 24, y: 174, w: 58, h: 42 },
+      cells: { x: 24, y: 308, w: 42, h: 42 }, organoids: { x: 24, y: 364, w: 42, h: 42 }, chip: { x: 24, y: 420, w: 42, h: 42 },
+    },
+    present: { cx: 410, cy: 252, maxW: 620, maxH: 330, maxS: 12 },
+    out: { x: 714, y: 84, w: 266, h: 392 },
+    xp: { title: 30, tabBar: 37, qY: 46, qH: 28, caretY: 53, qText: 65, status: 98, head: 126, rowTop: 136, pitch: 54, legend: true, tRow0: 160, tPitch: 56 },
   },
-  present: { cx: 410, cy: 252, maxW: 620, maxH: 330, maxS: 12 },
-  out: { x: 714, y: 84, w: 266, h: 392 },
+  compact: {
+    kind: 'compact', w: 400, h: 600,
+    bb: { x: 36, y: 132, w: 328, h: 328 }, bbTitle: { x: 200, y: 24 },
+    heads: { whole: { x: 12, y: 64 }, models: { x: 12, y: 500 } },
+    slots: {
+      imaged: { x: 12, y: 74, w: 120, h: 30 }, tracked: { x: 176, y: 72, w: 34, h: 34 }, sequenced: { x: 280, y: 72, w: 46, h: 34 },
+      cells: { x: 12, y: 510, w: 34, h: 34 }, organoids: { x: 146, y: 510, w: 34, h: 34 }, chip: { x: 276, y: 510, w: 34, h: 34 },
+    },
+    present: { cx: 200, cy: 300, maxW: 376, maxH: 280, maxS: 12 },
+    out: { x: 8, y: 384, w: 384, h: 208 },
+    xp: { title: 22, tabBar: 28, qY: 34, qH: 24, caretY: 40, qText: 51, status: 74, head: 92, rowTop: 98, pitch: 26, legend: false, tRow0: 116, tPitch: 30 },
+  },
 };
+let L = LAYOUTS.wide;
+const vertical = () => L.kind !== 'wide';   // compact: inputs above the backbone, models below
 
 // ---------- helpers ----------
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -291,11 +312,12 @@ function build() {
   buildChrome();
 
   // whole-organism inputs: links end on the side of the backbone facing them
+  const reach = n => (vertical() ? n.y : n.x);   // how far into the backbone, seen from the inputs
   const pickTargets = inp => {
     const keep = (inp.keep || []).map(N);
     const best = new Map();
-    inp.pool.forEach(id => { const n = N(id), g = id.split('-')[0]; if (!best.has(g) || n.x < best.get(g).x) best.set(g, n); });
-    return [...best.values()].sort((a, b) => a.x - b.x).slice(0, inp.n - keep.length).concat(keep);
+    inp.pool.forEach(id => { const n = N(id), g = id.split('-')[0]; if (!best.has(g) || reach(n) < reach(best.get(g))) best.set(g, n); });
+    return [...best.values()].sort((a, b) => reach(a) - reach(b)).slice(0, inp.n - keep.length).concat(keep);
   };
   INPUTS.forEach((inp, i) => {
     const T = TL.inputs[i];
@@ -378,9 +400,11 @@ function makeInset(def, T, grp) {
   const s = Math.min(grp === 'model' ? 4 : P.maxS, P.maxW / sl.w, P.maxH / sl.h);
   const present = { x: P.cx - sl.w * s / 2, y: P.cy - sl.h * s / 2, s };
   const dock = { x: sl.x, y: sl.y, s: 1 };
-  const capPos = { x: sl.x + sl.w + 10, y: sl.y + sl.h / 2 + 5 };
+  // caption beside the docked card (wide) or under it (compact); links leave from just past it
+  const capPos = vertical() ? { x: sl.x, y: sl.y + sl.h + 14 } : { x: sl.x + sl.w + 10, y: sl.y + sl.h / 2 + 5 };
   const cap = txt(layer.chrome, capPos.x, capPos.y, def.caption, 't-label', { opacity: 0 });
-  const port = { x: capPos.x + cap.getComputedTextLength() + 8, y: sl.y + sl.h / 2 };
+  const port = !vertical() ? { x: capPos.x + cap.getComputedTextLength() + 8, y: sl.y + sl.h / 2 }
+    : grp === 'whole' ? { x: sl.x + sl.w / 2, y: sl.y + sl.h + 22 } : { x: sl.x + sl.w / 2, y: sl.y - 4 };
   const g = el('g', { opacity: 0 }, S.insetLayer);
   const heat = drawInset(g, def.kind, sl.w, sl.h, grp);
   const pc = txt(g, sl.w / 2, sl.h + 20 / s, def.title, 't-label t-strong', { 'text-anchor': 'middle', style: `font-size:${15 / s}px` });
@@ -548,29 +572,29 @@ function drawInset(g, kind, w, h, grp) {
 
 // ---------- XenoEx: the panel, its exchanges with the backbone, the run it sends, the targets it finds ----------
 function buildXeno() {
-  const O = L.out, X = S.X = {};
+  const O = L.out, Q = L.xp, X = S.X = {};
   const P = TL.predict, V = TL.validate, D = TL.discover;
-  X.port = { x: O.x - 2, y: O.y + 196 };
+  X.port = vertical() ? { x: O.x + O.w / 2, y: O.y - 2 } : { x: O.x - 2, y: O.y + 196 };
 
   const card = X.card = el('g', { opacity: 0 }, layer.output);
   el('rect', { x: O.x, y: O.y, width: O.w, height: O.h, rx: 12, fill: COL.plate, stroke: COL.live, 'stroke-opacity': .32 }, card);
-  txt(card, O.x + 16, O.y + 30, 'XenoEx', 't-label t-strong', { style: 'font-size:15px' });
+  txt(card, O.x + 16, O.y + Q.title, 'XenoEx', 't-label t-strong', { style: 'font-size:15px' });
   // two ways to ask: rank candidates, or find targets for a disease
-  X.tabs = ['candidates', 'targets'].map(s => txt(card, 0, O.y + 30, s, 't-note', { 'text-anchor': 'end' }));
+  X.tabs = ['candidates', 'targets'].map(s => txt(card, 0, O.y + Q.title, s, 't-note', { 'text-anchor': 'end' }));
   const wC = X.tabs[0].getComputedTextLength(), wT = X.tabs[1].getComputedTextLength();
   const xT = O.x + O.w - 16, xC = xT - wT - 14;
   X.tabs[0].setAttribute('x', xC); X.tabs[1].setAttribute('x', xT);
   X.tabPos = [{ x: xC - wC, w: wC }, { x: xT - wT, w: wT }];
-  X.tabBar = el('rect', { x: xC - wC, y: O.y + 37, width: wC, height: 2, rx: 1, fill: COL.live }, card);
+  X.tabBar = el('rect', { x: xC - wC, y: O.y + Q.tabBar, width: wC, height: 2, rx: 1, fill: COL.live }, card);
   X.tabOn = -1;
 
-  el('rect', { x: O.x + 12, y: O.y + 46, width: O.w - 24, height: 28, rx: 6, fill: COL.bg, stroke: COL.line, 'stroke-opacity': .25 }, card);
-  txt(card, O.x + 22, O.y + 65, '\u203a', 't-label', { style: `fill:${COL.live}` });
-  X.query = txt(card, O.x + 34, O.y + 65, '', 't-label', { style: 'font-size:13px' });
-  X.caret = el('rect', { x: O.x + 34, y: O.y + 53, width: 1.5, height: 15, fill: COL.live, opacity: 0 }, card);
+  el('rect', { x: O.x + 12, y: O.y + Q.qY, width: O.w - 24, height: Q.qH, rx: 6, fill: COL.bg, stroke: COL.line, 'stroke-opacity': .25 }, card);
+  txt(card, O.x + 22, O.y + Q.qText, '\u203a', 't-label', { style: `fill:${COL.live}` });
+  X.query = txt(card, O.x + 34, O.y + Q.qText, '', 't-label', { style: 'font-size:13px' });
+  X.caret = el('rect', { x: O.x + 34, y: O.y + Q.caretY, width: 1.5, height: 15, fill: COL.live, opacity: 0 }, card);
   X.queries = [{ at: P + PREDICT.typeAt, d: PREDICT.type, s: 'rank 4 candidates · human risk' },
                { at: D + DISCOVER.typeAt, d: DISCOVER.type, s: `find targets · ${DISEASE}` }];
-  X.status = txt(card, O.x + 16, O.y + 98, '', 't-note');
+  X.status = txt(card, O.x + 16, O.y + Q.status, '', 't-note');
   X.statusIdx = -2;
   X.statuses = [
     [P + PREDICT.outAt, 'querying the backbone\u2026', COL.medium],
@@ -587,8 +611,8 @@ function buildXeno() {
   // candidates: human risk by organ, ranked
   const cand = X.cand = el('g', {}, card);
   const colX0 = O.x + 92, cw = (O.w - 92 - 12) / 4, bw = X.bw = cw - 10;
-  OUT_ORGANS.forEach((o, j) => txt(cand, colX0 + cw * (j + .5), O.y + 126, o, 't-note', { 'text-anchor': 'middle' }));
-  const rowTop = O.y + 136, pitch = 54;
+  OUT_ORGANS.forEach((o, j) => txt(cand, colX0 + cw * (j + .5), O.y + Q.head, o, 't-note', { 'text-anchor': 'middle' }));
+  const rowTop = O.y + Q.rowTop, pitch = Q.pitch;
   const riskAfter = c => c.risk.map((v, j) => (c.unsure && c.unsure.j === j ? c.unsure.to : v));
   const order = f => CANDIDATES.map((c, i) => i).sort((a, b) => Math.max(...f(CANDIDATES[a])) - Math.max(...f(CANDIDATES[b])));
   const o1 = order(c => c.risk), o2 = order(riskAfter);
@@ -610,20 +634,22 @@ function buildXeno() {
              y1: rowTop + pitch * o1.indexOf(i), y2: rowTop + pitch * o2.indexOf(i), r1: o1.indexOf(i) + 1, r2: o2.indexOf(i) + 1 };
   });
   const ly = O.y + O.h - 16;
-  [[16, COL.result, 'lower risk'], [100, COL.flag, 'higher risk']].forEach(([dx, c, s]) => {
-    el('rect', { x: O.x + dx, y: ly - 8, width: 14, height: 6, rx: 3, fill: c }, cand);
-    txt(cand, O.x + dx + 20, ly, s, 't-note');
-  });
-  el('rect', { x: O.x + 188, y: ly - 11, width: 14, height: 12, rx: 3, fill: 'none', stroke: COL.flag, 'stroke-width': 1.2, 'stroke-dasharray': '2 2' }, cand);
-  txt(cand, O.x + 208, ly, 'unsure', 't-note');
+  if (Q.legend) {
+    [[16, COL.result, 'lower risk'], [100, COL.flag, 'higher risk']].forEach(([dx, c, s]) => {
+      el('rect', { x: O.x + dx, y: ly - 8, width: 14, height: 6, rx: 3, fill: c }, cand);
+      txt(cand, O.x + dx + 20, ly, s, 't-note');
+    });
+    el('rect', { x: O.x + 188, y: ly - 11, width: 14, height: 12, rx: 3, fill: 'none', stroke: COL.flag, 'stroke-width': 1.2, 'stroke-dasharray': '2 2' }, cand);
+    txt(cand, O.x + 208, ly, 'unsure', 't-note');
+  }
 
   // targets: what it proposes when asked about a disease
   const targ = X.targ = el('g', { opacity: 0 }, card);
-  txt(targ, O.x + 16, O.y + 126, `new targets · ${DISEASE}`, 't-note');
+  txt(targ, O.x + 16, O.y + Q.head, `new targets · ${DISEASE}`, 't-note');
   X.trows = TARGETS.map((tg, i) => {
-    const y = O.y + 160 + i * 56;
+    const y = O.y + Q.tRow0 + i * Q.tPitch;
     const rg = el('g', { opacity: 0 }, targ);
-    el('line', { x1: O.x + 12, y1: y - 22, x2: O.x + O.w - 12, y2: y - 22, stroke: COL.line, 'stroke-opacity': .14 }, rg);
+    el('line', { x1: O.x + 12, y1: y - Q.tPitch * .4, x2: O.x + O.w - 12, y2: y - Q.tPitch * .4, stroke: COL.line, 'stroke-opacity': .14 }, rg);
     el('circle', { cx: O.x + 21, cy: y - 5, r: 4.5, fill: COL.target }, rg);
     txt(rg, O.x + 34, y, tg.id, 't-label t-strong');
     txt(rg, O.x + 62, y, tg.where, 't-label');
@@ -633,13 +659,14 @@ function buildXeno() {
     txt(rg, O.x + O.w - 16, y + 16, tg.score.toFixed(2), 't-note', { 'text-anchor': 'end' });
     return { g: rg, b, w: bwT * tg.score, t0: D + DISCOVER.listAt + i * DISCOVER.listStep };
   });
-  txt(targ, O.x + 16, ly, 'scored by mechanistic support', 't-note');
+  if (Q.legend) txt(targ, O.x + 16, ly, 'scored by mechanistic support', 't-note');
 
   // exchanges: queries go out to nodes (white), evidence comes back (green)
   X.ex = [];
   const exchange = (ids, w) => ids.forEach((id, j) => {
-    const n = S.N.get(id);
-    const C = [n.p, { x: n.p.x + 150, y: n.p.y }, { x: X.port.x - 120, y: X.port.y }, X.port];
+    const n = S.N.get(id), pt = X.port;
+    const C = vertical() ? [n.p, { x: n.p.x, y: n.p.y + 70 }, { x: pt.x, y: pt.y - 90 }, pt]
+      : [n.p, { x: n.p.x + 150, y: n.p.y }, { x: pt.x - 120, y: pt.y }, pt];
     const path = el('path', { d: pathD(C), fill: 'none', stroke: COL.line, 'stroke-width': 1.1, 'stroke-dasharray': '3 3', opacity: 0 }, layer.xeno);
     const dots = [0, 1].map(() => el('circle', { r: 2.4, opacity: 0 }, layer.xeno));
     const out = w.out == null ? null : w.out + j * 120;
@@ -650,10 +677,17 @@ function buildXeno() {
   exchange(['heart'], { on: V + VALIDATE.backAt - 200, out: null, back: V + VALIDATE.backAt, off: V + VALIDATE.updAt + 600 });
   exchange(DISCOVER_QUERY, { on: D + DISCOVER.walkAt - 300, out: D + DISCOVER.walkAt, back: D + DISCOVER.walkAt + 1300, off: D + DISCOVER.popAt + 800 });
 
-  // validation run: from the flagged row, over the backbone, to the biofoundry (the imaged card)
+  // validation run: from the flagged row (wide) or the panel's top (compact), over the backbone, to the
+  // biofoundry (the imaged card)
   const flagged = X.rows.find(r => r.flagged), sl = L.slots.imaged;
-  const a = { x: O.x - 2, y: flagged.y1 + pitch / 2 }, b = { x: sl.x + sl.w * .55, y: sl.y - 5 };
-  X.req = { C: [a, { x: a.x - 200, y: -26 }, { x: b.x + 60, y: -34 }, b], t0: V + VALIDATE.reqAt, d: VALIDATE.req };
+  if (vertical()) {
+    const a = { x: O.x + 40, y: O.y - 2 }, b = { x: sl.x + sl.w * .5, y: sl.y + sl.h + 22 };
+    X.req = { C: [a, { x: a.x - 30, y: a.y - 140 }, { x: b.x + 10, y: b.y + 160 }, b] };
+  } else {
+    const a = { x: O.x - 2, y: flagged.y1 + pitch / 2 }, b = { x: sl.x + sl.w * .55, y: sl.y - 5 };
+    X.req = { C: [a, { x: a.x - 200, y: -26 }, { x: b.x + 60, y: -34 }, b] };
+  }
+  Object.assign(X.req, { t0: V + VALIDATE.reqAt, d: VALIDATE.req });
   X.req.path = el('path', { d: pathD(X.req.C), fill: 'none', stroke: COL.flag, 'stroke-width': 1.2, 'stroke-dasharray': '4 4', opacity: 0 }, layer.xeno);
   X.req.dot = el('circle', { r: 4, fill: COL.flag, opacity: 0 }, layer.xeno);
   X.req.label = txt(layer.xeno, 0, 0, 'validation run · ZM-131', 't-note', { style: `fill:${COL.flag};fill-opacity:1`, opacity: 0 });
@@ -686,7 +720,9 @@ function buildXeno() {
 }
 
 function linkCurve(a, b) {
-  return [a, { x: lerp(a.x, b.x, .45), y: a.y }, { x: lerp(a.x, b.x, .55), y: b.y }, b];
+  return vertical()
+    ? [a, { x: a.x, y: lerp(a.y, b.y, .45) }, { x: b.x, y: lerp(a.y, b.y, .55) }, b]
+    : [a, { x: lerp(a.x, b.x, .45), y: a.y }, { x: lerp(a.x, b.x, .55), y: b.y }, b];
 }
 function linkAlpha(t, k) {
   const base = lerp(k.alpha, k.rest, prog(t, k.dimAt, 800));
@@ -721,7 +757,9 @@ function buildGraphSVG() {
   });
   S.branches.forEach(b => {
     const h = b.hub.p, f = b.from;
-    b.el = el('path', { d: `M${f.x} ${f.y} C${f.x + 90} ${f.y} ${h.x - 80} ${h.y} ${h.x} ${h.y}`, fill: 'none', stroke: COL.context, 'stroke-width': 1.1, 'stroke-opacity': .55 }, layer.context);
+    const d = vertical() ? `M${f.x} ${f.y} C${f.x} ${f.y - 90} ${h.x} ${h.y + 80} ${h.x} ${h.y}`
+      : `M${f.x} ${f.y} C${f.x + 90} ${f.y} ${h.x - 80} ${h.y} ${h.x} ${h.y}`;
+    b.el = el('path', { d, fill: 'none', stroke: COL.context, 'stroke-width': 1.1, 'stroke-opacity': .55 }, layer.context);
     b.len = b.el.getTotalLength();
     b.el.setAttribute('stroke-dasharray', b.len); b.el.setAttribute('stroke-dashoffset', b.len);
   });
@@ -943,6 +981,7 @@ function frameXeno(t) {
 // a gentle zoom toward where the new thing happens, back to the whole picture between and at the end
 function camRect(t) {
   const F = { x: 0, y: 0, w: L.w, h: L.h };
+  if (vertical()) return F;
   const w = L.w * .82, h = L.h * .82;
   const IN = { x: 0, y: 22, w, h }, MOD = { x: 0, y: L.h - h - 8, w, h };
   const OUT = { x: L.w * .14, y: 16, w: L.w * .86, h: L.h * .86 };   // XenoEx: the panel and the backbone, title included
@@ -958,12 +997,14 @@ function camRect(t) {
 }
 
 // ---------- what drives the clock ----------
-// 'read' (default): short paragraphs scroll in the text column; each plays its part when it reaches the
-// reading line. 'player' (?drive=player): plays like a film when in view, with chapters and previous/next.
-// 'states', 'steps' and 'scrub' are the earlier scroll-driven tests.
+// 'player' (default, and always on narrow screens or with reduced motion): plays like a film when in view,
+// with chapters and previous/next. 'read', 'states', 'steps' and 'scrub' are the scroll-driven tests
+// (?drive=..., wide screens only).
 const DRIVE_PARAM = new URLSearchParams(window.location.search).get('drive');
-const drive = ['player', 'states', 'steps', 'scrub'].includes(DRIVE_PARAM) ? DRIVE_PARAM : 'read';
-const STOPS = drive === 'states' ? STATES : drive === 'read' ? READ : BEATS;   // what the story steps through
+const DRIVE_PREF = ['read', 'states', 'steps', 'scrub'].includes(DRIVE_PARAM) ? DRIVE_PARAM : 'player';
+const stopsFor = d => (d === 'states' ? STATES : d === 'read' ? READ : BEATS);
+let drive = DRIVE_PREF, STOPS = stopsFor(drive);   // what the story steps through
+let reduced = reduceQ.matches;
 let clockSpeed = 0, clipRate = 0, paused = false, hold = false;
 
 let narrIdx = -1;
@@ -1174,8 +1215,11 @@ function markRead(i) {
   readCur = i;
   readEls.forEach((e, k) => e.classList.toggle('is-current', k === i));
 }
-// a quick fade through the background to another moment (jumps, previous/next, chapters)
-function cutTo(t, i, now) { fade = { t, i, start: now, out: true }; }
+// a quick fade through the background to another moment (jumps, previous/next, chapters); a cut with reduced motion
+function cutTo(t, i, now) {
+  if (reduced) { clockT = t; ci = i; return; }
+  fade = { t, i, start: now, out: true };
+}
 function stepFade(now) {
   const u = clamp((now - fade.start) / 160);
   clockSpeed = clipRate = 0;
@@ -1212,7 +1256,8 @@ function playerClock(dt) {
 }
 function playerJump(i) {
   ended = false; updatePlay();
-  cutTo(STOPS[i].start, i, performance.now());
+  // paused with reduced motion: show the step finished; otherwise play it from its start
+  cutTo(reduced && userPaused ? STOPS[i].to : STOPS[i].start, i, performance.now());
   startTick();
 }
 playBtn.addEventListener('click', () => {
@@ -1222,8 +1267,8 @@ playBtn.addEventListener('click', () => {
 // the step on screen, or the one a fade is already heading to (so quick repeated clicks keep stepping)
 const stepNow = () => (fade ? fade.i : stopAt(clockT));
 group.querySelector('[data-pf-prev]').addEventListener('click', () => {
-  const i = stepNow();
-  playerJump(!fade && (clockT - STOPS[i].start > 1500 || i === 0) ? i : Math.max(0, i - 1));   // to this step's start, or the one before
+  const i = stepNow(), still = reduced && userPaused;
+  playerJump(!still && !fade && (clockT - STOPS[i].start > 1500 || i === 0) ? i : Math.max(0, i - 1));   // to this step's start, or the one before
 });
 group.querySelector('[data-pf-next]').addEventListener('click', () => playerJump(Math.min(STOPS.length - 1, stepNow() + 1)));
 // plays while most of the figure is on screen
@@ -1377,6 +1422,8 @@ function setOn(want) {
   group.classList.toggle('pf-read', on && drive === 'read');
   group.classList.toggle('pf-player', on && drive === 'player');
   group.classList.toggle('pf-scrub', on && drive === 'scrub');
+  group.classList.toggle('pf-narrow', on && !wideQ.matches);
+  group.classList.toggle('pf-compact', on && vertical());
   sticky.hidden = !on;
   if (on) {
     if (!S) build();
@@ -1388,8 +1435,11 @@ function setOn(want) {
       chaptersScrub(window.scrollY);
       render(tNow);
     } else if (drive === 'player') {
-      clockT = 0; ci = 0; ended = false; updatePlay();
-      render(0);
+      // with reduced motion it waits for Play, showing the first step finished
+      userPaused = reduced; ended = false; ci = 0;
+      clockT = reduced ? STOPS[0].to : 0;
+      updatePlay();
+      render(clockT);
       chaptersSteps();
       startTick();
     } else {
@@ -1410,9 +1460,21 @@ function setOn(want) {
     if (S) S.insets.forEach(r => r.video && r.video.pause());
   }
 }
-const evaluate = () => setOn(wideQ.matches && !reduceQ.matches);
-wideQ.addEventListener('change', evaluate);
-reduceQ.addEventListener('change', evaluate);
+// The player everywhere it can't be a wide scroll test (narrow windows, reduced motion); the figure's layout
+// follows the window. Switching keeps the player's place.
+function evaluate() {
+  const d = wideQ.matches && !reduceQ.matches ? DRIVE_PREF : 'player';
+  const kind = layoutQ.matches ? 'wide' : 'compact';
+  if (on && d === drive && kind === L.kind && reduced === reduceQ.matches &&
+      group.classList.contains('pf-narrow') === !wideQ.matches) return;
+  const keepT = on && d === 'player' && drive === 'player' ? clockT : null;
+  setOn(false);
+  drive = d; STOPS = stopsFor(d); reduced = reduceQ.matches;
+  if (kind !== L.kind) { L = LAYOUTS[kind]; S = null; }
+  setOn(true);
+  if (keepT !== null) { clockT = keepT; render(clockT); chaptersSteps(); }
+}
+[wideQ, layoutQ, reduceQ].forEach(q => q.addEventListener('change', evaluate));
 // content above the story (images, fonts) can move it: measure again when the page changes height
 let lastDocH = 0;
 new ResizeObserver(() => {
