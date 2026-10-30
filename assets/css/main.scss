@@ -475,6 +475,36 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 }
 .platform-select.is-enhanced.is-scrolly.pf-steps [data-select-panel].is-active { opacity: 1; visibility: visible; transition: opacity 500ms ease; }
 .is-scrolly.pf-steps .row-text { position: static; }
+/* reading: the chapter title stays at the top of the text column; short paragraphs scroll under it and
+   play their part of the story as they reach the reading line, 55% down the screen */
+.pf-read-step { display: none; }
+.is-scrolly.pf-read .pf-read-step { display: block; padding-bottom: 27vh; opacity: 0.32; transition: opacity 300ms ease; }
+.is-scrolly.pf-read .pf-read-step.is-current { opacity: 1; }
+.is-scrolly.pf-read .pf-read-step p { font-size: 1.0625rem; line-height: 1.65; color: var(--color-text-light); }
+.is-scrolly.pf-read .rows > .pf-read-step:first-child { padding-top: 40vh; }
+.is-scrolly.pf-read .rows > :last-child .pf-read-step:last-child { padding-bottom: calc(100vh - var(--pf-top, 9rem)); }
+.platform-select.is-enhanced.is-scrolly.pf-read [data-select-panel] { min-height: 0; }
+.is-scrolly.pf-read .row-text {
+    position: sticky; top: var(--pf-top, 9rem); z-index: 2;
+    padding: 1.25rem 0 1rem; margin-bottom: 2rem; background: var(--color-bg-deep);
+}
+.is-scrolly.pf-read .row-text > p:not(.label) { display: none; }
+.is-scrolly.pf-read .pf-narration { display: none; }
+/* player: the story plays like a film while in view; the page scrolls normally */
+.pf-player-buttons { display: none; }
+.pf-player .pf-player-buttons { display: inline-flex; }
+.pf-player .pf-buttons { display: none; }
+.platform-select.is-scrolly.pf-player .select-bar { position: static; box-shadow: none; clip-path: none; }
+.is-scrolly.pf-player .pf-story { align-items: center; }
+.is-scrolly.pf-player .pf-sticky { position: static; height: auto; padding: 0; }
+.is-scrolly.pf-player .pf-frame { max-width: none; }
+.is-scrolly.pf-player .rows { display: grid; }
+.platform-select.is-enhanced.is-scrolly.pf-player [data-select-panel] {
+    grid-area: 1 / 1; min-height: 0;
+    opacity: 0; visibility: hidden; transition: opacity 500ms ease, visibility 0s linear 500ms;
+}
+.platform-select.is-enhanced.is-scrolly.pf-player [data-select-panel].is-active { opacity: 1; visibility: visible; transition: opacity 500ms ease; }
+.is-scrolly.pf-player .row-text { position: static; padding-top: 0; }
 .pf-sticky {
     grid-column: 2; grid-row: 1; align-self: start;
     position: sticky; top: var(--pf-top, 9rem); height: calc(100vh - var(--pf-top, 9rem));
