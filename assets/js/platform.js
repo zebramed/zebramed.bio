@@ -153,6 +153,40 @@ const BEATS = [
   const [label, text] = STEP_TEXT[b.id];
   return Object.assign(b, { label, text, narr: b.ch ? `${CHAPTER_LABEL[b.ch]} \u00b7 ${label.toLowerCase()}` : label });
 });
+// common fields for the scroll to step through: when its line shows (start), where its playback
+// begins (from) and where it comes to rest (to)
+BEATS.forEach((b, i) => Object.assign(b, { start: b.t, from: i ? BEATS[i - 1].rest : 0, to: b.rest }));
+
+// The story as states (state mode, the newsroom pattern): each a stable picture the reader can stay on.
+// Reaching one plays a short intro (from -> to), then it rests there with the clips, link dots and
+// heatmap still moving; moving on is a short transition. Each modality has two: shown large, then connected.
+const STATE_TEXT = {
+  sequenced:   ['Sequenced', 'Its gene activity is read out and clustered.'],
+  imagedOn:    ['Imaged, connected', 'What is seen connects to the backbone, at the organs where it was seen.'],
+  trackedOn:   ['Tracked, connected', 'Behaviour connects to the functions and organs it reflects.'],
+  sequencedOn: ['Sequenced, connected', 'The clusters connect to the molecular signals of the backbone.'],
+  validate:    ['Validate', 'Where its confidence is under the agreed threshold, XenoEx designs a validation run and sends it to the biofoundry.'],
+  result:      ['Result', 'The run comes back above the threshold, and ZM-131 moves up the ranking.'],
+};
+// how long each modality's large card plays before it rests: the segmentation in, a swim bout, the clusters formed
+const INTRO = { imaged: 8200, tracked: 3800, sequenced: 4600 };
+const STATES = [
+  { id: 'backbone', ch: null, from: 0, to: TL.inputs[0] - 300 },
+  ...INPUTS.flatMap((inp, i) => {
+    const T = TL.inputs[i], st = inp.step;
+    return [{ id: inp.id, ch: 'biofoundry', from: T + st.appear, to: T + Math.min(INTRO[inp.id], st.dockAt - 200) },
+            { id: inp.id + 'On', ch: 'biofoundry', from: T + st.dockAt, to: T + st.end + 900 }];
+  }),
+  { id: 'spread', ch: 'interactome', from: TL.prop, to: TL.prop + PROPAGATE.wave + 200 },
+  ...MODELS.map((m, i) => ({ id: m.id, ch: 'interactome', from: TL.models[i] + m.step.appear, to: TL.models[i] + m.step.end + 300 })),
+  { id: 'predict', ch: 'xenoex', from: TL.predict, to: TL.validate - 300 },
+  { id: 'validate', ch: 'xenoex', from: TL.validate, to: TL.validate + VALIDATE.backAt },
+  { id: 'result', ch: 'xenoex', from: TL.validate + VALIDATE.backAt, to: TL.discover - 300 },
+  { id: 'discover', ch: 'xenoex', from: TL.discover, to: TL.end },
+].map(s => {
+  const [label, text] = STATE_TEXT[s.id] || STEP_TEXT[s.id];
+  return Object.assign(s, { start: s.from, label, text, narr: s.ch ? `${CHAPTER_LABEL[s.ch]} \u00b7 ${label.toLowerCase()}` : label });
+});
 
 // ---------- layout (viewBox units) ----------
 const L = {
@@ -424,7 +458,7 @@ function animateHeat(H, ms, live) {
     return;
   }
   H.state = 'live';
-  const sortU = prog(ms, 1700, 1700, E.inOut), breathe = prog(ms, 3600, 900), ts = ms / 1000;
+  const sortU = prog(ms, 1700, 1700, E.inOut), breathe = prog(ms, 3600, 900), ts = (drive === 'scrub' ? ms : flowT) / 1000;
   H.rows.forEach(r => {
     r.g.setAttribute('transform', `translate(0,${(H.y0 + lerp(r.raw, r.final, sortU) * H.rh).toFixed(2)})`);
     r.rects.forEach((rect, c) => {
@@ -710,11 +744,13 @@ function frameChrome(t) {
     if (r.video) {
       if (live) {
         const ct = clamp((t - r.T) / 1000, 0, (r.video.duration || 10) - .05);
-        if (drive === 'steps' && clockSpeed > 0 && !paused) {
-          // the step plays (or catches up): let the clip run at the same rate, only correct drift
-          if (r.video.playbackRate !== clockSpeed) r.video.playbackRate = clockSpeed;
+        const rate = drive === 'scrub' || paused ? 0 : clipRate;
+        if (rate !== 0) {
+          // playing (rate > 0): the clip runs at the story's rate, drift corrected; resting (rate < 0): it just loops
+          const pr = rate > 0 ? rate : 1;
+          if (r.video.playbackRate !== pr) r.video.playbackRate = pr;
           if (r.video.paused) r.video.play().catch(() => {});
-          if (r.video.readyState >= 1 && Math.abs(r.video.currentTime - ct) > .3) r.video.currentTime = ct;
+          if (rate > 0 && r.video.readyState >= 1 && Math.abs(r.video.currentTime - ct) > .3) r.video.currentTime = ct;
         } else {
           // scrubbing, rewinding, resting or paused: the clip follows the story time
           if (!r.video.paused) r.video.pause();
@@ -892,26 +928,29 @@ function camRect(t) {
 }
 
 // ---------- what drives the clock ----------
-// 'steps' (default): the scroll picks the step; each step plays at its own pace, then rests with the
-// clips, link dots and heatmap still moving. 'scrub' (?drive=scrub): the scroll position is the time.
-const drive = new URLSearchParams(window.location.search).get('drive') === 'scrub' ? 'scrub' : 'steps';
-let clockSpeed = 0, paused = false, hold = false;
+// 'states' (default): the scroll picks a state; it plays a short intro, then rests (clips, link dots and
+// heatmap still moving); moving on is a short transition. 'steps' (?drive=steps): each step plays its
+// full timing; steps scrolled past play faster. 'scrub' (?drive=scrub): the scroll position is the time.
+const DRIVE_PARAM = new URLSearchParams(window.location.search).get('drive');
+const drive = ['steps', 'scrub'].includes(DRIVE_PARAM) ? DRIVE_PARAM : 'states';
+const STOPS = drive === 'states' ? STATES : BEATS;   // what the scroll steps through
+let clockSpeed = 0, clipRate = 0, paused = false, hold = false;
 
 let narrIdx = -1;
-// the step on screen at time t: the last one that has started
-function beatAt(t) { let i = 0; BEATS.forEach((b, k) => { if (t >= b.t) i = k; }); return i; }
+// the step or state on screen at time t: the last one that has started
+function stopAt(t) { let i = 0; STOPS.forEach((b, k) => { if (t >= b.start) i = k; }); return i; }
 function narrate(t) {
-  const i = beatAt(t);
+  const i = stopAt(t);
   if (i === narrIdx) return;
   narrIdx = i;
-  nStep.textContent = BEATS[i].narr;
-  nText.textContent = BEATS[i].text;
+  nStep.textContent = STOPS[i].narr;
+  nText.textContent = STOPS[i].text;
   narr.classList.remove('is-fresh'); void narr.offsetWidth; narr.classList.add('is-fresh');
 }
 
 let lastVB = '';
 function render(t) {
-  flowT = drive === 'steps' ? performance.now() : t;
+  flowT = drive === 'scrub' ? t : performance.now();
   const vb = camRect(t), vbs = `${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}`;
   if (vbs !== lastVB) { LAYERS.forEach(n => layer[n].setAttribute('viewBox', vbs)); lastVB = vbs; }
   frameChrome(t); frameSVG(t); frameXeno(t); narrate(t);
@@ -985,16 +1024,19 @@ function follow() {
   if (tNow !== target) requestAnimationFrame(follow); else following = false;
 }
 
-// ---------- steps: the scroll picks the step, the step plays in time ----------
-// Each step is a stretch of scroll: reaching it plays the step in time. Steps scrolled past are never
-// skipped, only played faster; scrolling back rewinds. What is shown (figure, step line, chapter text,
-// bar) follows the playback, so it always agrees; the scroll only says where the story should go.
-const stepIdx = c => BEATS.map((b, i) => [b, i]).filter(([b]) => b.ch === c.key || (c === CHAPTERS[0] && !b.ch)).map(([, i]) => i);
+// ---------- steps and states: the scroll picks where the story goes, the story plays in time ----------
+// Each step or state is a stretch of scroll. What is shown (figure, step line, chapter text, bar) follows
+// the playback, so it always agrees; the scroll only says where the story should go.
+const stepIdx = c => STOPS.map((b, i) => [b, i]).filter(([b]) => b.ch === c.key || (c === CHAPTERS[0] && !b.ch)).map(([, i]) => i);
 let stepY = [], beatIdx = -1, clockT = 0, raf = 0, lastNow = 0, walking = false;
 function layoutSteps() {
   const vh = window.innerHeight, top = pinTop();
-  // about a screen per step, a little more for longer steps; then a stretch holding the end
-  const hs = BEATS.map((b, i) => vh * Math.min(1.05, .55 + .035 * (b.rest - (i ? BEATS[i - 1].rest : 0)) / 1000));
+  // steps: about a screen each, more for longer ones; states: a little less, more for longer intros;
+  // then a stretch holding the end
+  const hs = STOPS.map(s => {
+    const sec = (s.to - s.from) / 1000;
+    return vh * (drive === 'states' ? clamp(.5 + .03 * sec, .5, .85) : Math.min(1.05, .55 + .035 * sec));
+  });
   story.style.setProperty('--story-h', `${Math.round(hs.reduce((a, h) => a + h, 0) + vh * .8 + vh - top)}px`);
   let y = docY(story) - top - vh * .2;   // the backbone starts just before the figure is pinned
   stepY = hs.map(h => { const s = [y, y + h]; y += h; return s; });
@@ -1004,10 +1046,10 @@ function layoutSteps() {
 // and faintly with where the reader has scrolled to
 function chaptersSteps() {
   const y = window.scrollY;
-  setActiveChapter(Math.max(0, CHAPTERS.findIndex(c => c.key === BEATS[beatAt(clockT)].ch)));
+  setActiveChapter(Math.max(0, CHAPTERS.findIndex(c => c.key === STOPS[stopAt(clockT)].ch)));
   CHAPTERS.forEach((c, i) => {
     if (!c.btn) return;
-    const ids = stepIdx(c), t0 = ids[0] ? BEATS[ids[0] - 1].rest : 0, t1 = BEATS[ids[ids.length - 1]].rest;
+    const ids = stepIdx(c), t0 = STOPS[ids[0]].from, t1 = STOPS[ids[ids.length - 1]].to;
     c.btn.style.setProperty('--p', clamp((clockT - t0) / (t1 - t0)).toFixed(3));
     c.btn.style.setProperty('--s', clamp((y - chapterY[i][0]) / (chapterY[i][1] - chapterY[i][0])).toFixed(3));
   });
@@ -1017,49 +1059,86 @@ function beatAtScroll(y) {
   stepY.forEach(([s], i) => { if (y >= s) b = i; });
   return b;
 }
-// the step that is playing: the first whose resting point is still ahead
+// steps: the step that is playing is the first whose resting point is still ahead
 function playingIdx(t) { let i = 0; while (i < BEATS.length - 1 && t > BEATS[i].rest) i++; return i; }
 // where the page should be while the walkthrough plays time t
 function yForClock(t) {
-  const i = playingIdx(t), prev = i ? BEATS[i - 1].rest : 0;
-  const u = clamp((t - prev) / (BEATS[i].rest - prev));
+  const i = stopAt(t), next = i + 1 < STOPS.length ? STOPS[i + 1].start : TL.end;
+  const u = clamp((t - STOPS[i].start) / Math.max(1, next - STOPS[i].start));
   return stepY[i][0] + 2 + u * (stepY[i][1] - stepY[i][0] - 4);
 }
-const restOf = b => (b < 0 ? 0 : BEATS[b].rest);
+const restOf = b => (b < 0 ? 0 : STOPS[b].to);
+
+// steps: play to the step's rest; steps scrolled past play faster (2x one behind, up to 4x); back rewinds
+function stepsClock(dt) {
+  const rest = restOf(beatIdx);
+  if (clockT < rest) {
+    const lag = beatIdx - playingIdx(clockT);
+    clockSpeed = lag <= 0 ? 1 : Math.min(4, lag + 1);
+    clockT = Math.min(rest, clockT + dt * clockSpeed);
+  } else if (clockT > rest) {
+    if (clockT - rest > 6000) clockT = rest + 1500;
+    clockSpeed = -6;
+    clockT = Math.max(rest, clockT + dt * clockSpeed);
+  } else clockSpeed = 0;
+  clipRate = clockSpeed > 0 ? clockSpeed : 0;
+}
+
+// states: 'intro' plays the state in time, 'rest' holds it (things keep looping), 'finish' completes an
+// intro quickly when the reader has moved on, 'tween' is the short transition to the state they are at
+let sMode = 'rest', ci = -1, tw = null;
+function tweenTo(i, now) {
+  const forward = i > ci;
+  const to = i < 0 ? 0 : forward ? STOPS[i].from : STOPS[i].to;
+  const gap = Math.abs(to - clockT);
+  const D = gap <= 1500 ? gap : Math.min(2200, 1500 + Math.sqrt(gap - 1500) * 6);   // never much over 2 s
+  tw = { i, from: clockT, to, start: now, D: Math.max(1, D), forward };
+  sMode = 'tween';
+}
+function statesClock(now, dt) {
+  const want = beatIdx;
+  if (sMode === 'tween') { if (tw.i !== want) tweenTo(want, now); }
+  else if (want !== ci) {
+    if (want > ci && ci >= 0 && (sMode === 'intro' || sMode === 'finish')) sMode = 'finish';
+    else tweenTo(want, now);
+  } else if (sMode === 'finish') sMode = 'intro';
+  if (sMode === 'finish') {
+    clockT = Math.min(STOPS[ci].to, clockT + dt * 4); clockSpeed = clipRate = 4;
+    if (clockT >= STOPS[ci].to) tweenTo(want, now);
+  }
+  if (sMode === 'tween') {
+    const u = clamp((now - tw.start) / tw.D);
+    clockT = lerp(tw.from, tw.to, E.inOut(u)); clockSpeed = 2; clipRate = 0;
+    if (u >= 1) { ci = tw.i; sMode = tw.forward && ci >= 0 ? 'intro' : 'rest'; }
+  } else if (sMode === 'intro') {
+    clockT = Math.min(STOPS[ci].to, clockT + dt); clockSpeed = clipRate = 1;
+    if (clockT >= STOPS[ci].to) sMode = 'rest';
+  }
+  if (sMode === 'rest') { clockSpeed = 0; clipRate = -1; }
+}
+
 function tick(now) {
   raf = 0;
-  if (!on || drive !== 'steps' || !visible) return;
+  if (!on || drive === 'scrub' || !visible) return;
   const dt = Math.min(64, now - lastNow); lastNow = now;
   if (walking) {
-    clockSpeed = 1;
+    clockSpeed = clipRate = 1;
     clockT = Math.min(TL.end, clockT + dt);
     window.scrollTo({ top: yForClock(clockT), behavior: 'instant' });
     if (clockT >= TL.end) setWalking(false);
-  } else if (paused) { clockT = restOf(beatIdx); clockSpeed = 0; }
-  else if (!hold) {
-    const rest = restOf(beatIdx);
-    if (clockT < rest) {
-      // steps scrolled past still play, faster the further behind: 2x one step behind, up to 4x
-      const lag = beatIdx - playingIdx(clockT);
-      clockSpeed = lag <= 0 ? 1 : Math.min(4, lag + 1);
-      clockT = Math.min(rest, clockT + dt * clockSpeed);
-    } else if (clockT > rest) {
-      // scrolled back: rewind quickly to where the earlier step rests
-      if (clockT - rest > 6000) clockT = rest + 1500;
-      clockSpeed = -6;
-      clockT = Math.max(rest, clockT + dt * clockSpeed);
-    } else clockSpeed = 0;
-  }
+  } else if (paused) { clockT = restOf(beatIdx); clockSpeed = clipRate = 0; ci = beatIdx; sMode = 'rest'; }
+  else if (!hold) { if (drive === 'states') statesClock(now, dt); else stepsClock(dt); }
   render(clockT);
   chaptersSteps();
   // resting a while with more to come: remind the reader the story goes on
-  const resting = !walking && !paused && !hold && clockSpeed === 0 && beatIdx >= 0 && beatIdx < BEATS.length - 1;
+  const settled = drive === 'states' ? sMode === 'rest' && ci === beatIdx : clockSpeed === 0;
+  const resting = settled && !walking && !paused && !hold && beatIdx >= 0 && beatIdx < STOPS.length - 1;
   if (!resting) atRestSince = 0; else if (!atRestSince) atRestSince = now;
   showHint(resting && now - Math.max(atRestSince, lastScrollAt) > HINT_AFTER);
   raf = requestAnimationFrame(tick);
 }
 function startTick() {
-  if (raf || !on || drive !== 'steps' || !visible) return;
+  if (raf || !on || drive === 'scrub' || !visible) return;
   lastNow = performance.now();
   raf = requestAnimationFrame(tick);
 }
@@ -1100,6 +1179,10 @@ function setWalking(w, fromStart = true) {
     showHint(false);
     window.scrollTo({ top: yForClock(clockT), behavior: 'instant' });
     startTick();
+  } else if (drive === 'states') {
+    // carry on from where the walkthrough stopped: finish that state's intro, then rest
+    ci = stopAt(clockT);
+    sMode = clockT < STOPS[ci].to ? 'intro' : 'rest';
   }
 }
 walkBtn.addEventListener('click', () => setWalking(!walking));
@@ -1141,7 +1224,8 @@ CHAPTERS.forEach((c, i) => c.btn && c.btn.addEventListener('click', () => {
   if (drive === 'scrub') { window.scrollTo({ top: chapterY[i][0] + 2, behavior: 'smooth' }); return; }
   const first = stepIdx(c)[0];
   hold = false;
-  clockT = first ? BEATS[first - 1].rest : 0;
+  clockT = STOPS[first].from;
+  ci = first; sMode = 'intro';
   window.scrollTo({ top: stepY[first][0] + 2, behavior: 'instant' });
   beatIdx = first;
   startTick();
@@ -1162,7 +1246,7 @@ function setOn(want) {
   if (want === on) return;
   on = want;
   group.classList.toggle('is-scrolly', on);
-  group.classList.toggle('pf-steps', on && drive === 'steps');
+  group.classList.toggle('pf-steps', on && drive !== 'scrub');
   group.classList.toggle('pf-scrub', on && drive === 'scrub');
   sticky.hidden = !on;
   if (on) {
@@ -1177,6 +1261,7 @@ function setOn(want) {
       // arriving mid-page (reload, link): show where that step rests, no catching up
       beatIdx = beatAtScroll(window.scrollY);
       clockT = restOf(beatIdx);
+      ci = beatIdx; sMode = 'rest';
       render(clockT);
       chaptersSteps();
       startTick();
@@ -1207,8 +1292,10 @@ const domReady = document.readyState === 'loading'
 Promise.all([domReady, document.fonts.ready]).then(() => {
   evaluate();
   const params = new URLSearchParams(window.location.search);
+  // ?pf-debug: where each step or state starts on the page, and what the clock is doing (for tests)
+  if (params.has('pf-debug')) window.pfDebug = () => ({ starts: stepY.map(s => Math.round(s[0])), mode: sMode, ci, t: Math.round(clockT) });
   // ?walkthrough (e.g. in a link sent to someone) starts the walkthrough as soon as the page is ready
-  if (on && drive === 'steps' && params.has('walkthrough') && !params.has('pf-t')) { setWalking(true); return; }
+  if (on && drive !== 'scrub' && params.has('walkthrough') && !params.has('pf-t')) { setWalking(true); return; }
   // ?pf-t=<ms> opens the page at that moment of the story and holds it there (for review)
   const at = params.get('pf-t');
   if (!on || at === null) return;
@@ -1218,11 +1305,10 @@ Promise.all([domReady, document.fonts.ready]).then(() => {
     tNow = target = t;
     chaptersScrub(window.scrollY);
   } else {
-    let k = 0;
-    BEATS.forEach((b, i) => { if (t >= b.t) k = i; });
+    const k = stopAt(t);
     window.scrollTo({ top: stepY[k][0] + 4, behavior: 'instant' });
     hold = true; clockT = t;
-    beatIdx = k; chaptersSteps();
+    beatIdx = ci = k; chaptersSteps();
   }
   render(t);
 });
