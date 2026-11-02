@@ -47,6 +47,7 @@ Version:    3.0 (refactor/2026-10, restyle)
     --color-accent-secondary: #a8ff78;    /* green: results, highlights */
     --color-accent-secondary-rgb: 168, 255, 120;
     --color-flag: #f5b85c;                /* exclusions, thresholds, pending */
+    --color-heart: #ff6b7d;               /* the heartbeat in the hero loop */
     --color-line: #9fb0d0;                /* structure strokes, used at low opacity */
     --color-line-rgb: 159, 176, 208;
 
@@ -259,6 +260,19 @@ p { max-width: 62ch; color: var(--color-text-medium); }
 .loop-ring[data-turn="2"] .ctx .c1, .loop-ring[data-turn="2"] .ctx .c2,
 .loop-ring[data-turn="3"] .ctx .c1, .loop-ring[data-turn="3"] .ctx .c2, .loop-ring[data-turn="3"] .ctx .c3 { opacity: 1; }
 @media (max-width: 480px) { .loop-ring .gloss { display: none; } }
+/* Measure: the larva's heart beats as each R-peak of the trace enters on the
+   right. The trace scrolls by exactly one beat (28 units) per cycle, so it loops
+   seamlessly; both freeze with the ring and stay still under reduced motion. */
+.beat  { stroke: var(--color-heart); fill: none; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.heart { fill: var(--color-heart); }
+.loop-ring .bladder { fill: var(--color-line); fill-opacity: 0.12; }
+.loop-ring .ecg, .loop-ring .heart { animation-duration: 800ms; animation-iteration-count: infinite; animation-play-state: paused; }
+.loop-ring .ecg { animation-name: ecg-scroll; animation-timing-function: linear; }
+.loop-ring .heart { animation-name: heartbeat; animation-timing-function: ease-out; transform-box: fill-box; transform-origin: center; }
+.loop-ring.is-playing .ecg, .loop-ring.is-playing .heart { animation-play-state: running; }
+html[data-motion="reduced"] .loop-ring .ecg, html[data-motion="reduced"] .loop-ring .heart { animation: none; }
+@keyframes ecg-scroll { to { transform: translateX(-28px); } }
+@keyframes heartbeat { 0% { transform: scale(1.45); } 35%, 100% { transform: scale(1); } }
 /* In the hero only play/pause shows; the step buttons are the reduced-motion way through (section 7). */
 .fig-loop [data-hold] { display: none; }
 
