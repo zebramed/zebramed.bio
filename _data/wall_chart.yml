@@ -1,41 +1,42 @@
 # Figure 2: the systemic biology wall.
-# Source: Jayatunga, Ayers, Bruens, Jayanth & Meier (Boston Consulting Group),
-# "How successful are AI-discovered drugs in clinical trials? A first analysis
-# and emerging lessons", Drug Discovery Today 29(6):104009, 2024
-# (doi:10.1016/j.drudis.2024.104009). Abstract: AI-discovered molecules succeed
-# 80-90% in Phase I, "substantially higher than historic industry averages"
-# (the paper benchmarks these at roughly 40-65%), and ~40% in Phase II,
-# "comparable to historic industry averages".
-# Plotted: share of molecules entering Phase I still advancing at the end of
-# each phase, using the midpoints. AI: 85%, then 85 x 0.40 = 34%. Historic:
-# 52.5%, then 52.5 x 0.40 = 21%. x runs from 0 (Phase I start) to 1 (end of
-# Phase II); the study does not cover preclinical attrition.
-status: sourced          # pending | sourced. "sourced" adds the numbered y axis; "pending" shows a badge in review builds
-y_label: Molecules still advancing
+# A schematic that tells the story, not a plot of the paper's numbers. The
+# narrative follows Jayatunga, Ayers, Bruens, Jayanth & Meier (Boston Consulting
+# Group), "How successful are AI-discovered drugs in clinical trials? A first
+# analysis and emerging lessons", Drug Discovery Today 29(6):104009, 2024
+# (doi:10.1016/j.drudis.2024.104009): AI-discovered molecules succeed 80-90% in
+# Phase I, well above the historic average, and ~40% in Phase II, the same as
+# ever. x runs from 0 (start of preclinical) to 1 (end of Phase II); y is asset
+# survival in %.
+status: schematic        # schematic | pending | sourced. "sourced" adds the numbered y axis; "pending" shows a badge in review builds
+y_label: Asset survival
 phases:
-  - label: Phase I
-    sub: safety, first in humans
+  - label: Preclinical
+    sub: years 0 to 2
     from: 0.0
-    to: 0.5
+    to: 0.33
+  - label: Phase I
+    sub: years 2 to 5
+    from: 0.33
+    to: 0.66
   - label: Phase II
-    sub: efficacy, in patients
-    from: 0.5
+    sub: years 5 to 7
+    from: 0.66
     to: 1.0
 wall:
-  from: 0.5
+  from: 0.66
   to: 1.0
   label: The systemic biology wall
 series:
-  - name: Historic industry average
+  - name: Traditional pharma
     style: base
-    points: "0,100 0.5,52.5 1,21"
-  - name: AI-discovered molecules
+    points: "0,100 1,10"
+  - name: AI-designed candidates
     style: live
-    points: "0,100 0.5,85 1,34"
+    points: "0,100 0.66,90 0.82,20 1,12"
 caption: >-
-  Share of molecules still advancing after each clinical phase. AI-discovered
-  molecules pass Phase I 80 to 90% of the time, against a historic 40 to 65%,
-  then fail Phase II as often as ever (about 40% succeed). Midpoints plotted.
+  Asset survival through the clinical phases, drawn as a schematic. AI-designed
+  candidates clear Phase I far more often than the historic average, then fail
+  Phase II as often as ever.
 source: >-
-  Source: Jayatunga et al., Boston Consulting Group,
+  After Jayatunga et al., Boston Consulting Group,
   <a href="https://doi.org/10.1016/j.drudis.2024.104009">Drug Discovery Today, 2024</a>.

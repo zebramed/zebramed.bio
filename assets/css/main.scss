@@ -241,6 +241,9 @@ p { max-width: 62ch; color: var(--color-text-medium); }
 .fig-caption .fig-replay { margin-left: 0.75rem; vertical-align: middle; }
 
 /* Figure 1: ring */
+/* With motion on, each station appears as the pulse reaches it, then stays. */
+.loop-ring .station { transition: opacity 600ms ease; }
+html[data-motion="playing"] .loop-ring .station:not(.is-done):not(.is-active) { opacity: 0; }
 .loop-ring .station .a   { opacity: 0; transition: opacity 500ms ease; }
 .loop-ring .station.is-done .a, .loop-ring .station.is-active .a { opacity: 1; }
 .loop-ring .station.is-active .a { transition-delay: calc(var(--d, 0) * 120ms); }
@@ -253,7 +256,7 @@ p { max-width: 62ch; color: var(--color-text-medium); }
     stroke: var(--color-accent-secondary); stroke-width: 2.5; fill: none; stroke-linecap: round;
     stroke-dasharray: 36 920; stroke-dashoffset: -716.3; opacity: 0;
 }
-.loop-ring.is-playing .pulse { opacity: 1; animation: orbit 12s linear infinite; }
+.loop-ring.is-playing .pulse { opacity: 1; animation: orbit 12s linear var(--orbit-delay, 0s) infinite; }
 @keyframes orbit { to { stroke-dashoffset: -1671.3; } }
 .loop-ring .ctx circle { opacity: 0.18; transition: opacity 600ms ease; }
 .loop-ring[data-turn="1"] .ctx .c1,

@@ -1,7 +1,7 @@
 # Site settings
 title: ZebraMed
 description: "Drug discovery AI, grounded in whole-organism biology"
-tagline: "ZebraMed builds the Systemic Graph, a multi-species knowledge graph of systemic biology, and XenoEx, an interpretable multi-agent AI that reasons over it"
+tagline: "ZebraMed builds the systemic graph, a multi-species knowledge graph of systemic biology, and XenoEx, an interpretable multi-agent AI that reasons over it"
 email: info@zebramed.bio
 url: "https://zebramed.bio"
 baseurl: ""

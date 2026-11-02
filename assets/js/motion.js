@@ -56,8 +56,12 @@
     };
     const start = () => {
       if (reduced()) { endState(); return; }
+      if (!timer) {
+        tick(); timer = setInterval(tick, STEP_MS);
+        // The pulse takes one step per station: start it where the ring is now.
+        svg.style.setProperty('--orbit-delay', `${-step * STEP_MS}ms`);
+      }
       svg.classList.add('is-playing');
-      if (!timer) { tick(); timer = setInterval(tick, STEP_MS); }
       if (playBtn) playBtn.textContent = playBtn.dataset.pauseLabel || 'Pause';
     };
     const stop = () => {

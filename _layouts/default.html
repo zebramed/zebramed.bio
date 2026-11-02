@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site.title }} | {{ page.title | default: site.description }}</title>
+    <!-- Set before first paint so figures that build up with motion start empty (motion.js keeps it current). -->
+    <script>document.documentElement.dataset.motion = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'playing';</script>
     
     <!-- Preload critical assets -->
     <link rel="preload" href="{{ '/assets/css/tailwind.css' | relative_url }}" as="style">

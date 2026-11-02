@@ -128,7 +128,7 @@ const CHAPTERS = [
 // The story in steps: when each starts, where it comes to rest, its chapter, and what the page says.
 // In step mode each step plays from the previous rest to its own, at its own pace.
 const STEP_TEXT = {
-  backbone:  ['Systemic Graph', 'A multi-species knowledge graph of the body as one system: organs, and the functions and molecular signals that connect them.'],
+  backbone:  ['Systemic graph', 'A multi-species knowledge graph of the body as one system: organs, and the functions and molecular signals that connect them.'],
   imaged:    ['Imaged', 'A living organism is imaged whole: organs, vessels and nerves seen together, in context.'],
   tracked:   ['Tracked', 'The same organism\u2019s behaviour is measured: how it moves, rests and responds.'],
   sequenced: ['Sequenced', 'Its gene activity is read out, clustered, and mapped onto the molecular signals of the graph.'],
@@ -193,7 +193,7 @@ const STATES = [
 // takes about as long as its part of the animation (3 to 4 words a second). Each covers the timeline from
 // the previous one's end to its own. Draft copy, from the site's existing wording.
 const READ = [
-  [null, TL.inputs[0] - 300, 'Everything here sits on one map, the Systemic Graph: a multi-species knowledge graph of organs, the functions they carry out and the molecular signals between them, connected as they are in a living body.'],
+  [null, TL.inputs[0] - 300, 'Everything here sits on one map, the systemic graph: a multi-species knowledge graph of organs, the functions they carry out and the molecular signals between them, connected as they are in a living body.'],
   ['biofoundry', TL.inputs[0] + 4800, 'The biofoundry starts from transparent zebrafish larvae. They share 82% of human disease-associated genes and have a working liver, heart, nervous system and blood-brain barrier. ZebraChip microfluidics hold each larva in place to be imaged whole.'],
   ['biofoundry', TL.inputs[0] + INTRO.imaged, 'FishEye computer vision segments what the camera sees: the brain and spinal cord first, then each organ in view.'],
   ['biofoundry', TL.inputs[0] + INPUTS[0].step.end + 900, 'Each measurement is placed on the graph at the organ where it was seen: here the brain, the gut and the heart.'],
@@ -214,7 +214,7 @@ const READ = [
   ['xenoex', TL.end, 'Where those mechanisms meet, it proposes new targets, each scored by the evidence behind it.'],
 ].map(([ch, to, text], i, all) => {
   const from = i ? all[i - 1][1] : 0;
-  return { ch, from, to, start: from, text, label: ch ? CHAPTER_LABEL[ch] : 'Systemic Graph', narr: ch ? CHAPTER_LABEL[ch] : 'Systemic Graph' };
+  return { ch, from, to, start: from, text, label: ch ? CHAPTER_LABEL[ch] : 'Systemic graph', narr: ch ? CHAPTER_LABEL[ch] : 'Systemic graph' };
 });
 
 // ---------- layouts (viewBox units) ----------
@@ -379,7 +379,7 @@ function buildChrome() {
   const tg = el('g', {}, g);
   const tw = 196;
   el('rect', { x: L.bbTitle.x - tw / 2, y: L.bbTitle.y - 18, width: tw, height: 42, rx: 8, fill: COL.bg, 'fill-opacity': .82 }, tg);
-  txt(tg, L.bbTitle.x, L.bbTitle.y, 'Systemic Graph', 't-head', { 'text-anchor': 'middle', style: 'fill:#fff;fill-opacity:1' });
+  txt(tg, L.bbTitle.x, L.bbTitle.y, 'Systemic graph', 't-head', { 'text-anchor': 'middle', style: 'fill:#fff;fill-opacity:1' });
   txt(tg, L.bbTitle.x, L.bbTitle.y + 18, 'a multi-species knowledge graph', 't-note', { 'text-anchor': 'middle' });
   S.fades.push({ el: tg, t0: 0, d: 500 });
 
