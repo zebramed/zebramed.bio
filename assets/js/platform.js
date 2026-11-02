@@ -128,17 +128,17 @@ const CHAPTERS = [
 // The story in steps: when each starts, where it comes to rest, its chapter, and what the page says.
 // In step mode each step plays from the previous rest to its own, at its own pace.
 const STEP_TEXT = {
-  backbone:  ['Systemic backbone', 'A map of the body as one system: organs, and the functions and molecular signals that connect them.'],
+  backbone:  ['Systemic Graph', 'A multi-species knowledge graph of the body as one system: organs, and the functions and molecular signals that connect them.'],
   imaged:    ['Imaged', 'A living organism is imaged whole: organs, vessels and nerves seen together, in context.'],
   tracked:   ['Tracked', 'The same organism\u2019s behaviour is measured: how it moves, rests and responds.'],
-  sequenced: ['Sequenced', 'Its gene activity is read out, clustered, and mapped onto the molecular signals of the backbone.'],
-  spread:    ['Through the system', 'The backbone carries each observation on, from where it was measured to the organs and functions it connects to.'],
+  sequenced: ['Sequenced', 'Its gene activity is read out, clustered, and mapped onto the molecular signals of the graph.'],
+  spread:    ['Through the system', 'The graph carries each observation on, from where it was measured to the organs and functions it connects to.'],
   cells:     ['Cell cultures', 'Other models are optional. Cell cultures plug in where they observe: at molecular signals.'],
   organoids: ['Organoids', 'Organoids add detail at single organs, here liver and brain.'],
-  chip:      ['Organ-on-chip', 'An organ-on-chip couples two organs, gut and liver. The backbone works with or without them.'],
-  predict:   ['Predict', 'XenoEx queries the backbone organ by organ and returns a human risk profile for each candidate, safest first.'],
+  chip:      ['Organ-on-chip', 'An organ-on-chip couples two organs, gut and liver. The graph works with or without them.'],
+  predict:   ['Predict', 'XenoEx queries the graph organ by organ and returns a human risk profile for each candidate, safest first.'],
   validate:  ['Validate', 'Where its confidence is under the agreed threshold, XenoEx designs a validation run for the biofoundry. The result updates the ranking.'],
-  discover:  ['Discover', 'Asked about a disease instead, XenoEx follows its mechanisms through the backbone and proposes new targets.'],
+  discover:  ['Discover', 'Asked about a disease instead, XenoEx follows its mechanisms through the graph and proposes new targets.'],
 };
 const CHAPTER_LABEL = { biofoundry: 'Run', interactome: 'Translate', xenoex: 'Reason' };
 const BEATS = [
@@ -163,9 +163,9 @@ BEATS.forEach((b, i) => Object.assign(b, { start: b.t, from: i ? BEATS[i - 1].re
 // heatmap still moving; moving on is a short transition. Each modality has two: shown large, then connected.
 const STATE_TEXT = {
   sequenced:   ['Sequenced', 'Its gene activity is read out and clustered.'],
-  imagedOn:    ['Imaged, connected', 'What is seen connects to the backbone, at the organs where it was seen.'],
+  imagedOn:    ['Imaged, connected', 'What is seen connects to the graph, at the organs where it was seen.'],
   trackedOn:   ['Tracked, connected', 'Behaviour connects to the functions and organs it reflects.'],
-  sequencedOn: ['Sequenced, connected', 'The clusters connect to the molecular signals of the backbone.'],
+  sequencedOn: ['Sequenced, connected', 'The clusters connect to the molecular signals of the graph.'],
   validate:    ['Validate', 'Where its confidence is under the agreed threshold, XenoEx designs a validation run and sends it to the biofoundry.'],
   result:      ['Result', 'The run comes back above the threshold, and ZM-131 moves up the ranking.'],
 };
@@ -193,28 +193,28 @@ const STATES = [
 // takes about as long as its part of the animation (3 to 4 words a second). Each covers the timeline from
 // the previous one's end to its own. Draft copy, from the site's existing wording.
 const READ = [
-  [null, TL.inputs[0] - 300, 'Everything here sits on one map, the systemic backbone: organs, the functions they carry out and the molecular signals between them, connected as they are in a living body.'],
+  [null, TL.inputs[0] - 300, 'Everything here sits on one map, the Systemic Graph: a multi-species knowledge graph of organs, the functions they carry out and the molecular signals between them, connected as they are in a living body.'],
   ['biofoundry', TL.inputs[0] + 4800, 'The biofoundry starts from transparent zebrafish larvae. They share 82% of human disease-associated genes and have a working liver, heart, nervous system and blood-brain barrier. ZebraChip microfluidics hold each larva in place to be imaged whole.'],
   ['biofoundry', TL.inputs[0] + INTRO.imaged, 'FishEye computer vision segments what the camera sees: the brain and spinal cord first, then each organ in view.'],
-  ['biofoundry', TL.inputs[0] + INPUTS[0].step.end + 900, 'Each measurement is placed on the backbone at the organ where it was seen: here the brain, the gut and the heart.'],
+  ['biofoundry', TL.inputs[0] + INPUTS[0].step.end + 900, 'Each measurement is placed on the graph at the organ where it was seen: here the brain, the gut and the heart.'],
   ['biofoundry', TL.inputs[1] + INTRO.tracked, 'The same larvae are filmed swimming, one per well. Tracking reads how each one moves, rests and responds, frame by frame.'],
   ['biofoundry', TL.inputs[1] + INPUTS[1].step.end + 900, 'Behaviour connects to the functions it reflects, such as activity, and to the organs behind them.'],
   ['biofoundry', TL.inputs[2] + INTRO.sequenced, 'Their gene activity is read out by sequencing. Samples group by dose, and genes group into programmes that rise, fall or switch on together.'],
-  ['biofoundry', TL.inputs[2] + INPUTS[2].step.end + 900, 'Each programme is mapped to the molecular signals of the backbone it belongs to.'],
+  ['biofoundry', TL.inputs[2] + INPUTS[2].step.end + 900, 'Each programme is mapped to the molecular signals of the graph it belongs to.'],
   ['interactome', TL.prop + PROPAGATE.wave + 200, 'The graph does not stop where a measurement lands. Orthology, shared ontologies and OECD adverse outcome pathways carry each observation on, step by mechanistic step, to its human counterpart and to the organs and functions it connects to.'],
   ['interactome', TL.models[0] + MODELS[0].step.end + 300, 'A client\u2019s own models can join the same graph. Cell cultures plug in at the molecular signals they observe.'],
   ['interactome', TL.models[1] + MODELS[1].step.end + 300, 'Organoids add detail at single organs, here the liver and the brain.'],
-  ['interactome', TL.models[2] + MODELS[2].step.end + 300, 'An organ-on-chip couples two organs, the gut and the liver. These models add resolution; the backbone works without them.'],
-  ['xenoex', TL.predict + PREDICT.barsAt, 'XenoEx reasons over the graph in steps a scientist can read, audit and redirect. Asked to rank four candidates, it queries the backbone organ by organ and collects what comes back.'],
+  ['interactome', TL.models[2] + MODELS[2].step.end + 300, 'An organ-on-chip couples two organs, the gut and the liver. These models add resolution; the graph works without them.'],
+  ['xenoex', TL.predict + PREDICT.barsAt, 'XenoEx reasons over the graph in steps a scientist can read, audit and redirect. Asked to rank four candidates, it queries the graph organ by organ and collects what comes back.'],
   ['xenoex', TL.validate - 300, 'It returns a human risk profile for each, across liver, heart, brain and kidney, and ranks them safest first.'],
   ['xenoex', TL.validate + VALIDATE.reqAt, 'One prediction is uncertain: the heart risk of ZM-131 falls under the confidence threshold agreed with the client.'],
   ['xenoex', TL.validate + VALIDATE.backAt, 'So XenoEx designs the run that would settle it and sends it to the biofoundry, to be tested on whole organisms.'],
   ['xenoex', TL.discover - 300, 'The result comes back above the threshold. The heart risk is lower than feared, and ZM-131 moves up the ranking.'],
-  ['xenoex', TL.discover + DISCOVER.popAt, 'XenoEx can also be asked the other way round: not which candidate is safest, but what to target in a disease. It follows the disease\u2019s mechanisms through the backbone.'],
+  ['xenoex', TL.discover + DISCOVER.popAt, 'XenoEx can also be asked the other way round: not which candidate is safest, but what to target in a disease. It follows the disease\u2019s mechanisms through the graph.'],
   ['xenoex', TL.end, 'Where those mechanisms meet, it proposes new targets, each scored by the evidence behind it.'],
 ].map(([ch, to, text], i, all) => {
   const from = i ? all[i - 1][1] : 0;
-  return { ch, from, to, start: from, text, label: ch ? CHAPTER_LABEL[ch] : 'Systemic backbone', narr: ch ? CHAPTER_LABEL[ch] : 'Systemic backbone' };
+  return { ch, from, to, start: from, text, label: ch ? CHAPTER_LABEL[ch] : 'Systemic Graph', narr: ch ? CHAPTER_LABEL[ch] : 'Systemic Graph' };
 });
 
 // ---------- layouts (viewBox units) ----------
@@ -379,8 +379,8 @@ function buildChrome() {
   const tg = el('g', {}, g);
   const tw = 196;
   el('rect', { x: L.bbTitle.x - tw / 2, y: L.bbTitle.y - 18, width: tw, height: 42, rx: 8, fill: COL.bg, 'fill-opacity': .82 }, tg);
-  txt(tg, L.bbTitle.x, L.bbTitle.y, 'Systemic backbone', 't-head', { 'text-anchor': 'middle', style: 'fill:#fff;fill-opacity:1' });
-  txt(tg, L.bbTitle.x, L.bbTitle.y + 18, 'how organs and systems interact', 't-note', { 'text-anchor': 'middle' });
+  txt(tg, L.bbTitle.x, L.bbTitle.y, 'Systemic Graph', 't-head', { 'text-anchor': 'middle', style: 'fill:#fff;fill-opacity:1' });
+  txt(tg, L.bbTitle.x, L.bbTitle.y + 18, 'a multi-species knowledge graph', 't-note', { 'text-anchor': 'middle' });
   S.fades.push({ el: tg, t0: 0, d: 500 });
 
   const hw = txt(g, L.heads.whole.x, L.heads.whole.y, 'Whole organism', 't-head', { style: `fill:${COL.live}` });
@@ -597,7 +597,7 @@ function buildXeno() {
   X.status = txt(card, O.x + 16, O.y + Q.status, '', 't-note');
   X.statusIdx = -2;
   X.statuses = [
-    [P + PREDICT.outAt, 'querying the backbone\u2026', COL.medium],
+    [P + PREDICT.outAt, 'querying the graph\u2026', COL.medium],
     [P + PREDICT.barsAt, '4 profiles scored, organ by organ', COL.medium],
     [P + PREDICT.rankAt, 'ranked, safest first', COL.medium],
     [V, 'ZM-131 · heart: low confidence', COL.flag],

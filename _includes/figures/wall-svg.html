@@ -14,7 +14,7 @@ the shape is a schematic, and numbered gridlines would read as data.
 {% assign y1 = y0 | plus: ph %}{% assign x1 = x0 | plus: pw %}
 {% assign yk = ph | divided_by: -100.0 %}
 <svg class="{{ include.cls }}" viewBox="0 0 {{ vbw }} {{ vbh }}" role="img"
-     aria-label="Asset survival through preclinical, Phase I and Phase II. One line, traditional pharma, declines steadily from the start. The other, AI-designed candidates, stays high through Phase I and collapses against a brick wall over Phase II. Schematic.">
+     aria-label="Share of molecules still advancing through Phase I and Phase II. AI-discovered molecules: 85% after Phase I, then a drop against a brick wall to 34% after Phase II. Historic industry average: 52.5% after Phase I and 21% after Phase II. Source: Boston Consulting Group, Drug Discovery Today, 2024.">
     <defs>
         <pattern id="bricks-{{ include.cls }}" width="28" height="14" patternUnits="userSpaceOnUse">
             <rect width="28" height="14" fill="none"/>

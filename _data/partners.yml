@@ -13,9 +13,13 @@
 - name: NVIDIA Inception
   logo: nvidia_logo.svg
 - name: HEC Paris Challenge+
+  logo: hec_challenge_logo.png
 - name: DayOne, Basel
+  logo: dayone_logo.svg
 - name: Creative Destruction Lab
+  logo: cdl_logo.svg
 - name: Future4Care
+  logo: future4care_logo.svg
 - name: Wilco
   logo: wilco_logo.svg
 - name: Medicen Paris Region

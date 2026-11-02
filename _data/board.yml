@@ -14,8 +14,7 @@ groups:
           CEO of VIQ Healthcare Consulting and founding member of Future4Care.
           Former global head of digital innovation at Sanofi and innovation
           director at Roche.
-        linkedin: ""
-        pending: consent to appear, and a LinkedIn URL
+        linkedin: "https://www.linkedin.com/in/isabelle-vitali/"
       - name: Domenico Lucatelli
         photo: domenico-lucatelli.png
         role: Strategic board
@@ -23,16 +22,14 @@ groups:
           Global public affairs head at Angelini Pharma. Thirty years in
           biopharma commercial, market access and institutional roles at
           Novartis and Roche.
-        linkedin: ""
-        pending: consent to appear, and a LinkedIn URL
+        linkedin: "https://www.linkedin.com/in/domenico-lucatelli-40154460/"
       - name: Isabelle Hilali
         photo: isabelle-hilali.png
         role: Strategic board
         line: >-
           Founder and CEO of Datacraft, former EVP strategy and marketing at
           Orange Healthcare, senior lecturer at X-HEC-UC Berkeley.
-        linkedin: ""
-        pending: consent to appear, and a LinkedIn URL
+        linkedin: "https://www.linkedin.com/in/isabelle-hilali-82b5111/"
   - name: Scientific board
     members:
       - name: Stephen J. Haggarty
@@ -43,8 +40,7 @@ groups:
           Associate professor of neurology at Harvard Medical School and MGH,
           director of chemical neurobiology. CNS chemical libraries and target
           validation.
-        linkedin: ""
-        pending: consent to appear, and a LinkedIn URL
+        linkedin: "https://www.linkedin.com/in/stephen-j-haggarty-0942a59/"
       - name: Vincenzo Di Donato
         photo: vincenzo-di-donato.png
         title: Dr
@@ -53,8 +49,7 @@ groups:
           Co-founder and executive director at Gene4All, former scientific
           director at ZeClinics. High-throughput CRISPR editing and zebrafish
           disease models.
-        linkedin: ""
-        pending: consent to appear, and a LinkedIn URL
+        linkedin: "https://www.linkedin.com/in/vincenzo-di-donato-10028935/"
       - name: Arthur Llau
         photo: arthur-llau.png
         title: Dr
@@ -62,8 +57,7 @@ groups:
         line: >-
           Chief scientist at Flowlity and professor of data science at Sorbonne
           Université. Kaggle grandmaster; i-Lab and Google–McKinsey prize winner.
-        linkedin: ""
-        pending: consent to appear, and a LinkedIn URL
+        linkedin: "https://www.linkedin.com/in/arthurllau/"
 mentorship: >-
   Mentors from the DayOne (Basel), Creative Destruction Lab and HEC Challenge+
   programmes advise the team. ZebraMed is a resident of Future4Care and the

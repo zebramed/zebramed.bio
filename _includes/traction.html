@@ -20,6 +20,14 @@
             <h3 class="h3">{{ f.title }}</h3>
             <p>{{ f.text }}</p>
             {% if f.pending %}<p class="mt-2 pending-inline">Pending: {{ f.pending }}.</p>{% endif %}
+            {% if f.logos %}
+            <div class="feature-logos">
+                {% for l in f.logos %}
+                {% if l.file %}<span class="partner-tile"><img src="{{ '/assets/images/' | append: l.file | relative_url }}" alt="{{ l.name }}" title="{{ l.name }}" loading="lazy" class="partner-logo"></span>
+                {% else %}<span class="partner-tile is-text">{{ l.name }}</span>{% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
         </article>
         {% endfor %}
     </div>

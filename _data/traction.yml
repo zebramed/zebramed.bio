@@ -2,36 +2,40 @@
 # review builds show it with the reason in amber, production builds
 # (JEKYLL_ENV=production) leave it out. Delete the `pending:` line to publish.
 # See docs/ceo-copy-merge.md §4 for the reasoning behind each.
-# Not yet here: pharma challenge selections (e.g. Ipsen STEP4NAM), once the
-# partners clear them.
 # `lede` is the phrase each feature adds to the section's one-line summary.
+# `logos` are shown on light tiles at the foot of the card (files in
+# assets/images); a logo without `file` renders as its name.
 features:
-  - kicker: Pharma validation
-    lede: pharma pilots
-    title: Paid validation pilots with a top-50 pharma company
+  - kicker: Pharma
+    lede: pharma partnerships
+    title: Under contract with a top-50 pharma company
     text: >-
-      Two funded pilots: systemic and off-target toxicity across a set of
-      small-molecule and ASO candidates first, then CNS efficacy, mechanism of
-      action and shelved-asset rescue.
-    pending: >-
-      the partner's clearance, for the name and terms and for this scope,
-      which may be enough to identify them
+      A paid contract with a top-50 pharma company, and a collaborative project
+      on New Approach Methodologies (NAMs) started with a second pharma company.
+    logos:
+      - name: Servier
+        file: servier_logo.svg
+      - name: Ipsen
+        file: ipsen_logo.svg
   - kicker: Research collaborations
     lede: research collaborations
     title: Joint research with Institut Imagine, TEFOR (CNRS/CEA) and Sorbonne ISIR
     text: >-
       Active collaborations on disease models, zebrafish resources and
       automation.
+    logos:
+      - name: TEFOR
+        file: tefor_logo.png
+      - name: Institut Imagine
+        file: imagine_logo.png
+      - name: ISIR, Sorbonne Université
+        file: isir_logo.png
 measures:
-  - value: "[VALIDATION METRIC]"
-    label: Liver-toxicity prediction performance
-    pending: a sourced, fold-by-fold figure
-  - value: "[PLATFORM METRIC]"
-    label: Biofoundry throughput
-    pending: a dated run log
-  - value: "[FUNDING]"
-    label: Non-dilutive and equity funding secured
-    pending: a disclosure decision
-  - value: "[IP STATUS]"
-    label: Hardware and workflow patent filings
-    pending: counsel's wording
+  - value: "70%"
+    label: liver-toxicity (DILI) prediction performance
+  - value: "10×"
+    label: the throughput of manual processing
+  - value: "1 + 6"
+    label: patent applications, one priority filed and six planned; freedom to operate cleared
+  - value: "4"
+    label: non-dilutive grants awarded
