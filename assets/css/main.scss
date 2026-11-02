@@ -241,15 +241,6 @@ p { max-width: 62ch; color: var(--color-text-medium); }
 .fig-caption .fig-replay { margin-left: 0.75rem; vertical-align: middle; }
 
 /* Figure 1: ring */
-/* With motion on, each station appears as the pulse reaches it, then stays. */
-.loop-ring .station { transition: opacity 600ms ease; }
-html[data-motion="playing"] .loop-ring .station:not(.is-done):not(.is-active) { opacity: 0; }
-.loop-ring .station .a   { opacity: 0; transition: opacity 500ms ease; }
-.loop-ring .station.is-done .a, .loop-ring .station.is-active .a { opacity: 1; }
-.loop-ring .station.is-active .a { transition-delay: calc(var(--d, 0) * 120ms); }
-.loop-ring .draw { stroke-dasharray: var(--len, 120); stroke-dashoffset: var(--len, 120); transition: stroke-dashoffset 900ms ease; }
-.loop-ring .station.is-done .draw, .loop-ring .station.is-active .draw { stroke-dashoffset: 0; }
-.loop-ring .station.is-active .draw { transition-delay: calc(var(--d, 0) * 120ms); }
 .loop-ring .station .name { transition: fill 400ms ease; }
 .loop-ring .station.is-active .name { fill: var(--color-accent-secondary); }
 .loop-ring .pulse {
@@ -276,6 +267,28 @@ html[data-motion="playing"] .loop-ring .station:not(.is-done):not(.is-active) { 
 html[data-motion="reduced"] .loop-ring .ecg, html[data-motion="reduced"] .loop-ring .heart { animation: none; }
 @keyframes ecg-scroll { to { transform: translateX(-28px); } }
 @keyframes heartbeat { 0% { transform: scale(1.45); } 35%, 100% { transform: scale(1); } }
+/* Structure: the systemic graph in miniature. Every 4s a wave leaves the liver and
+   crosses one hop per 600ms (--h is the hop); each node it reaches gives off a ring. */
+.loop-ring .sg-e     { stroke: var(--color-line); stroke-opacity: 0.5; stroke-width: 1.1; }
+.loop-ring .sg-thin  { stroke-opacity: 0.42; stroke-width: 0.8; }
+.loop-ring .sg-organ { fill: var(--color-bg-dark); stroke: var(--color-line); stroke-opacity: 0.9; stroke-width: 1.2; }
+.loop-ring .sg-core  { fill: var(--color-line); fill-opacity: 0.8; }
+.loop-ring .sg-func  { fill: var(--color-bg-dark); stroke: var(--color-line); stroke-opacity: 0.9; stroke-width: 1; }
+.loop-ring .sg-sig   { fill: var(--color-text-medium); }
+.loop-ring .sg-wave  { stroke: var(--color-accent-primary); stroke-width: 1.4; stroke-linecap: round; fill: none;
+                       stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: 0; }
+.loop-ring .sg-ring  { fill: none; stroke: var(--color-accent-primary); stroke-width: 0.9; opacity: 0;
+                       transform-box: fill-box; transform-origin: center; }
+.loop-ring .sg-wave, .loop-ring .sg-ring {
+    animation-duration: 4s; animation-iteration-count: infinite; animation-fill-mode: both;
+    animation-timing-function: ease-out; animation-play-state: paused;
+}
+.loop-ring .sg-wave { animation-name: sg-wave; animation-delay: calc(var(--h, 0) * 600ms); }
+.loop-ring .sg-ring { animation-name: sg-ring; animation-delay: calc(var(--h, 0) * 600ms); }
+.loop-ring.is-playing .sg-wave, .loop-ring.is-playing .sg-ring { animation-play-state: running; }
+html[data-motion="reduced"] .loop-ring .sg-wave, html[data-motion="reduced"] .loop-ring .sg-ring { animation: none; }
+@keyframes sg-wave { 0% { stroke-dashoffset: 1; opacity: 0; } 1% { stroke-dashoffset: 1; opacity: 0.95; } 14% { stroke-dashoffset: 0; opacity: 0.95; } 40%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes sg-ring { 0% { transform: scale(1); opacity: 0; } 2% { transform: scale(1); opacity: 0.9; } 24%, 100% { transform: scale(2.3); opacity: 0; } }
 /* In the hero only play/pause shows; the step buttons are the reduced-motion way through (section 7). */
 .fig-loop [data-hold] { display: none; }
 
@@ -653,7 +666,6 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .loop-ring .pulse { animation: none; opacity: 0; }
-    .loop-ring .station .a, .loop-ring .station .draw { opacity: 1; stroke-dashoffset: 0; transition: none; }
     .fig-loop [data-hold] { display: inline-block; }
     .fig-loop [data-play] { display: none; }
     .fig-wall .series { transition: none; stroke-dashoffset: 0 !important; }
