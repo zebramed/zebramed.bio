@@ -10,8 +10,16 @@
         </p>
     </header>
 
-    <div class="mt-14 md:mt-16">
+    <div class="problem-split">
         {% include figures/wall.html %}
+        <div class="quotes">
+            {% for q in site.data.quotes %}
+            <figure class="quote">
+                <blockquote><p>&ldquo;{{ q.text }}&rdquo;</p></blockquote>
+                <figcaption><span class="quote-name">{{ q.name }}</span>, {{ q.role }}{% if q.source %}, {{ q.source }}{% endif %}</figcaption>
+            </figure>
+            {% endfor %}
+        </div>
     </div>
 
     <div class="trio causes">
