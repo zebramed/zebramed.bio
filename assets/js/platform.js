@@ -28,7 +28,17 @@ const COL = { line: '#9fb0d0', live: '#64ffda', context: '#c3a6ff', result: '#a8
 // Each input: appear, stay large while its content plays, dock, connect, pause. Models: the same, shorter.
 const BACKBONE   = { build: 2600, rest: 1200 };
 const INPUT_STEP = { appear: 400, dock: 650, link: 600, stagger: 120, pulse: 650, rest: 2200 };
-const HOLD       = { imaged: 9000, tracked: 4000, sequenced: 5600 };
+const HOLD       = { imaged: 9000, tracked: 5200, sequenced: 5600 };
+// While each whole-organism card is shown large: what is at work, what it does to the perturbed larva, and a
+// checklist that ticks as the clip shows each read-out (ms after the card starts).
+const PRESENT = {
+  imaged:    { head: 'FishEye in action', sub: 'Extracting phenomics from the perturbed larva',
+               checks: [['vessels', 3000], ['organs', 5600], ['morphology', 8000]] },
+  tracked:   { head: 'FishEye in action', sub: 'Tracking behaviour under perturbation',
+               checks: [['keypoints', 1000], ['swim path', 3600], ['speed', 4800]] },
+  sequenced: { head: 'Whole-organism transcriptomics', sub: 'The gene programmes the perturbation changes',
+               checks: [['reads', 1000], ['genes', 2600], ['programmes', 4000]] },
+};
 const PROPAGATE  = { wave: 2400, rest: 1400 };
 const MODEL_STEP = { appear: 350, hold: 1700, dock: 500, branch: 500, pop: 300, attach: 450, stagger: 100, pulse: 550, rest: 1400 };
 // Reason: XenoEx predicts, validates where it is unsure, then is asked for targets. Times within each part.
@@ -122,9 +132,9 @@ const CHAPTERS = [{ key: 'biofoundry' }, { key: 'interactome' }, { key: 'xenoex'
 // The story in steps: when each starts (t), where it comes to rest, its chapter, and what the page says.
 const STEP_TEXT = {
   backbone:  ['Systemic graph', 'A multi-species knowledge graph of the body as one system: organs, and the functions and molecular signals that connect them.'],
-  imaged:    ['Imaged', 'A living organism is imaged whole: organs, vessels and nerves seen together, in context.'],
-  tracked:   ['Tracked', 'The same organism\u2019s behaviour is measured: how it moves, rests and responds.'],
-  sequenced: ['Sequenced', 'Its gene activity is read out, clustered, and mapped onto the molecular signals of the graph.'],
+  imaged:    ['Imaged', 'A living organism, perturbed by a compound, is imaged whole. FishEye segments it and extracts its phenomics: vessels, organs, morphology.'],
+  tracked:   ['Tracked', 'The same perturbed organism is filmed swimming. FishEye tracks it keypoint by keypoint: how it moves, rests and responds.'],
+  sequenced: ['Sequenced', 'Whole-organism transcriptomics reads out its gene activity. Genes cluster into the programmes the perturbation changes, mapped onto the molecular signals of the graph.'],
   spread:    ['Through the system', 'The graph carries each observation on, from where it was measured to the organs and functions it connects to.'],
   cells:     ['Cell cultures', 'Other models are optional. Cell cultures plug in where they observe: at molecular signals.'],
   organoids: ['Organoids', 'Organoids add detail at single organs, here liver and brain.'],
@@ -161,7 +171,7 @@ const LAYOUTS = {
       imaged: { x: 24, y: 66, w: 152, h: 38 }, tracked: { x: 24, y: 118, w: 42, h: 42 }, sequenced: { x: 24, y: 174, w: 58, h: 42 },
       cells: { x: 24, y: 308, w: 42, h: 42 }, organoids: { x: 24, y: 364, w: 42, h: 42 }, chip: { x: 24, y: 420, w: 42, h: 42 },
     },
-    present: { cx: 410, cy: 252, maxW: 620, maxH: 330, maxS: 12 },
+    present: { cx: 410, cy: 232, maxW: 620, maxH: 290, maxS: 12 },
     out: { x: 714, y: 84, w: 266, h: 392 },
     xp: { title: 30, tabBar: 37, qY: 46, qH: 28, caretY: 53, qText: 65, status: 98, head: 126, rowTop: 136, pitch: 54, legend: true, tRow0: 160, tPitch: 56 },
   },
@@ -173,7 +183,7 @@ const LAYOUTS = {
       imaged: { x: 12, y: 74, w: 120, h: 30 }, tracked: { x: 176, y: 72, w: 34, h: 34 }, sequenced: { x: 280, y: 72, w: 46, h: 34 },
       cells: { x: 12, y: 510, w: 34, h: 34 }, organoids: { x: 146, y: 510, w: 34, h: 34 }, chip: { x: 276, y: 510, w: 34, h: 34 },
     },
-    present: { cx: 200, cy: 300, maxW: 376, maxH: 280, maxS: 12 },
+    present: { cx: 200, cy: 270, maxW: 376, maxH: 260, maxS: 12 },
     out: { x: 8, y: 384, w: 384, h: 208 },
     xp: { title: 22, tabBar: 28, qY: 34, qH: 24, caretY: 40, qText: 51, status: 74, head: 92, rowTop: 98, pitch: 26, legend: false, tRow0: 116, tPitch: 30 },
   },
@@ -338,10 +348,83 @@ function makeInset(def, T, grp) {
     : grp === 'whole' ? { x: sl.x + sl.w / 2, y: sl.y + sl.h + 22 } : { x: sl.x + sl.w / 2, y: sl.y - 4 };
   const g = el('g', { opacity: 0 }, S.insetLayer);
   const heat = drawInset(g, def.kind, sl.w, sl.h, grp);
-  const pc = txt(g, sl.w / 2, sl.h + 20 / s, def.title, 't-label t-strong', { 'text-anchor': 'middle', style: `font-size:${15 / s}px` });
-  const rec = { g, pc, cap, present, dock, T, port, group: grp, step: def.step, heat, video: g.querySelector('video'), shown: false };
+  const rec = { g, cap, present, dock, T, port, group: grp, step: def.step, heat, video: g.querySelector('video'), shown: false };
+  if (def.kind === 'behaviour') rec.track = makeTrack(g, sl.w, s);
+  rec.pc = PRESENT[def.id] ? makePresentCaption(rec, PRESENT[def.id], sl, s)
+    : txt(g, sl.w / 2, sl.h + 20 / s, def.title, 't-label t-strong', { 'text-anchor': 'middle', style: `font-size:${15 / s}px` });
   S.insets.push(rec);
   return rec;
+}
+
+// Under the large card, at the presented scale: a pulsing dot and what is at work, what it does, and a
+// checklist of read-outs that tick as the clip shows them.
+function makePresentCaption(rec, info, sl, s) {
+  const pg = el('g', { transform: `translate(${sl.w / 2},${sl.h}) scale(${1 / s})` }, rec.g);
+  const back = el('rect', { y: 6, height: 74, rx: 10, fill: COL.bg, 'fill-opacity': .9 }, pg);
+  const head = txt(pg, 0, 24, info.head.toUpperCase(), 't-head', { 'text-anchor': 'middle', style: `fill:${COL.live};fill-opacity:1` });
+  const hw = head.getComputedTextLength();
+  rec.liveDot = el('circle', { cx: -hw / 2 - 11, cy: 19.5, r: 3.5, fill: COL.live }, pg);
+  const sub = txt(pg, 0, 45, info.sub, 't-label t-strong', { 'text-anchor': 'middle' });
+  const row = el('g', {}, pg);
+  let x = 0;
+  rec.checks = info.checks.map(([label, at]) => {
+    const box = el('rect', { x, y: 59, width: 11, height: 11, rx: 2.5, fill: 'none', stroke: COL.live, 'stroke-width': 1.2 }, row);
+    const tick = el('path', { d: `M${x + 2.6} ${64.6}l2.4 2.4l4.2 -4.6`, fill: 'none', stroke: COL.bg, 'stroke-width': 1.8,
+                              'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0 }, row);
+    const t = txt(row, x + 17, 69, label, 't-note');
+    x += 17 + t.getComputedTextLength() + 22;
+    return { box, tick, at };
+  });
+  row.setAttribute('transform', `translate(${-(x - 22) / 2},0)`);
+  const bw = Math.max(hw + 30, sub.getComputedTextLength(), x - 22) + 40;
+  back.setAttribute('x', -bw / 2); back.setAttribute('width', bw);
+  return pg;
+}
+function frameChecks(r, ms) {
+  r.liveDot.setAttribute('opacity', (.45 + .55 * Math.abs(Math.sin(flowT / 380))).toFixed(3));
+  let current = true;
+  r.checks.forEach(c => {
+    const on = ms >= c.at;
+    c.box.setAttribute('fill', on ? COL.live : 'none');
+    c.tick.setAttribute('opacity', on ? 1 : 0);
+    // the read-out under way pulses until it ticks
+    c.box.setAttribute('stroke-opacity', on ? 1 : current ? (.35 + .65 * Math.abs(Math.sin(flowT / 300))).toFixed(3) : .35);
+    if (!on) current = false;
+  });
+}
+
+// FishEye-style tracking over the tracked clip: keypoints along the body and the path of the head, from
+// tracking the clip itself (docs/preview/media/track.py). Drawn while the card is large.
+function makeTrack(g, w, s) {
+  const k = 1 / s, tg = el('g', { opacity: 0 }, g);
+  const rec = { g: tg, trail: el('polyline', { fill: 'none', stroke: COL.live, 'stroke-width': 1.6 * k, 'stroke-opacity': .7,
+                                                'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, tg),
+                body: el('polyline', { fill: 'none', stroke: COL.live, 'stroke-width': 1.2 * k }, tg),
+                dots: [0, 1, 2, 3, 4].map(i => el('circle', { r: (i ? 2.2 : 3.2) * k, fill: i ? COL.live : COL.light,
+                                                              stroke: COL.live, 'stroke-width': .8 * k }, tg)),
+                data: null, scale: 1, frame: -1 };
+  fetch(MEDIA + 'tracked.json').then(res => (res.ok ? res.json() : null)).then(d => {
+    if (d) { rec.data = d; rec.scale = w / d.w; }
+  }).catch(() => {});
+  return rec;
+}
+function frameTrack(r, ms, show) {
+  const tr = r.track, d = tr.data;
+  tr.g.setAttribute('opacity', d ? (show * prog(ms, PRESENT.tracked.checks[0][1] - 300, 300)).toFixed(3) : 0);
+  if (!d || show <= 0) return;
+  const v = r.video, sec = v && v.readyState >= 2 ? v.currentTime : ms / 1000;
+  const f = Math.max(0, Math.min(d.kp.length - 1, Math.floor(sec * d.fps)));
+  if (f === tr.frame) return;
+  tr.frame = f;
+  const q = tr.scale, kp = d.kp[f];
+  const from = Math.floor((PRESENT.tracked.checks[0][1] / 1000) * d.fps);   // the path is drawn from when tracking starts
+  const pts = [];
+  for (let i = Math.min(from, f); i <= f; i++) if (d.kp[i]) pts.push(`${(d.kp[i][0] * q).toFixed(2)},${(d.kp[i][1] * q).toFixed(2)}`);
+  tr.trail.setAttribute('points', pts.join(' '));
+  if (!kp) return;
+  const P = [0, 1, 2, 3, 4].map(i => [kp[2 * i] * q, kp[2 * i + 1] * q]);
+  tr.body.setAttribute('points', P.map(p => p.map(c => c.toFixed(2)).join(',')).join(' '));
+  tr.dots.forEach((c, i) => { c.setAttribute('cx', P[i][0].toFixed(2)); c.setAttribute('cy', P[i][1].toFixed(2)); });
 }
 
 function makeVideo(clip) {
@@ -738,6 +821,8 @@ function frameChrome(t) {
     const live = ua > 0 && ud < 1;
     r.presenting = live;
     if (r.heat) animateHeat(r.heat, t - r.T, live);
+    if (r.checks && live) frameChecks(r, t - r.T);
+    if (r.track) frameTrack(r, t - r.T, live ? 1 - ud : 0);
     if (r.video) {
       if (live) {
         const ct = clamp((t - r.T) / 1000, 0, (r.video.duration || 10) - .05);
