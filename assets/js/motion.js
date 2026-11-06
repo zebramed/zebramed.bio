@@ -32,12 +32,15 @@
     const svg = root.querySelector('svg');
     const stations = [...root.querySelectorAll('.station')];
     const ring = stations.filter(s => !s.hasAttribute('data-lab')).sort((a, b) => a.dataset.i - b.dataset.i);
-    const turnN = root.querySelector('.turn-n');
+    const turnN = root.querySelector('.turn-n'), labN = root.querySelector('.lab-n');
     const playBtn = root.querySelector('[data-play]');
     const holdBtns = [...root.querySelectorAll('[data-hold]')];
     const STEP_MS = 1000, LAP_MS = ring.length * STEP_MS;
     const PING_EVERY = 3, PING_AT = STEP_MS * 4 / 3;   // leaves the ring a third of the way from Run to Structure
-    let step = -1, lap = 0, timer = null, held = null, inView = false;
+    // the step (within the ping's cycle) on which the ping is in the biofoundry: the loop counter steps up then
+    const LAB_STEP = Math.ceil((PING_AT + .17 * PING_EVERY * LAP_MS) / STEP_MS);
+    let step = -1, lap = 0, loops = 0, timer = null, held = null, inView = false;
+    const pad = n => String(n).padStart(2, '0');
 
     const show = i => ring.forEach((s, k) => {
       s.classList.toggle('is-active', k === i);
@@ -48,8 +51,9 @@
       if (step === 0) {
         lap += 1;
         svg.dataset.turn = String(Math.min(lap, 3));
-        if (turnN) turnN.textContent = String(lap).padStart(2, '0');
+        if (turnN) turnN.textContent = pad(lap);
       }
+      if (labN && ((lap - 1) % PING_EVERY) * ring.length + step === LAB_STEP) labN.textContent = pad(++loops);
       show(step);
     };
     const endState = () => {
@@ -57,6 +61,7 @@
       svg.classList.remove('is-playing');
       stations.forEach(s => { s.classList.add('is-done'); s.classList.remove('is-active'); });
       svg.dataset.turn = '3'; if (turnN) turnN.textContent = '03';
+      if (labN) labN.textContent = '01';
     };
     const start = () => {
       if (reduced()) { endState(); return; }

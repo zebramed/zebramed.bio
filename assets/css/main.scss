@@ -265,6 +265,13 @@ p { max-width: 62ch; color: var(--color-text-medium); }
 .loop-ring.is-playing .station-lab .name { animation: lab-name 12s linear var(--ping-delay, 0s) infinite; }
 @keyframes lab-visit { 0%, 13% { opacity: 0.5; } 17%, 33% { opacity: 1; } 38%, 100% { opacity: 0.5; } }
 @keyframes lab-name { 0%, 14% { fill: var(--color-text-light); } 17%, 33% { fill: var(--color-flag); } 36%, 100% { fill: var(--color-text-light); } }
+/* the biofoundry box around Measure: its frame turns amber while the ping is in, and counts the loops */
+.loop-ring .lab-box { fill: none; stroke: var(--color-line); stroke-opacity: 0.5; stroke-width: 1; }
+.loop-ring .lab-head { fill: var(--color-text-medium); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; }
+.loop-ring .lab-count { fill: var(--color-text-medium); fill-opacity: 0.8; font-size: 12px; }
+.loop-ring .lab-n { fill: var(--color-flag); fill-opacity: 1; font-size: 16px; font-weight: 600; }
+.loop-ring.is-playing .lab-box { animation: lab-box 12s linear var(--ping-delay, 0s) infinite; }
+@keyframes lab-box { 0%, 14% { stroke: var(--color-line); stroke-opacity: 0.5; } 17%, 33% { stroke: var(--color-flag); stroke-opacity: 0.9; } 36%, 100% { stroke: var(--color-line); stroke-opacity: 0.5; } }
 .loop-ring .ctx circle { opacity: 0.18; transition: opacity 600ms ease; }
 .loop-ring[data-turn="1"] .ctx .c1,
 .loop-ring[data-turn="2"] .ctx .c1, .loop-ring[data-turn="2"] .ctx .c2,

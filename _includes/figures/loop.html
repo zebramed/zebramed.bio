@@ -1,16 +1,17 @@
 {% comment %}
 Figure 1: the lab-in-the-loop cycle. Four stations on a fast in-silico ring and
-one outside it, the wet lab (Measure), each a simple drawing with its name. A
-pulse laps the ring every few seconds and lights each name as it passes; every
-third lap a slower amber ping leaves the ring after Run, reaches the wet lab and
-brings its read-out back in before Structure. Measure (a heartbeat) and Structure
+one outside it in the biofoundry box (Measure, data generation), each a simple
+drawing with its name. A pulse laps the ring every few seconds and lights each
+name as it passes; every third lap a slower amber ping leaves the ring after Run,
+reaches the biofoundry, where the loop counter steps up, and brings its read-out
+back in before Structure. Measure (a heartbeat) and Structure
 (a wave through the systemic graph) loop while the figure plays. Under
 prefers-reduced-motion everything is still and the buttons step the stations by
 hand. Every value drawn here is fictional.
 {% endcomment %}
 <figure class="fig fig-loop" data-figure="loop">
     <svg class="loop-ring" viewBox="0 0 480 480" role="img" data-turn="0"
-         aria-label="The lab-in-the-loop cycle. Four stations on a fast in-silico ring: design, run, structure, reason. A signal laps the ring every few seconds. Every third lap a slower signal leaves the ring for the wet lab, where measure reads a living larva, and brings the result back into the ring. At the centre, a turn counter and a context ring that thickens one notch per lap: the agent accumulates context every turn. Illustrative, with fictional data.">
+         aria-label="The lab-in-the-loop cycle. Four stations on a fast in-silico ring: design, run, structure, reason. A signal laps the ring every few seconds. Every third lap a slower signal leaves the ring for the biofoundry, where measure reads a living larva for data generation and a counter of wet-lab loops steps up, and brings the result back into the ring. At the centre, a turn counter and a context ring that thickens one notch per lap: the agent accumulates context every turn. Illustrative, with fictional data.">
 
         <!-- The ring is cut where the stations sit, so the page background shows
              through at any viewport (a painted navy box shows on the gradient). -->
@@ -35,11 +36,19 @@ hand. Every value drawn here is fictional.
             <circle class="hair" cx="212" cy="222" r="140"/>
             <circle class="pulse" cx="212" cy="222" r="140"/>
         </g>
-        <!-- The detour to the wet lab: out after Run to the larva's heart, back in before Structure. -->
-        <path class="lab-path" d="M333.2 292C376 310 380 366 357 392"/>
-        <path class="lab-path" d="M357 392C336 374 302 368 292.3 336.7"/>
-        <path class="ping ping-out" pathLength="1" d="M333.2 292C376 310 380 366 357 392"/>
-        <path class="ping ping-back" pathLength="1" d="M357 392C336 374 302 368 292.3 336.7"/>
+        <!-- The detour to the wet lab: out after Run, into the biofoundry box from the left to the larva,
+             back in before Structure. -->
+        <path class="lab-path" d="M333.2 292C318 318 296 380 338 400"/>
+        <path class="lab-path" d="M338 400C300 404 276 360 292.3 336.7"/>
+        <path class="ping ping-out" pathLength="1" d="M333.2 292C318 318 296 380 338 400"/>
+        <path class="ping ping-back" pathLength="1" d="M338 400C300 404 276 360 292.3 336.7"/>
+        <!-- The biofoundry: where the wet-lab loops run, counted as the pings arrive. -->
+        <g class="lab-frame">
+            <rect class="lab-box" x="318" y="342" width="158" height="134" rx="10"/>
+            <text class="lab-head" x="330" y="360">Biofoundry</text>
+            <text class="gloss" x="330" y="374">data generation</text>
+            <text class="lab-count" x="466" y="458" text-anchor="end">loop <tspan class="lab-n">00</tspan></text>
+        </g>
 
         <g class="ctx" aria-hidden="true">
             <circle class="hair-2 c1" cx="212" cy="222" r="46"/>
@@ -110,8 +119,7 @@ hand. Every value drawn here is fictional.
                     <path class="beat ecg" d="M-8,47L-5,47Q-3.5,42.6 -2,47L1,47L2,48.5L4,36L6,51L7.5,47L11,47Q13.5,40.6 16,47L20,47L23,47Q24.5,42.6 26,47L29,47L30,48.5L32,36L34,51L35.5,47L39,47Q41.5,40.6 44,47L48,47L51,47Q52.5,42.6 54,47L57,47L58,48.5L60,36L62,51L63.5,47L67,47Q69.5,40.6 72,47L76,47L79,47Q80.5,42.6 82,47L85,47L86,48.5L88,36L90,51L91.5,47L95,47Q97.5,40.6 100,47L104,47L107,47Q108.5,42.6 110,47L113,47L114,48.5L116,36L118,51L119.5,47L123,47Q125.5,40.6 128,47L132,47L135,47Q136.5,42.6 138,47L141,47L142,48.5L144,36L146,51L147.5,47L151,47Q153.5,40.6 156,47L160,47"/>
                 </g>
             </g>
-            <text class="name" x="60" y="76" text-anchor="middle">Measure</text>
-            <text class="gloss" x="60" y="92" text-anchor="middle">wet lab</text>
+            <text class="name" x="6" y="76">Measure</text>
         </g>
 
         <!-- Structure (bottom) -->
