@@ -42,7 +42,8 @@ const PRESENT = {
                checks: [['clinical trials', 1000], ['concordance studies', 2200], ['existing datasets', 3400]] },
 };
 const PROPAGATE  = { wave: 2400, rest: 1400 };
-const MODEL_STEP = { appear: 350, hold: 1700, dock: 500, link: 500, stagger: 120, pulse: 550, rest: 1300 };
+// other models: no zoom; they appear together, one after another, then all connect
+const MODEL_STEP = { appear: 350, stagger: 200, hold: 900, link: 600, linkStagger: 150, pulse: 550, rest: 1800 };
 // Reason: XenoEx predicts, validates where it is unsure, then is asked for targets. Times within each part.
 const PREDICT  = { card: 600, typeAt: 300, type: 1000, outAt: 1500, backAt: 2700, barsAt: 3600, rankAt: 4900, rank: 1200, end: 7600 };
 const VALIDATE = { reqAt: 1000, req: 1500, runAt: 2500, run: 2600, backAt: 5100, moaAt: 5400, moaStep: 380, updAt: 6600, upd: 900, rankAt: 7600, rank: 1100, end: 10000 };
@@ -117,15 +118,15 @@ const TARGETS = [
   TL.inputs = INPUTS.map(inp => { const T = t; t += inputStep(inp); return T; });
   TL.prop = t; t += PROPAGATE.wave + PROPAGATE.rest;
   TL.human = t; t += inputStep(HUMAN);
-  TL.models = MODELS.map(m => {
-    const s = MODEL_STEP, T = t, st = { appear: s.appear, dockAt: s.appear + s.hold, dock: s.dock };
-    st.linkAt = st.dockAt + s.dock;
-    st.pulseAt = st.linkAt + s.link * .75;
-    st.end = st.linkAt + s.link + (m.to.length - 1) * s.stagger + s.pulse;
-    st.next = st.end + s.rest;
-    m.step = st; t += st.next;
-    return T;
-  });
+  // other models appear together, one after another, then all their links draw, one after another
+  {
+    const s = MODEL_STEP, T0 = t;
+    TL.models = MODELS.map((m, i) => { m.step = { appear: s.appear, dockAt: 0, dock: 1 }; return T0 + i * s.stagger; });
+    let k = 0, linkAt = T0 + (MODELS.length - 1) * s.stagger + s.appear + s.hold;
+    MODELS.forEach(m => { m.links = m.to.map(() => linkAt + (k++) * s.linkStagger); });
+    TL.modelsEnd = linkAt + (k - 1) * s.linkStagger + s.link + s.pulse;
+    t = TL.modelsEnd + s.rest;
+  }
   TL.predict = t; t += PREDICT.end;
   TL.validate = t; t += VALIDATE.end;
   TL.discover = t; t += DISCOVER.end;
@@ -142,9 +143,7 @@ const STEP_TEXT = {
   sequenced: ['Sequenced', 'Whole-organism transcriptomics reads out its gene activity. Genes cluster into the programmes the perturbation changes, mapped onto the molecular signals of the graph.'],
   spread:    ['Through the system', 'The graph carries each observation on, from where it was measured to the organs and functions it connects to.'],
   human:     ['Human pathobiology', 'Human data joins on the human side: clinical trials of molecules from the same families, concordance studies and existing datasets, at the organs where human toxicity shows.'],
-  cells:     ['Cell cultures', 'Other models are optional. Cell cultures plug in where they observe: at molecular signals.'],
-  organoids: ['Organoids', 'Organoids add detail at single organs, here liver and brain.'],
-  chip:      ['Organ-on-chip', 'An organ-on-chip couples two organs, gut and liver. The graph works with or without them.'],
+  models:    ['Other models', 'Other models are optional. Cell cultures, organoids and an organ-on-chip attach where they observe: molecular signals, single organs, the gut\u2013liver axis. The graph works with or without them.'],
   predict:   ['Predict', 'XenoEx queries the graph organ by organ and returns a human risk profile for each candidate, safest first.'],
   validate:  ['Validate', 'Where its confidence is under the agreed threshold, XenoEx sends a validation run to the biofoundry. The result traces the mechanism through the graph and updates the ranking.'],
   discover:  ['Discover', 'Asked about a disease instead, XenoEx follows its mechanisms through the graph and proposes new targets on them.'],
@@ -156,7 +155,7 @@ const BEATS = [
   ...INPUTS.map((inp, i) => ({ id: inp.id, ch: 'biofoundry', t: TL.inputs[i], rest: TL.inputs[i] + inp.step.end + 900 })),
   { id: 'spread', ch: 'interactome', t: TL.prop, rest: TL.prop + PROPAGATE.wave + 200 },
   { id: 'human', ch: 'interactome', t: TL.human, rest: TL.human + HUMAN.step.end + 900 },
-  ...MODELS.map((m, i) => ({ id: m.id, ch: 'interactome', t: TL.models[i], rest: TL.models[i] + m.step.end + 300 })),
+  { id: 'models', ch: 'interactome', t: TL.models[0], rest: TL.modelsEnd + 300 },
   { id: 'predict', ch: 'xenoex', t: TL.predict, rest: TL.validate - 300 },
   { id: 'validate', ch: 'xenoex', t: TL.validate, rest: TL.discover - 300 },
   { id: 'discover', ch: 'xenoex', t: TL.discover, rest: TL.end },
@@ -173,11 +172,12 @@ const LAYOUTS = {
   wide: {
     kind: 'wide', w: 1000, h: 540,
     bb: { x: 300, y: 92, w: 376, h: 376 }, bbTitle: { x: 488, y: 40 },
-    heads: { whole: { x: 24, y: 44 }, human: { x: 24, y: 236 }, models: { x: 24, y: 330 } },
+    heads: { whole: { x: 24, y: 44 }, human: { x: 24, y: 236 }, models: { x: 714, y: 186 } },
     slots: {
       imaged: { x: 24, y: 58, w: 152, h: 38 }, tracked: { x: 24, y: 106, w: 40, h: 40 }, sequenced: { x: 24, y: 156, w: 55, h: 40 },
-      human: { x: 24, y: 248, w: 96, h: 40 },
-      cells: { x: 24, y: 342, w: 36, h: 36 }, organoids: { x: 24, y: 388, w: 36, h: 36 }, chip: { x: 24, y: 434, w: 36, h: 36 },
+      human: { x: 24, y: 248, w: 40, h: 40 },
+      // other models on the right of the graph (the XenoEx panel later covers them; their links stay)
+      cells: { x: 714, y: 200, w: 36, h: 36 }, organoids: { x: 714, y: 246, w: 36, h: 36 }, chip: { x: 714, y: 292, w: 36, h: 36 },
     },
     present: { cx: 410, cy: 232, maxW: 620, maxH: 290, maxS: 12 },
     out: { x: 714, y: 84, w: 266, h: 392 },
@@ -189,7 +189,7 @@ const LAYOUTS = {
     heads: { whole: { x: 12, y: 64 }, human: { x: 12, y: 500 }, models: { x: 110, y: 500 } },
     slots: {
       imaged: { x: 12, y: 74, w: 120, h: 30 }, tracked: { x: 176, y: 72, w: 34, h: 34 }, sequenced: { x: 280, y: 72, w: 46, h: 34 },
-      human: { x: 12, y: 510, w: 64, h: 34 },
+      human: { x: 12, y: 510, w: 34, h: 34 },
       cells: { x: 110, y: 510, w: 34, h: 34 }, organoids: { x: 205, y: 510, w: 34, h: 34 }, chip: { x: 290, y: 510, w: 34, h: 34 },
     },
     present: { cx: 200, cy: 270, maxW: 376, maxH: 260, maxS: 12 },
@@ -316,15 +316,15 @@ function build() {
 
   // other models: optional, so drawn quieter (dashed) and attached to nodes the graph already has
   MODELS.forEach((m, i) => {
-    const T = TL.models[i], ins = makeInset(m, T, 'model'), st = m.step, s = MODEL_STEP;
+    const T = TL.models[i], ins = makeInset(m, T, 'model'), s = MODEL_STEP;
     m.to.forEach((id, j) => {
-      const node = N(id);
-      S.links.push({ src: m.id, cat: 'model', T, from: ins.port, to: node, t0: T + st.linkAt + j * s.stagger, d: s.link, color: COL.context,
-                     alpha: .75, rest: .32, dimAt: T + st.next, flows: [], j, w: 1.2, dashed: true });
-      S.pulses.push({ node, t0: T + st.pulseAt + j * s.stagger, d: s.pulse, color: COL.context, alpha: .55 });
+      const node = N(id), t0 = m.links[j];
+      S.links.push({ src: m.id, cat: 'model', T, from: ins.port, to: node, t0, d: s.link, color: COL.context,
+                     alpha: .75, rest: .32, dimAt: TL.modelsEnd + s.rest, flows: [], j, w: 1.2, dashed: true });
+      S.pulses.push({ node, t0: t0 + s.link * .75, d: s.pulse, color: COL.context, alpha: .55 });
     });
     if (m.couple) S.edges.push({ a: N(m.couple[0]), b: N(m.couple[1]), w: 1.8, alpha: .75, color: COL.context, layer: 'context', dash: true,
-                                 t0: T + st.linkAt + 250, d: s.link });
+                                 t0: m.links[m.links.length - 1] + 250, d: s.link });
   });
 
   // evidence rings: each kind of data adds a ring, in its colour, around the organs it reaches
@@ -369,21 +369,26 @@ function buildChrome() {
 function makeInset(def, T, grp) {
   const sl = L.slots[def.id];
   const P = L.present;
-  const s = Math.min(grp === 'model' ? 4 : P.maxS, P.maxW / sl.w, P.maxH / sl.h);
-  const present = { x: P.cx - sl.w * s / 2, y: P.cy - sl.h * s / 2, s };
+  const s = Math.min(P.maxS, P.maxW / sl.w, P.maxH / sl.h);
   const dock = { x: sl.x, y: sl.y, s: 1 };
-  // caption beside the docked card (wide) or under it (compact); links leave from just past it
+  // other models are not shown large: they appear in place
+  const present = grp === 'model' ? dock : { x: P.cx - sl.w * s / 2, y: P.cy - sl.h * s / 2, s };
+  // caption beside the docked card (wide) or under it (compact); links leave from just past it, or, for
+  // cards on the right of the graph, from their left side
   const capPos = vertical() ? { x: sl.x, y: sl.y + sl.h + 14 } : { x: sl.x + sl.w + 10, y: sl.y + sl.h / 2 + 5 };
   const cap = txt(layer.chrome, capPos.x, capPos.y, def.caption, 't-label', { opacity: 0 });
-  const port = !vertical() ? { x: capPos.x + cap.getComputedTextLength() + 8, y: sl.y + sl.h / 2 }
+  const onRight = !vertical() && sl.x > L.bb.x + L.bb.w;
+  const port = onRight ? { x: sl.x - 6, y: sl.y + sl.h / 2 }
+    : !vertical() ? { x: capPos.x + cap.getComputedTextLength() + 8, y: sl.y + sl.h / 2 }
     : grp === 'whole' ? { x: sl.x + sl.w / 2, y: sl.y + sl.h + 22 } : { x: sl.x + sl.w / 2, y: sl.y - 4 };
   const g = el('g', { opacity: 0 }, S.insetLayer);
   const art = drawInset(g, def.kind, sl.w, sl.h, grp);
   const heat = art && art.rows ? art : null;
   const rec = { g, cap, present, dock, T, port, group: grp, step: def.step, heat, video: g.querySelector('video'), shown: false };
   if (def.kind === 'behaviour') rec.track = makeTrack(g, sl.w, s);
-  if (art && art.icons) rec.icons = art.icons;
+  if (art && art.organs) rec.organs = art.organs;
   rec.pc = PRESENT[def.id] ? makePresentCaption(rec, PRESENT[def.id], sl, s)
+    : grp === 'model' ? el('g', {}, g)
     : txt(g, sl.w / 2, sl.h + 20 / s, def.title, 't-label t-strong', { 'text-anchor': 'middle', style: `font-size:${15 / s}px` });
   S.insets.push(rec);
   return rec;
@@ -575,7 +580,7 @@ function animateHeat(H, ms, live) {
 function drawInset(g, kind, w, h, grp) {
   const tone = grp === 'model' ? COL.context : grp === 'human' ? COL.human : COL.line;
   el('rect', { x: 0, y: 0, width: w, height: h, rx: 4, fill: '#151b4a', stroke: tone, 'stroke-opacity': .55, 'stroke-width': 1 }, g);
-  if (kind === 'human') return { icons: drawHumanIcons(g, w, h) };
+  if (kind === 'human') return { organs: drawHuman(g, w, h) };
   const clip = CLIPS[kind];
   if (clip) {
     el('image', { href: clip.src + '.jpg', x: 0, y: 0, width: w, height: h, preserveAspectRatio: 'xMidYMid slice' }, g);
@@ -619,25 +624,22 @@ function drawInset(g, kind, w, h, grp) {
   return null;
 }
 
-// The human card: its three sources side by side, drawn in a 32-unit cell each: a trial record, a
-// concordance study (two overlapping sets) and a dataset.
-function drawHumanIcons(g, w, h) {
-  const z = Math.min(w / 3, h) / 32, sw = 1.4, c = COL.human;
-  return [0, 1, 2].map(i => {
-    const ig = el('g', { transform: `translate(${(w / 3) * (i + .5)},${h / 2}) scale(${z})`, opacity: .3 }, g);
-    const st = { fill: 'none', stroke: c, 'stroke-width': sw, 'stroke-linecap': 'round' };
-    if (i === 0) {
-      el('rect', Object.assign({ x: -6.5, y: -9, width: 13, height: 18, rx: 1.8 }, st), ig);
-      [-4, 0, 4].forEach((y, k) => el('line', Object.assign({ x1: -3.5, y1: y, x2: k === 2 ? 1 : 3.5, y2: y }, st), ig));
-    } else if (i === 1) {
-      el('circle', Object.assign({ cx: -3.8, cy: 0, r: 6.2 }, st), ig);
-      el('circle', Object.assign({ cx: 3.8, cy: 0, r: 6.2 }, st), ig);
-      el('path', { d: 'M0 -4.9A6.2 6.2 0 0 1 0 4.9A6.2 6.2 0 0 1 0 -4.9Z', fill: c, 'fill-opacity': .45 }, ig);
-    } else {
-      el('ellipse', Object.assign({ cx: 0, cy: -6, rx: 7, ry: 2.6 }, st), ig);
-      el('path', Object.assign({ d: 'M-7 -6V6A7 2.6 0 0 0 7 6V-6M-7 0A7 2.6 0 0 0 7 0' }, st), ig);
-    }
-    return ig;
+// The human card: a stylised human figure, drawn solid so it reads when shown large, with the organs
+// where human toxicity shows (heart, liver, kidneys). Drawn in a 36-unit design space.
+function drawHuman(g, w, h) {
+  const z = Math.min(w, h) / 36, c = COL.human;
+  const fg = el('g', { transform: `translate(${w / 2},${h / 2 + .6 * z}) scale(${z})` }, g);
+  el('circle', { cx: 0, cy: -11.4, r: 3.3, fill: c, 'fill-opacity': .22, stroke: c, 'stroke-width': .55 }, fg);
+  el('path', { d: 'M-1.6 -7.2L1.6 -7.2C4.8 -7 6.2 -6 6.6 -3.6L7.6 3.2C7.7 4.2 6.4 4.4 6.2 3.4L5 -2.2L4.6 2.6L4.4 14C4.4 15.2 2.6 15.2 2.5 14L1.2 5L-1.2 5L-2.5 14C-2.6 15.2 -4.4 15.2 -4.4 14L-4.6 2.6L-5 -2.2L-6.2 3.4C-6.4 4.4 -7.7 4.2 -7.6 3.2L-6.6 -3.6C-6.2 -6 -4.8 -7 -1.6 -7.2Z',
+               fill: c, 'fill-opacity': .22, stroke: c, 'stroke-width': .55, 'stroke-linejoin': 'round' }, fg);
+  // seen from the front: the heart on the figure's left, the liver on its right, the kidneys low on both sides
+  return [
+    el('path', { d: 'M1.5 -1.9C.2 -2.9 -.2 -3.9 .5 -4.5C1 -4.9 1.4 -4.6 1.5 -4.2C1.6 -4.6 2 -4.9 2.5 -4.5C3.2 -3.9 2.8 -2.9 1.5 -1.9Z', fill: c }, fg),
+    el('ellipse', { cx: -1.7, cy: -.8, rx: 2.3, ry: 1.2, transform: 'rotate(-12 -1.7 -.8)', fill: c }, fg),
+    el('g', { fill: c }, fg),
+  ].map((o, i) => {
+    if (i === 2) { el('ellipse', { cx: -2.1, cy: 1.9, rx: .75, ry: 1.05 }, o); el('ellipse', { cx: 2.1, cy: 1.9, rx: .75, ry: 1.05 }, o); }
+    return o;
   });
 }
 
@@ -904,14 +906,15 @@ function frameChrome(t) {
     r.g.setAttribute('transform', `translate(${x},${y}) scale(${s})`);
     r.pc.setAttribute('opacity', 1 - ud);
     r.cap.setAttribute('opacity', prog(t, r.T + st.dockAt + 250, 250) * (r.group === 'model' ? .75 : 1));
-    dim = Math.max(dim, ua * (1 - ud));
+    if (r.group !== 'model') dim = Math.max(dim, ua * (1 - ud));
     const live = ua > 0 && ud < 1;
     r.presenting = live;
     if (r.heat) animateHeat(r.heat, t - r.T, live);
     if (r.checks && live) frameChecks(r, t - r.T);
     if (r.track) frameTrack(r, t - r.T, live ? 1 - ud : 0);
     // the human card's sources light up as their checks tick, and stay lit once docked
-    if (r.icons) r.icons.forEach((ic, i) => ic.setAttribute('opacity', ud > 0 || t - r.T >= r.checks[i].at ? 1 : .3));
+    // the human figure's organs light up in turn while it is shown large, and stay lit once docked
+    if (r.organs) r.organs.forEach((o, i) => o.setAttribute('opacity', ud > 0 ? 1 : (.35 + .65 * prog(t - r.T, r.checks[i].at - 400, 500)).toFixed(3)));
     if (r.video) {
       if (live) {
         const ct = clamp((t - r.T) / 1000, 0, (r.video.duration || 10) - .05);
@@ -1102,7 +1105,8 @@ function camRect(t) {
   const F = { x: 0, y: 0, w: L.w, h: L.h };
   if (vertical()) return F;
   const w = L.w * .82, h = L.h * .82;
-  const IN = { x: 0, y: 22, w, h }, HUM = IN, MOD = { x: 0, y: (L.h - h) / 2, w, h };
+  const IN = { x: 0, y: 22, w, h }, HUM = IN;
+  const MOD = { x: L.w * .12, y: 20, w: L.w * .88, h: L.h * .88 };   // other models, on the right: the graph's title and labels stay in
   const OUT = { x: L.w * .14, y: 16, w: L.w * .86, h: L.h * .86 };   // XenoEx: the panel and the backbone, title included
   const V = TL.validate, D = TL.discover;
   const keys = [[0, F], [TL.inputs[0] - 300, F], [TL.inputs[0] + 400, IN], [TL.prop - 300, IN], [TL.prop + 400, F],
