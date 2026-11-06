@@ -30,6 +30,18 @@ features:
         file: imagine_logo.png
       - name: ISIR, Sorbonne Université
         file: isir_logo.png
+  - kicker: Acceleration programmes
+    lede: acceleration programmes
+    title: Selected by three leading acceleration programmes
+    text: >-
+      Creative Destruction Lab, HEC Paris Challenge+ and DayOne in Basel.
+    logos:
+      - name: Creative Destruction Lab
+        file: cdl_logo.svg
+      - name: HEC Paris Challenge+
+        file: hec_challenge_logo.png
+      - name: DayOne, Basel
+        file: dayone_logo.svg
   - kicker: Awards and grants
     lede: awards and grants
     title: Awards and grants received
