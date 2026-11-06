@@ -1,25 +1,26 @@
 {% comment %}
-Figure 1: the lab-in-the-loop cycle. Five stations on a ring, each a simple
-drawing with its name and no smaller text. The stations are drawn complete; a
-pulse travels the ring and lights each name as it passes. Measure (a heartbeat)
-and Structure (a wave through the systemic graph) loop while the figure plays.
-Under prefers-reduced-motion everything is still and the buttons step the ring
-by hand. Every value drawn here is fictional.
+Figure 1: the lab-in-the-loop cycle. Four stations on a fast in-silico ring and
+one outside it, the wet lab (Measure), each a simple drawing with its name. A
+pulse laps the ring every few seconds and lights each name as it passes; every
+third lap a slower amber ping leaves the ring after Run, reaches the wet lab and
+brings its read-out back in before Structure. Measure (a heartbeat) and Structure
+(a wave through the systemic graph) loop while the figure plays. Under
+prefers-reduced-motion everything is still and the buttons step the stations by
+hand. Every value drawn here is fictional.
 {% endcomment %}
 <figure class="fig fig-loop" data-figure="loop">
     <svg class="loop-ring" viewBox="0 0 480 480" role="img" data-turn="0"
-         aria-label="The lab-in-the-loop cycle. Five stations on a ring: design, run, measure, structure, reason. A signal travels the ring, passing each station in turn. At the centre, a turn counter and a context ring that thickens one notch per lap: the agent accumulates context every turn. Illustrative, with fictional data.">
+         aria-label="The lab-in-the-loop cycle. Four stations on a fast in-silico ring: design, run, structure, reason. A signal laps the ring every few seconds. Every third lap a slower signal leaves the ring for the wet lab, where measure reads a living larva, and brings the result back into the ring. At the centre, a turn counter and a context ring that thickens one notch per lap: the agent accumulates context every turn. Illustrative, with fictional data.">
 
         <!-- The ring is cut where the stations sit, so the page background shows
              through at any viewport (a painted navy box shows on the gradient). -->
         <defs>
             <mask id="loop-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="480" height="480">
                 <rect width="480" height="480" fill="#fff"/>
-                <rect x="176" y="50" width="128" height="92" rx="10" fill="#000"/>
-                <rect x="322" y="154" width="128" height="92" rx="10" fill="#000"/>
-                <rect x="265" y="324" width="128" height="92" rx="10" fill="#000"/>
-                <rect x="87" y="324" width="128" height="92" rx="10" fill="#000"/>
-                <rect x="30" y="154" width="128" height="92" rx="10" fill="#000"/>
+                <rect x="148" y="34" width="128" height="92" rx="10" fill="#000"/>
+                <rect x="288" y="174" width="128" height="92" rx="10" fill="#000"/>
+                <rect x="148" y="314" width="128" height="92" rx="10" fill="#000"/>
+                <rect x="8" y="174" width="128" height="92" rx="10" fill="#000"/>
             </mask>
             <!-- Measure: the heartbeat trace fades out to the left, oldest first. -->
             <linearGradient id="loop-ecg-fade" gradientUnits="userSpaceOnUse" x1="4" y1="0" x2="40" y2="0">
@@ -31,21 +32,26 @@ by hand. Every value drawn here is fictional.
             </mask>
         </defs>
         <g mask="url(#loop-cut)">
-            <circle class="hair" cx="240" cy="250" r="152"/>
-            <circle class="pulse" cx="240" cy="250" r="152"/>
+            <circle class="hair" cx="212" cy="222" r="140"/>
+            <circle class="pulse" cx="212" cy="222" r="140"/>
         </g>
+        <!-- The detour to the wet lab: out after Run to the larva's heart, back in before Structure. -->
+        <path class="lab-path" d="M333.2 292C376 310 380 366 357 392"/>
+        <path class="lab-path" d="M357 392C336 374 302 368 292.3 336.7"/>
+        <path class="ping ping-out" pathLength="1" d="M333.2 292C376 310 380 366 357 392"/>
+        <path class="ping ping-back" pathLength="1" d="M357 392C336 374 302 368 292.3 336.7"/>
 
         <g class="ctx" aria-hidden="true">
-            <circle class="hair-2 c1" cx="240" cy="250" r="46"/>
-            <circle class="hair-2 c2" cx="240" cy="250" r="53"/>
-            <circle class="hair-2 c3" cx="240" cy="250" r="60"/>
+            <circle class="hair-2 c1" cx="212" cy="222" r="46"/>
+            <circle class="hair-2 c2" cx="212" cy="222" r="53"/>
+            <circle class="hair-2 c3" cx="212" cy="222" r="60"/>
         </g>
-        <text class="turn" x="240" y="248" text-anchor="middle">turn <tspan class="turn-n">01</tspan></text>
-        <text class="gloss" x="240" y="266" text-anchor="middle">context</text>
-        <text class="gloss" x="240" y="280" text-anchor="middle">accumulates</text>
+        <text class="turn" x="212" y="220" text-anchor="middle">turn <tspan class="turn-n">01</tspan></text>
+        <text class="gloss" x="212" y="238" text-anchor="middle">context</text>
+        <text class="gloss" x="212" y="252" text-anchor="middle">accumulates</text>
 
         <!-- Design (top) -->
-        <g class="station" data-i="0" transform="translate(180,56)">
+        <g class="station" data-i="0" transform="translate(152,40)">
             <g aria-hidden="true">
                 <line class="live bar" x1="30" y1="12" x2="90" y2="12"/>
                 <line class="hair-2 bar" x1="30" y1="28" x2="78" y2="28"/>
@@ -55,7 +61,7 @@ by hand. Every value drawn here is fictional.
         </g>
 
         <!-- Run (right) -->
-        <g class="station" data-i="1" transform="translate(326,160)">
+        <g class="station" data-i="1" transform="translate(292,180)">
             <g aria-hidden="true">
                 <g><rect class="live" x="54" y="0" width="14" height="6" rx="1.5"/><line class="live" x1="58" y1="6" x2="58" y2="11"/><line class="live" x1="64" y1="6" x2="64" y2="11"/></g>
                 <g class="wells" transform="translate(16,22)">
@@ -82,8 +88,8 @@ by hand. Every value drawn here is fictional.
             <text class="name" x="60" y="76" text-anchor="middle">Run</text>
         </g>
 
-        <!-- Measure (bottom right) -->
-        <g class="station" data-i="2" transform="translate(269,330)">
+        <!-- Measure (outside the ring, bottom right): the wet lab -->
+        <g class="station station-lab" data-i="4" data-lab transform="translate(334,382)">
             <g aria-hidden="true">
                 <!-- A larva seen from the side (after the Janelia whole-body model):
                      fin fold, body, eye, ear, notochord, myotomes, swim bladder, gut
@@ -105,10 +111,11 @@ by hand. Every value drawn here is fictional.
                 </g>
             </g>
             <text class="name" x="60" y="76" text-anchor="middle">Measure</text>
+            <text class="gloss" x="60" y="92" text-anchor="middle">wet lab</text>
         </g>
 
-        <!-- Structure (bottom left) -->
-        <g class="station" data-i="3" transform="translate(91,330)">
+        <!-- Structure (bottom) -->
+        <g class="station" data-i="2" transform="translate(152,320)">
             <!-- The systemic graph in miniature, after the platform figure: organs (rings),
                  functions (diamonds) and signals (dots). A mint wave runs out from the liver. -->
             <g aria-hidden="true">
@@ -185,7 +192,7 @@ by hand. Every value drawn here is fictional.
         </g>
 
         <!-- Reason (left) -->
-        <g class="station" data-i="4" transform="translate(34,160)">
+        <g class="station" data-i="3" transform="translate(12,180)">
             <g aria-hidden="true" transform="translate(10,0)">
                 <rect class="live-f" x="0" y="4" width="4.5" height="4.5"/><line class="hair-2" x1="10" y1="6" x2="56" y2="6"/><line class="res" x1="62" y1="6" x2="98" y2="6"/>
                 <rect class="live-f" x="0" y="16" width="4.5" height="4.5"/><line class="hair-2" x1="10" y1="18" x2="46" y2="18"/><line class="res" x1="52" y1="18" x2="98" y2="18"/>
@@ -203,9 +210,9 @@ by hand. Every value drawn here is fictional.
         <button type="button" data-play data-pause-label="Pause" data-play-label="Play">Pause</button>
         <button type="button" data-hold="0" aria-pressed="false">Design</button>
         <button type="button" data-hold="1" aria-pressed="false">Run</button>
-        <button type="button" data-hold="2" aria-pressed="false">Measure</button>
-        <button type="button" data-hold="3" aria-pressed="false">Structure</button>
-        <button type="button" data-hold="4" aria-pressed="false">Reason</button>
+        <button type="button" data-hold="4" aria-pressed="false">Measure</button>
+        <button type="button" data-hold="2" aria-pressed="false">Structure</button>
+        <button type="button" data-hold="3" aria-pressed="false">Reason</button>
         <span class="fig-note">Illustrative</span>
     </figcaption>
 </figure>

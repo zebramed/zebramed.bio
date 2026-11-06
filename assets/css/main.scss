@@ -245,10 +245,26 @@ p { max-width: 62ch; color: var(--color-text-medium); }
 .loop-ring .station.is-active .name { fill: var(--color-accent-secondary); }
 .loop-ring .pulse {
     stroke: var(--color-accent-secondary); stroke-width: 2.5; fill: none; stroke-linecap: round;
-    stroke-dasharray: 36 920; stroke-dashoffset: -716.3; opacity: 0;
+    stroke-dasharray: 30 860; stroke-dashoffset: -659.7; opacity: 0;
 }
-.loop-ring.is-playing .pulse { opacity: 1; animation: orbit 12s linear var(--orbit-delay, 0s) infinite; }
-@keyframes orbit { to { stroke-dashoffset: -1671.3; } }
+.loop-ring.is-playing .pulse { opacity: 1; animation: orbit 4s linear var(--orbit-delay, 0s) infinite; }
+@keyframes orbit { to { stroke-dashoffset: -1539.4; } }
+/* the wet lab: every third lap (a 12s cycle) an amber ping takes the detour out to Measure,
+   stays while it reads, and comes back; Measure is dimmed between visits */
+.loop-ring .lab-path { fill: none; stroke: var(--color-line); stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 3 4; }
+.loop-ring .ping {
+    fill: none; stroke: var(--color-flag); stroke-width: 3; stroke-linecap: round;
+    stroke-dasharray: 0.14 2; stroke-dashoffset: 0.14; opacity: 0;
+}
+.loop-ring.is-playing .ping { opacity: 1; animation: 12s linear var(--ping-delay, 0s) infinite; }
+.loop-ring.is-playing .ping-out { animation-name: ping-out; }
+.loop-ring.is-playing .ping-back { animation-name: ping-back; }
+@keyframes ping-out { 0% { stroke-dashoffset: 0.14; } 16%, 100% { stroke-dashoffset: -1; } }
+@keyframes ping-back { 0%, 34% { stroke-dashoffset: 0.14; } 50%, 100% { stroke-dashoffset: -1; } }
+.loop-ring.is-playing .station-lab { animation: lab-visit 12s linear var(--ping-delay, 0s) infinite; }
+.loop-ring.is-playing .station-lab .name { animation: lab-name 12s linear var(--ping-delay, 0s) infinite; }
+@keyframes lab-visit { 0%, 13% { opacity: 0.5; } 17%, 33% { opacity: 1; } 38%, 100% { opacity: 0.5; } }
+@keyframes lab-name { 0%, 14% { fill: var(--color-text-light); } 17%, 33% { fill: var(--color-flag); } 36%, 100% { fill: var(--color-text-light); } }
 .loop-ring .ctx circle { opacity: 0.18; transition: opacity 600ms ease; }
 .loop-ring[data-turn="1"] .ctx .c1,
 .loop-ring[data-turn="2"] .ctx .c1, .loop-ring[data-turn="2"] .ctx .c2,

@@ -26,21 +26,25 @@
   }, { threshold: 0.3 });
 
   /* ---------- Figure 1: the lab-in-the-loop ring ---------- */
+  // The pulse laps the in-silico ring (one step per station). Every PING_EVERY laps a slower
+  // ping leaves for the wet lab; CSS draws it, JS only sets where in that cycle to start.
   document.querySelectorAll('[data-figure="loop"]').forEach(root => {
     const svg = root.querySelector('svg');
     const stations = [...root.querySelectorAll('.station')];
+    const ring = stations.filter(s => !s.hasAttribute('data-lab')).sort((a, b) => a.dataset.i - b.dataset.i);
     const turnN = root.querySelector('.turn-n');
     const playBtn = root.querySelector('[data-play]');
     const holdBtns = [...root.querySelectorAll('[data-hold]')];
-    const STEP_MS = 2400;
+    const STEP_MS = 1000, LAP_MS = ring.length * STEP_MS;
+    const PING_EVERY = 3, PING_AT = STEP_MS * 4 / 3;   // leaves the ring a third of the way from Run to Structure
     let step = -1, lap = 0, timer = null, held = null, inView = false;
 
-    const show = i => stations.forEach((s, k) => {
+    const show = i => ring.forEach((s, k) => {
       s.classList.toggle('is-active', k === i);
       if (k === i || lap > 1 || k < i) s.classList.add('is-done');
     });
     const tick = () => {
-      step = (step + 1) % stations.length;
+      step = (step + 1) % ring.length;
       if (step === 0) {
         lap += 1;
         svg.dataset.turn = String(Math.min(lap, 3));
@@ -58,8 +62,11 @@
       if (reduced()) { endState(); return; }
       if (!timer) {
         tick(); timer = setInterval(tick, STEP_MS);
-        // The pulse takes one step per station: start it where the ring is now.
+        // The pulse takes one step per station: start it where the ring is now, and the ping
+        // where this lap sits in its cycle.
         svg.style.setProperty('--orbit-delay', `${-step * STEP_MS}ms`);
+        const cycle = PING_EVERY * LAP_MS, t = ((lap - 1) % PING_EVERY) * LAP_MS + step * STEP_MS;
+        svg.style.setProperty('--ping-delay', `${-((t - PING_AT) % cycle + cycle) % cycle}ms`);
       }
       svg.classList.add('is-playing');
       if (playBtn) playBtn.textContent = playBtn.dataset.pauseLabel || 'Pause';
@@ -81,7 +88,7 @@
       held = i; holdBtns.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
       stop();
       stations.forEach(s => s.classList.add('is-done'));
-      stations.forEach((s, k) => s.classList.toggle('is-active', k === i));
+      stations.forEach(s => s.classList.toggle('is-active', +s.dataset.i === i));
     }));
 
     figures.push({
