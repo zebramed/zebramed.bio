@@ -12,9 +12,12 @@
 statement: "What a whole-organism loop changes for a programme."
 basis: "Projected from the platform's six-week cycle, against a conventional rodent programme and standard in vitro models."
 measures:
-  - value: "6 weeks"
+  - value: "70%"
     count: ""
-    label: "from candidate to systemic read-out, in place of an 18 to 24 month rodent programme"
+    label: human liver-toxicity (DILI) prediction performance
+  - value: "10×"
+    count: ""
+    label: the throughput of manual processing
   - value: "2×"
     count: ""
     label: "human translational value compared to standard in vitro models"

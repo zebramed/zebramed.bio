@@ -30,11 +30,21 @@ features:
         file: imagine_logo.png
       - name: ISIR, Sorbonne Université
         file: isir_logo.png
+  - kicker: Awards and grants
+    lede: awards and grants
+    title: Awards and grants received
+    text: >-
+      Recognition through various awards and non-dilutive grants supporting our research and development efforts.
+    logos:
+      - name: Datacraft Awards
+        file: datacraft_logo.jpg
+      - name: Deeptech Pioneers
+        file: deeptech_pioneers_logo.jpg
+      - name: i-Lab Awards
+        file: logo_ilab.webp
 measures:
-  - value: "70%"
-    label: liver-toxicity (DILI) prediction performance
-  - value: "10×"
-    label: the throughput of manual processing
+  - value: "2"
+    label: contracts and collaborations running
   - value: "1 + 6"
     label: patent applications, one priority filed and six planned; freedom to operate cleared
   - value: "4"
