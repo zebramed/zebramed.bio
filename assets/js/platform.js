@@ -22,15 +22,15 @@ const MEDIA = stage.dataset.media || '/assets/media/platform/';
 const CLIPS = { lateral: { src: MEDIA + 'imaged' }, behaviour: { src: MEDIA + 'tracked' } };
 const NS = 'http://www.w3.org/2000/svg';
 const COL = { line: '#9fb0d0', live: '#64ffda', context: '#c3a6ff', result: '#a8ff78', flag: '#f5b85c', target: '#ff6b7d',
-              medium: '#ccd6f6', light: '#ffffff', plate: '#12173c', bg: '#0b1036' };
+              human: '#6cb6ff', medium: '#ccd6f6', light: '#ffffff', plate: '#12173c', bg: '#0b1036' };
 
 // ---------- the storyboard ----------
 // Each input: appear, stay large while its content plays, dock, connect, pause. Models: the same, shorter.
 const BACKBONE   = { build: 2600, rest: 1200 };
 const INPUT_STEP = { appear: 400, dock: 650, link: 600, stagger: 120, pulse: 650, rest: 2200 };
-const HOLD       = { imaged: 9000, tracked: 5200, sequenced: 5600 };
-// While each whole-organism card is shown large: what is at work, what it does to the perturbed larva, and a
-// checklist that ticks as the clip shows each read-out (ms after the card starts).
+const HOLD       = { imaged: 9000, tracked: 5200, sequenced: 5600, human: 4400 };
+// While each whole-organism (and the human) card is shown large: what is at work, what it does, and a
+// checklist that ticks as the card shows each read-out (ms after the card starts).
 const PRESENT = {
   imaged:    { head: 'FishEye in action', sub: 'Extracting phenomics from the perturbed larva',
                checks: [['vessels', 3000], ['organs', 5600], ['morphology', 8000]] },
@@ -38,9 +38,11 @@ const PRESENT = {
                checks: [['keypoints', 1000], ['swim path', 3600], ['speed', 4800]] },
   sequenced: { head: 'Whole-organism transcriptomics', sub: 'The gene programmes the perturbation changes',
                checks: [['reads', 1000], ['genes', 2600], ['programmes', 4000]] },
+  human:     { head: 'Human pathobiology', sub: 'Human evidence on molecules of the same families', color: COL.human,
+               checks: [['clinical trials', 1000], ['concordance studies', 2200], ['existing datasets', 3400]] },
 };
 const PROPAGATE  = { wave: 2400, rest: 1400 };
-const MODEL_STEP = { appear: 350, hold: 1700, dock: 500, branch: 500, pop: 300, attach: 450, stagger: 100, pulse: 550, rest: 1400 };
+const MODEL_STEP = { appear: 350, hold: 1700, dock: 500, link: 500, stagger: 120, pulse: 550, rest: 1300 };
 // Reason: XenoEx predicts, validates where it is unsure, then is asked for targets. Times within each part.
 const PREDICT  = { card: 600, typeAt: 300, type: 1000, outAt: 1500, backAt: 2700, barsAt: 3600, rankAt: 4900, rank: 1200, end: 7600 };
 const VALIDATE = { reqAt: 1000, req: 1500, runAt: 2500, run: 1900, backAt: 4400, updAt: 5400, upd: 900, rankAt: 6500, rank: 1100, end: 9000 };
@@ -73,13 +75,13 @@ const INPUTS = [
   { id: 'sequenced', kind: 'heatmap',   title: 'Whole organism · sequenced', caption: 'sequenced',
     pool: ['liver', 'brain', 'heart', 'gut', 'kidney'].flatMap(o => SIGNALS[o].map((_, i) => `${o}-${i}`)), n: 3 },
 ];
+// human pathobiology: prior human data, joined at the organs where human toxicity shows
+const HUMAN = { id: 'human', kind: 'human', title: 'Human pathobiology', caption: 'human data', pool: ['liver', 'heart', 'kidney'], n: 3 };
+// other models attach to nodes already in the graph, adding none of their own
 const MODELS = [
-  { id: 'cells',     kind: 'dish',     title: 'Cell cultures', caption: 'cell cultures',
-    hub: [.58, .27], ctx: [[.47, .36, 'liver-0'], [.66, .44, 'liver-2'], [.62, .06, 'heart-0']] },
-  { id: 'organoids', kind: 'organoid', title: 'Organoids',     caption: 'organoids',
-    hub: [.03, .38], ctx: [[.38, .60, 'liver'], [.42, .22, 'brain']] },
-  { id: 'chip',      kind: 'chip',     title: 'Organ-on-chip', caption: 'organ-on-chip',
-    hub: [.55, .96], ctx: [[.44, .92, 'gut'], [.45, .66, 'liver']], couple: true },
+  { id: 'cells',     kind: 'dish',     title: 'Cell cultures', caption: 'cell cultures', to: ['liver-0', 'heart-0'] },
+  { id: 'organoids', kind: 'organoid', title: 'Organoids',     caption: 'organoids',     to: ['liver', 'brain'] },
+  { id: 'chip',      kind: 'chip',     title: 'Organ-on-chip', caption: 'organ-on-chip', to: ['gut', 'liver'], couple: ['gut', 'liver'] },
 ];
 const OUT_ORGANS = ['liver', 'heart', 'brain', 'kidney'];
 // ZM-131's heart risk is uncertain until the validation run comes back
@@ -100,23 +102,23 @@ const TARGETS = [
 
 (function timeline() {
   let t = BACKBONE.build + BACKBONE.rest;
-  TL.inputs = INPUTS.map(inp => {
-    const s = INPUT_STEP, T = t, st = { appear: s.appear, dockAt: s.appear + HOLD[inp.id], dock: s.dock };
+  const inputStep = inp => {
+    const s = INPUT_STEP, st = { appear: s.appear, dockAt: s.appear + HOLD[inp.id], dock: s.dock };
     st.linkAt = st.dockAt + s.dock;
     st.pulseAt = st.linkAt + s.link * .75;
     st.end = st.linkAt + s.link + (inp.n - 1) * s.stagger + s.pulse;
     st.next = st.end + s.rest;
-    inp.step = st; t += st.next;
-    return T;
-  });
+    inp.step = st;
+    return st.next;
+  };
+  TL.inputs = INPUTS.map(inp => { const T = t; t += inputStep(inp); return T; });
   TL.prop = t; t += PROPAGATE.wave + PROPAGATE.rest;
+  TL.human = t; t += inputStep(HUMAN);
   TL.models = MODELS.map(m => {
     const s = MODEL_STEP, T = t, st = { appear: s.appear, dockAt: s.appear + s.hold, dock: s.dock };
-    st.branchAt = st.dockAt + s.dock;
-    st.popAt = st.branchAt + s.branch;
-    st.attachAt = st.popAt + s.pop;
-    st.pulseAt = st.attachAt + s.attach * .7;
-    st.end = st.attachAt + s.attach + (m.ctx.length - 1) * s.stagger + s.pulse;
+    st.linkAt = st.dockAt + s.dock;
+    st.pulseAt = st.linkAt + s.link * .75;
+    st.end = st.linkAt + s.link + (m.to.length - 1) * s.stagger + s.pulse;
     st.next = st.end + s.rest;
     m.step = st; t += st.next;
     return T;
@@ -136,6 +138,7 @@ const STEP_TEXT = {
   tracked:   ['Tracked', 'The same perturbed organism is filmed swimming. FishEye tracks it keypoint by keypoint: how it moves, rests and responds.'],
   sequenced: ['Sequenced', 'Whole-organism transcriptomics reads out its gene activity. Genes cluster into the programmes the perturbation changes, mapped onto the molecular signals of the graph.'],
   spread:    ['Through the system', 'The graph carries each observation on, from where it was measured to the organs and functions it connects to.'],
+  human:     ['Human pathobiology', 'Human data joins on the human side: clinical trials of molecules from the same families, concordance studies and existing datasets, at the organs where human toxicity shows.'],
   cells:     ['Cell cultures', 'Other models are optional. Cell cultures plug in where they observe: at molecular signals.'],
   organoids: ['Organoids', 'Organoids add detail at single organs, here liver and brain.'],
   chip:      ['Organ-on-chip', 'An organ-on-chip couples two organs, gut and liver. The graph works with or without them.'],
@@ -149,6 +152,7 @@ const BEATS = [
   // inputs rest while the new links carry dots: the pause to take in the connection
   ...INPUTS.map((inp, i) => ({ id: inp.id, ch: 'biofoundry', t: TL.inputs[i], rest: TL.inputs[i] + inp.step.end + 900 })),
   { id: 'spread', ch: 'interactome', t: TL.prop, rest: TL.prop + PROPAGATE.wave + 200 },
+  { id: 'human', ch: 'interactome', t: TL.human, rest: TL.human + HUMAN.step.end + 900 },
   ...MODELS.map((m, i) => ({ id: m.id, ch: 'interactome', t: TL.models[i], rest: TL.models[i] + m.step.end + 300 })),
   { id: 'predict', ch: 'xenoex', t: TL.predict, rest: TL.validate - 300 },
   { id: 'validate', ch: 'xenoex', t: TL.validate, rest: TL.discover - 300 },
@@ -159,17 +163,18 @@ const BEATS = [
 });
 
 // ---------- layouts (viewBox units) ----------
-// wide: inputs and models on the left, XenoEx on the right. compact (phones, narrow windows): inputs in a row
-// on top, models in a row below, and the XenoEx panel rising over the bottom of the figure in Reason.
-// xp: where things sit inside the XenoEx panel.
+// wide: inputs, human data and models down the left, XenoEx on the right. compact (phones, narrow windows):
+// inputs in a row on top, human data and models in a row below, and the XenoEx panel rising over the bottom
+// of the figure in Reason. xp: where things sit inside the XenoEx panel.
 const LAYOUTS = {
   wide: {
     kind: 'wide', w: 1000, h: 540,
     bb: { x: 300, y: 92, w: 376, h: 376 }, bbTitle: { x: 488, y: 40 },
-    heads: { whole: { x: 24, y: 46 }, models: { x: 24, y: 292 } },
+    heads: { whole: { x: 24, y: 44 }, human: { x: 24, y: 236 }, models: { x: 24, y: 330 } },
     slots: {
-      imaged: { x: 24, y: 66, w: 152, h: 38 }, tracked: { x: 24, y: 118, w: 42, h: 42 }, sequenced: { x: 24, y: 174, w: 58, h: 42 },
-      cells: { x: 24, y: 308, w: 42, h: 42 }, organoids: { x: 24, y: 364, w: 42, h: 42 }, chip: { x: 24, y: 420, w: 42, h: 42 },
+      imaged: { x: 24, y: 58, w: 152, h: 38 }, tracked: { x: 24, y: 106, w: 40, h: 40 }, sequenced: { x: 24, y: 156, w: 55, h: 40 },
+      human: { x: 24, y: 248, w: 96, h: 40 },
+      cells: { x: 24, y: 342, w: 36, h: 36 }, organoids: { x: 24, y: 388, w: 36, h: 36 }, chip: { x: 24, y: 434, w: 36, h: 36 },
     },
     present: { cx: 410, cy: 232, maxW: 620, maxH: 290, maxS: 12 },
     out: { x: 714, y: 84, w: 266, h: 392 },
@@ -178,10 +183,11 @@ const LAYOUTS = {
   compact: {
     kind: 'compact', w: 400, h: 600,
     bb: { x: 36, y: 132, w: 328, h: 328 }, bbTitle: { x: 200, y: 24 },
-    heads: { whole: { x: 12, y: 64 }, models: { x: 12, y: 500 } },
+    heads: { whole: { x: 12, y: 64 }, human: { x: 12, y: 500 }, models: { x: 110, y: 500 } },
     slots: {
       imaged: { x: 12, y: 74, w: 120, h: 30 }, tracked: { x: 176, y: 72, w: 34, h: 34 }, sequenced: { x: 280, y: 72, w: 46, h: 34 },
-      cells: { x: 12, y: 510, w: 34, h: 34 }, organoids: { x: 146, y: 510, w: 34, h: 34 }, chip: { x: 276, y: 510, w: 34, h: 34 },
+      human: { x: 12, y: 510, w: 64, h: 34 },
+      cells: { x: 110, y: 510, w: 34, h: 34 }, organoids: { x: 205, y: 510, w: 34, h: 34 }, chip: { x: 290, y: 510, w: 34, h: 34 },
     },
     present: { cx: 200, cy: 270, maxW: 376, maxH: 260, maxS: 12 },
     out: { x: 8, y: 384, w: 384, h: 208 },
@@ -209,6 +215,12 @@ function bez(P, u) {
   return { x: a * P[0].x + b * P[1].x + c * P[2].x + d * P[3].x, y: a * P[0].y + b * P[1].y + c * P[2].y + d * P[3].y };
 }
 const pathD = C => `M${C[0].x} ${C[0].y} C${C[1].x} ${C[1].y} ${C[2].x} ${C[2].y} ${C[3].x} ${C[3].y}`;
+// the first part of a cubic, up to u (de Casteljau)
+function bezPart(P, u) {
+  const at = (a, b) => ({ x: lerp(a.x, b.x, u), y: lerp(a.y, b.y, u) });
+  const p01 = at(P[0], P[1]), p12 = at(P[1], P[2]), p23 = at(P[2], P[3]), p012 = at(p01, p12);
+  return [P[0], p01, p012, at(p012, at(p12, p23))];
+}
 function mix(h1, h2, u) {
   const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const a = p(h1), b = p(h2);
@@ -223,7 +235,7 @@ let S = null;
 // ---------- build ----------
 function build() {
   LAYERS.forEach(n => { layer[n].innerHTML = ''; layer[n].setAttribute('viewBox', `0 0 ${L.w} ${L.h}`); });
-  S = { nodes: [], edges: [], links: [], pulses: [], insets: [], fades: [], branches: [], waves: [], N: new Map() };
+  S = { nodes: [], edges: [], links: [], pulses: [], insets: [], fades: [], waves: [], rings: [], N: new Map() };
   const U = (x, y) => ({ x: L.bb.x + x * L.bb.w, y: L.bb.y + y * L.bb.h });
   S.U = U;
 
@@ -265,7 +277,7 @@ function build() {
     const ins = makeInset(inp, T, 'whole');
     const st = inp.step, s = INPUT_STEP;
     pickTargets(inp).forEach((node, j) => {
-      S.links.push({ src: inp.id, T, from: ins.port, to: node, t0: T + st.linkAt + j * s.stagger, d: s.link, color: COL.live,
+      S.links.push({ src: inp.id, cat: 'whole', T, from: ins.port, to: node, t0: T + st.linkAt + j * s.stagger, d: s.link, color: COL.live,
                      alpha: .85, rest: .28, dimAt: T + st.next, flows: [[T + st.end, T + st.next]], j, w: 1.4 });
       S.pulses.push({ node, t0: T + st.pulseAt + j * s.stagger, d: s.pulse, color: COL.live });
     });
@@ -289,26 +301,41 @@ function build() {
   });
   depth.forEach((d, n) => { if (n.kind !== 'signal' && d > 0) S.pulses.push({ node: n, t0: TL.prop + d * hop + 250, d: 700, color: COL.live, alpha: .5 }); });
 
-  // other models: optional, so drawn quieter than the whole-organism links
-  MODELS.forEach((m, i) => {
-    const T = TL.models[i];
-    const ins = makeInset(m, T, 'model');
-    const st = m.step, s = MODEL_STEP;
-    const hub = add({ id: m.id + '-hub', kind: 'hub', x: m.hub[0], y: m.hub[1] });
-    hub.t0 = T + st.branchAt + s.branch - 80; hub.d = 300;
-    S.branches.push({ from: ins.port, hub, t0: T + st.branchAt, d: s.branch });
-    const ctx = m.ctx.map((c, j) => {
-      const n = add({ id: `${m.id}-c${j}`, kind: 'ctx', x: c[0], y: c[1] });
-      n.t0 = T + st.popAt + j * 80; n.d = 300;
-      S.edges.push({ a: hub, b: n, w: 1, alpha: .5, color: COL.context, layer: 'context', dash: true, t0: n.t0 - 40, d: 300 });
-      S.edges.push({ a: n, b: N(c[2]), w: 1, alpha: .42, color: COL.context, layer: 'context', dash: true,
-                     t0: T + st.attachAt + j * s.stagger, d: s.attach });
-      S.pulses.push({ node: N(c[2]), t0: T + st.pulseAt + j * s.stagger, d: s.pulse, color: COL.context, alpha: .45 });
-      return n;
+  // human pathobiology: joins on the human side, at the organs where human toxicity shows
+  {
+    const T = TL.human, ins = makeInset(HUMAN, T, 'human'), st = HUMAN.step, s = INPUT_STEP;
+    pickTargets(HUMAN).forEach((node, j) => {
+      S.links.push({ src: 'human', cat: 'human', T, from: ins.port, to: node, t0: T + st.linkAt + j * s.stagger, d: s.link, color: COL.human,
+                     alpha: .85, rest: .3, dimAt: T + st.next, flows: [[T + st.end, T + st.next]], j, w: 1.4 });
+      S.pulses.push({ node, t0: T + st.pulseAt + j * s.stagger, d: s.pulse, color: COL.human });
     });
-    if (m.couple) S.edges.push({ a: ctx[0], b: ctx[1], w: 1, alpha: .5, color: COL.context, layer: 'context', dash: true,
-                                 t0: T + st.attachAt + 160, d: s.attach });
+  }
+
+  // other models: optional, so drawn quieter (dashed) and attached to nodes the graph already has
+  MODELS.forEach((m, i) => {
+    const T = TL.models[i], ins = makeInset(m, T, 'model'), st = m.step, s = MODEL_STEP;
+    m.to.forEach((id, j) => {
+      const node = N(id);
+      S.links.push({ src: m.id, cat: 'model', T, from: ins.port, to: node, t0: T + st.linkAt + j * s.stagger, d: s.link, color: COL.context,
+                     alpha: .75, rest: .32, dimAt: T + st.next, flows: [], j, w: 1.2, dashed: true });
+      S.pulses.push({ node, t0: T + st.pulseAt + j * s.stagger, d: s.pulse, color: COL.context, alpha: .55 });
+    });
+    if (m.couple) S.edges.push({ a: N(m.couple[0]), b: N(m.couple[1]), w: 1.8, alpha: .75, color: COL.context, layer: 'context', dash: true,
+                                 t0: T + st.linkAt + 250, d: s.link });
   });
+
+  // evidence rings: each kind of data adds a ring, in its colour, around the organs it reaches
+  const organsOf = n => (n.kind === 'organ' ? [n.id] : n.kind === 'signal' ? [n.id.split('-')[0]] : n.kind === 'func' ? n.links : []);
+  const first = new Map();
+  S.links.forEach(k => organsOf(k.to).forEach(o => {
+    if (!first.has(o)) first.set(o, new Map());
+    const at = k.t0 + k.d, m = first.get(o);
+    if (!m.has(k.cat) || at < m.get(k.cat)) m.set(k.cat, at);
+  }));
+  const RING = { whole: COL.live, human: COL.human, model: COL.context };
+  first.forEach((m, o) => [...m.entries()].sort((a, b) => a[1] - b[1]).forEach(([cat, at], k) => {
+    S.rings.push({ node: N(o), r: 16 + 4.5 * k, color: RING[cat], t0: at });
+  }));
 
   buildXeno();
   buildGraphSVG();
@@ -325,8 +352,9 @@ function buildChrome() {
   S.fades.push({ el: tg, t0: 0, d: 500 });
 
   const hw = txt(g, L.heads.whole.x, L.heads.whole.y, 'Whole organism', 't-head', { style: `fill:${COL.live}` });
+  const hh = txt(g, L.heads.human.x, L.heads.human.y, vertical() ? 'Human' : 'Human pathobiology', 't-head', { style: `fill:${COL.human}` });
   const hm = txt(g, L.heads.models.x, L.heads.models.y, 'Other models · optional', 't-head', { style: `fill:${COL.context};fill-opacity:.75` });
-  S.fades.push({ el: hw, t0: TL.inputs[0], d: 300 }, { el: hm, t0: TL.models[0], d: 300 });
+  S.fades.push({ el: hw, t0: TL.inputs[0], d: 300 }, { el: hh, t0: TL.human, d: 300 }, { el: hm, t0: TL.models[0], d: 300 });
 
   S.backdrop = el('rect', { x: L.bb.x - 24, y: L.bb.y - 24, width: L.bb.w + 48, height: L.bb.h + 48, rx: 14, fill: COL.bg, opacity: 0 }, g);
   S.insetLayer = el('g', {}, g);
@@ -347,9 +375,11 @@ function makeInset(def, T, grp) {
   const port = !vertical() ? { x: capPos.x + cap.getComputedTextLength() + 8, y: sl.y + sl.h / 2 }
     : grp === 'whole' ? { x: sl.x + sl.w / 2, y: sl.y + sl.h + 22 } : { x: sl.x + sl.w / 2, y: sl.y - 4 };
   const g = el('g', { opacity: 0 }, S.insetLayer);
-  const heat = drawInset(g, def.kind, sl.w, sl.h, grp);
+  const art = drawInset(g, def.kind, sl.w, sl.h, grp);
+  const heat = art && art.rows ? art : null;
   const rec = { g, cap, present, dock, T, port, group: grp, step: def.step, heat, video: g.querySelector('video'), shown: false };
   if (def.kind === 'behaviour') rec.track = makeTrack(g, sl.w, s);
+  if (art && art.icons) rec.icons = art.icons;
   rec.pc = PRESENT[def.id] ? makePresentCaption(rec, PRESENT[def.id], sl, s)
     : txt(g, sl.w / 2, sl.h + 20 / s, def.title, 't-label t-strong', { 'text-anchor': 'middle', style: `font-size:${15 / s}px` });
   S.insets.push(rec);
@@ -360,15 +390,16 @@ function makeInset(def, T, grp) {
 // checklist of read-outs that tick as the clip shows them.
 function makePresentCaption(rec, info, sl, s) {
   const pg = el('g', { transform: `translate(${sl.w / 2},${sl.h}) scale(${1 / s})` }, rec.g);
+  const col = rec.checkColor = info.color || COL.live;
   const back = el('rect', { y: 6, height: 74, rx: 10, fill: COL.bg, 'fill-opacity': .9 }, pg);
-  const head = txt(pg, 0, 24, info.head.toUpperCase(), 't-head', { 'text-anchor': 'middle', style: `fill:${COL.live};fill-opacity:1` });
+  const head = txt(pg, 0, 24, info.head.toUpperCase(), 't-head', { 'text-anchor': 'middle', style: `fill:${col};fill-opacity:1` });
   const hw = head.getComputedTextLength();
-  rec.liveDot = el('circle', { cx: -hw / 2 - 11, cy: 19.5, r: 3.5, fill: COL.live }, pg);
+  rec.liveDot = el('circle', { cx: -hw / 2 - 11, cy: 19.5, r: 3.5, fill: col }, pg);
   const sub = txt(pg, 0, 45, info.sub, 't-label t-strong', { 'text-anchor': 'middle' });
   const row = el('g', {}, pg);
   let x = 0;
   rec.checks = info.checks.map(([label, at]) => {
-    const box = el('rect', { x, y: 59, width: 11, height: 11, rx: 2.5, fill: 'none', stroke: COL.live, 'stroke-width': 1.2 }, row);
+    const box = el('rect', { x, y: 59, width: 11, height: 11, rx: 2.5, fill: 'none', stroke: col, 'stroke-width': 1.2 }, row);
     const tick = el('path', { d: `M${x + 2.6} ${64.6}l2.4 2.4l4.2 -4.6`, fill: 'none', stroke: COL.bg, 'stroke-width': 1.8,
                               'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0 }, row);
     const t = txt(row, x + 17, 69, label, 't-note');
@@ -385,7 +416,7 @@ function frameChecks(r, ms) {
   let current = true;
   r.checks.forEach(c => {
     const on = ms >= c.at;
-    c.box.setAttribute('fill', on ? COL.live : 'none');
+    c.box.setAttribute('fill', on ? r.checkColor : 'none');
     c.tick.setAttribute('opacity', on ? 1 : 0);
     // the read-out under way pulses until it ticks
     c.box.setAttribute('stroke-opacity', on ? 1 : current ? (.35 + .65 * Math.abs(Math.sin(flowT / 300))).toFixed(3) : .35);
@@ -539,8 +570,9 @@ function animateHeat(H, ms, live) {
 }
 
 function drawInset(g, kind, w, h, grp) {
-  const tone = grp === 'model' ? COL.context : COL.line;
+  const tone = grp === 'model' ? COL.context : grp === 'human' ? COL.human : COL.line;
   el('rect', { x: 0, y: 0, width: w, height: h, rx: 4, fill: '#151b4a', stroke: tone, 'stroke-opacity': .55, 'stroke-width': 1 }, g);
+  if (kind === 'human') return { icons: drawHumanIcons(g, w, h) };
   const clip = CLIPS[kind];
   if (clip) {
     el('image', { href: clip.src + '.jpg', x: 0, y: 0, width: w, height: h, preserveAspectRatio: 'xMidYMid slice' }, g);
@@ -582,6 +614,28 @@ function drawInset(g, kind, w, h, grp) {
       el('circle', { cx: x0 + cw * u, cy: y0 + ch * v, r: h * .05, fill: COL.plate, stroke: COL.context, 'stroke-width': .8 }, g));
   }
   return null;
+}
+
+// The human card: its three sources side by side, drawn in a 32-unit cell each: a trial record, a
+// concordance study (two overlapping sets) and a dataset.
+function drawHumanIcons(g, w, h) {
+  const z = Math.min(w / 3, h) / 32, sw = 1.4, c = COL.human;
+  return [0, 1, 2].map(i => {
+    const ig = el('g', { transform: `translate(${(w / 3) * (i + .5)},${h / 2}) scale(${z})`, opacity: .3 }, g);
+    const st = { fill: 'none', stroke: c, 'stroke-width': sw, 'stroke-linecap': 'round' };
+    if (i === 0) {
+      el('rect', Object.assign({ x: -6.5, y: -9, width: 13, height: 18, rx: 1.8 }, st), ig);
+      [-4, 0, 4].forEach((y, k) => el('line', Object.assign({ x1: -3.5, y1: y, x2: k === 2 ? 1 : 3.5, y2: y }, st), ig));
+    } else if (i === 1) {
+      el('circle', Object.assign({ cx: -3.8, cy: 0, r: 6.2 }, st), ig);
+      el('circle', Object.assign({ cx: 3.8, cy: 0, r: 6.2 }, st), ig);
+      el('path', { d: 'M0 -4.9A6.2 6.2 0 0 1 0 4.9A6.2 6.2 0 0 1 0 -4.9Z', fill: c, 'fill-opacity': .45 }, ig);
+    } else {
+      el('ellipse', Object.assign({ cx: 0, cy: -6, rx: 7, ry: 2.6 }, st), ig);
+      el('path', Object.assign({ d: 'M-7 -6V6A7 2.6 0 0 0 7 6V-6M-7 0A7 2.6 0 0 0 7 0' }, st), ig);
+    }
+    return ig;
+  });
 }
 
 // ---------- XenoEx: the panel, its exchanges with the backbone, the run it sends, the targets it finds ----------
@@ -764,18 +818,20 @@ function buildGraphSVG() {
     w.el = el('line', { x1: w.a.p.x, y1: w.a.p.y, x2: w.a.p.x, y2: w.a.p.y, stroke: COL.live, 'stroke-width': 2, 'stroke-linecap': 'round', opacity: 0 }, layer.links);
   });
   S.links.forEach(k => {
-    k.el = el('path', { d: pathD(linkCurve(k.from, k.to.p)), fill: 'none', stroke: k.color, 'stroke-width': k.w, 'stroke-linecap': 'round', opacity: 0 }, layer.links);
+    k.C = linkCurve(k.from, k.to.p);
+    k.el = el('path', { d: pathD(k.C), fill: 'none', stroke: k.color, 'stroke-width': k.w, 'stroke-linecap': 'round', opacity: 0 }, layer.links);
     k.len = k.el.getTotalLength();
-    k.el.setAttribute('stroke-dasharray', k.len); k.el.setAttribute('stroke-dashoffset', k.len);
+    // dashed links (other models) draw on by growing the curve; solid ones by their dash offset
+    if (k.dashed) k.el.setAttribute('stroke-dasharray', '3 3');
+    else { k.el.setAttribute('stroke-dasharray', k.len); k.el.setAttribute('stroke-dashoffset', k.len); }
     k.dot = el('circle', { r: 2.6, fill: k.color, opacity: 0 }, layer.links);
   });
-  S.branches.forEach(b => {
-    const h = b.hub.p, f = b.from;
-    const d = vertical() ? `M${f.x} ${f.y} C${f.x} ${f.y - 90} ${h.x} ${h.y + 80} ${h.x} ${h.y}`
-      : `M${f.x} ${f.y} C${f.x + 90} ${f.y} ${h.x - 80} ${h.y} ${h.x} ${h.y}`;
-    b.el = el('path', { d, fill: 'none', stroke: COL.context, 'stroke-width': 1.1, 'stroke-opacity': .55 }, layer.context);
-    b.len = b.el.getTotalLength();
-    b.el.setAttribute('stroke-dasharray', b.len); b.el.setAttribute('stroke-dashoffset', b.len);
+  // evidence rings: open at the bottom, where the organ's name sits
+  S.rings.forEach(g => {
+    const a0 = 125 * Math.PI / 180, a1 = 55 * Math.PI / 180, r = g.r;
+    g.el = el('g', { opacity: 0 }, layer.backbone);
+    el('path', { d: `M${(r * Math.cos(a0)).toFixed(2)} ${(r * Math.sin(a0)).toFixed(2)}A${r} ${r} 0 1 1 ${(r * Math.cos(a1)).toFixed(2)} ${(r * Math.sin(a1)).toFixed(2)}`,
+                 fill: 'none', stroke: g.color, 'stroke-width': 1.6, 'stroke-opacity': .85, 'stroke-linecap': 'round' }, g.el);
   });
   S.pulses.forEach(p => {
     const k = p.node.kind;
@@ -784,21 +840,16 @@ function buildGraphSVG() {
               p.color === COL.context ? layer.context : layer.links);
   });
   S.nodes.forEach(n => {
-    const parent = n.kind === 'hub' || n.kind === 'ctx' ? layer.context : layer.backbone;
-    const g = el('g', { opacity: 0 }, parent);
+    const g = el('g', { opacity: 0 }, layer.backbone);
     if (n.kind === 'organ') {
       el('circle', { r: 11, fill: COL.plate, stroke: COL.line, 'stroke-opacity': .9, 'stroke-width': 1.7 }, g);
       el('circle', { r: 3.2, fill: COL.line, 'fill-opacity': .8 }, g);
       txt(g, 0, 28, n.label, 't-label t-strong', { 'text-anchor': 'middle' });
     } else if (n.kind === 'signal') {
       el('circle', { r: 3.4, fill: COL.medium }, g);
-    } else if (n.kind === 'func') {
+    } else {
       el('path', { d: 'M0 -8 L8 0 L0 8 L-8 0 Z', fill: COL.plate, stroke: COL.line, 'stroke-opacity': .9, 'stroke-width': 1.5 }, g);
       txt(g, 0, 25, n.label, 't-note', { 'text-anchor': 'middle' });
-    } else if (n.kind === 'hub') {
-      el('circle', { r: 4.5, fill: COL.plate, stroke: COL.context, 'stroke-opacity': .7, 'stroke-width': 1.2, 'stroke-dasharray': '2 2' }, g);
-    } else {
-      el('circle', { r: 3.4, fill: COL.plate, stroke: COL.context, 'stroke-opacity': .75, 'stroke-width': 1.2 }, g);
     }
     n.el = g;
   });
@@ -823,6 +874,8 @@ function frameChrome(t) {
     if (r.heat) animateHeat(r.heat, t - r.T, live);
     if (r.checks && live) frameChecks(r, t - r.T);
     if (r.track) frameTrack(r, t - r.T, live ? 1 - ud : 0);
+    // the human card's sources light up as their checks tick, and stay lit once docked
+    if (r.icons) r.icons.forEach((ic, i) => ic.setAttribute('opacity', ud > 0 || t - r.T >= r.checks[i].at ? 1 : .3));
     if (r.video) {
       if (live) {
         const ct = clamp((t - r.T) / 1000, 0, (r.video.duration || 10) - .05);
@@ -869,14 +922,19 @@ function frameSVG(t) {
   S.links.forEach(k => {
     const u = prog(t, k.t0, k.d);
     k.el.setAttribute('opacity', u > 0 ? linkAlpha(t, k) : 0);
-    k.el.setAttribute('stroke-dashoffset', k.len * (1 - u));
+    if (!k.dashed) k.el.setAttribute('stroke-dashoffset', k.len * (1 - u));
+    else if (u !== k.u) { k.u = u; k.el.setAttribute('d', pathD(u >= 1 ? k.C : bezPart(k.C, Math.max(u, .001)))); }
     const f = linkFlow(t, k);
     if (f) {
       const p = k.el.getPointAtLength(f.u * k.len);
       k.dot.setAttribute('cx', p.x); k.dot.setAttribute('cy', p.y); k.dot.setAttribute('opacity', f.a.toFixed(3));
     } else k.dot.setAttribute('opacity', 0);
   });
-  S.branches.forEach(b => b.el.setAttribute('stroke-dashoffset', b.len * (1 - prog(t, b.t0, b.d, E.inOut))));
+  S.rings.forEach(g => {
+    const u = prog(t, g.t0, 600);
+    g.el.setAttribute('opacity', u.toFixed(3));
+    g.el.setAttribute('transform', `translate(${g.node.p.x},${g.node.p.y}) scale(${(.7 + .3 * u).toFixed(3)})`);
+  });
   S.pulses.forEach(p => {
     const u = clamp((t - p.t0) / p.d);
     p.el.setAttribute('opacity', u > 0 && u < 1 ? (1 - u) * (p.alpha || .9) : 0);
@@ -993,11 +1051,12 @@ function camRect(t) {
   const F = { x: 0, y: 0, w: L.w, h: L.h };
   if (vertical()) return F;
   const w = L.w * .82, h = L.h * .82;
-  const IN = { x: 0, y: 22, w, h }, MOD = { x: 0, y: L.h - h - 8, w, h };
+  const IN = { x: 0, y: 22, w, h }, HUM = IN, MOD = { x: 0, y: (L.h - h) / 2, w, h };
   const OUT = { x: L.w * .14, y: 16, w: L.w * .86, h: L.h * .86 };   // XenoEx: the panel and the backbone, title included
   const V = TL.validate, D = TL.discover;
   const keys = [[0, F], [TL.inputs[0] - 300, F], [TL.inputs[0] + 400, IN], [TL.prop - 300, IN], [TL.prop + 400, F],
-                [TL.models[0] - 300, F], [TL.models[0] + 300, MOD], [TL.predict - 300, MOD], [TL.predict + 400, OUT],
+                [TL.human - 300, F], [TL.human + 400, HUM], [TL.models[0] - 300, HUM], [TL.models[0] + 300, MOD],
+                [TL.predict - 300, MOD], [TL.predict + 400, OUT],
                 [V + VALIDATE.reqAt - 300, OUT], [V + VALIDATE.reqAt + 400, F], [D - 200, F], [D + 500, OUT],
                 [TL.end - 2200, OUT], [TL.end - 800, F], [TL.end, F]];
   let i = 1;
