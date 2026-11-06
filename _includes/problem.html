@@ -11,7 +11,17 @@
     </header>
 
     <div class="problem-split">
-        {% include figures/wall.html %}
+        <div class="problem-main">
+            {% include figures/wall.html %}
+            <div class="numerals problem-numerals">
+                {% for m in site.data.problem.metrics %}
+                <div class="numeral">
+                    <p class="numeral-value"{% if m.count %} data-count="{{ m.count }}" data-suffix="{{ m.suffix }}"{% endif %}>{{ m.value }}</p>
+                    <p class="numeral-label">{{ m.label }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
         <div class="quotes">
             {% for q in site.data.quotes %}
             <figure class="quote">

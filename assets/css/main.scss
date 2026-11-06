@@ -319,10 +319,17 @@ html[data-motion="reduced"] .loop-ring .sg-wave, html[data-motion="reduced"] .lo
 .fig-wall { max-width: 52rem; margin-inline: auto; }
 /* the chart beside the two quotes on wide screens; stacked, and the chart a little narrower, below */
 .problem-split { display: grid; gap: 3rem; margin-top: 3.5rem; }
-.problem-split .fig-wall { max-width: 42rem; width: 100%; }
+.problem-main { width: 100%; max-width: 42rem; margin-inline: auto; }
+.problem-split .fig-wall { max-width: none; width: 100%; }
+/* the headline figures under the chart: two columns at every width, in the wall's colour */
+.numerals.problem-numerals { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin-top: 2.25rem; }
+.problem-numerals .numeral + .numeral { border-left: 1px solid rgba(var(--color-line-rgb), 0.2); }
+.problem-numerals .numeral { padding: 0 1rem; }
+.problem-numerals .numeral-value { font-size: clamp(2.25rem, 4vw, 3rem); color: var(--color-flag); }
+.problem-numerals .numeral-label { margin-top: 0.75rem; font-size: 0.875rem; }
 @media (min-width: 1100px) {
     .problem-split { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 4rem; align-items: center; }
-    .problem-split .fig-wall { max-width: none; }
+    .problem-main { max-width: none; }
 }
 .quotes { display: grid; gap: 2rem; max-width: 42rem; margin-inline: auto; }
 .quote { margin: 0; padding-left: 1.25rem; border-left: 2px solid rgba(var(--color-accent-primary-rgb), 0.5); }

@@ -1,0 +1,9 @@
+# Problem: the two headline figures under the wall chart.
+# `count` animates the number up (suffix after it); without it the value shows as written.
+metrics:
+  - value: "90%"
+    count: "90"
+    suffix: "%"
+    label: of drug candidates entering clinical trials fail
+  - value: "$100B"
+    label: lost by the industry every year
