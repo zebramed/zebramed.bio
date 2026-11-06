@@ -45,7 +45,7 @@ const PROPAGATE  = { wave: 2400, rest: 1400 };
 const MODEL_STEP = { appear: 350, hold: 1700, dock: 500, link: 500, stagger: 120, pulse: 550, rest: 1300 };
 // Reason: XenoEx predicts, validates where it is unsure, then is asked for targets. Times within each part.
 const PREDICT  = { card: 600, typeAt: 300, type: 1000, outAt: 1500, backAt: 2700, barsAt: 3600, rankAt: 4900, rank: 1200, end: 7600 };
-const VALIDATE = { reqAt: 1000, req: 1500, runAt: 2500, run: 1900, backAt: 4400, updAt: 5400, upd: 900, rankAt: 6500, rank: 1100, end: 9000 };
+const VALIDATE = { reqAt: 1000, req: 1500, runAt: 2500, run: 2600, backAt: 5100, moaAt: 5400, moaStep: 380, updAt: 6600, upd: 900, rankAt: 7600, rank: 1100, end: 10000 };
 const DISCOVER = { switchD: 600, typeAt: 400, type: 900, walkAt: 1500, walkStep: 380, popAt: 3700, popStep: 450, listAt: 4300, listStep: 300, end: 8800 };
 const TL = {};
 
@@ -92,12 +92,15 @@ const CANDIDATES = [
   { name: 'ZM-062', risk: [.16, .14, .62, .22] },
 ];
 const DISEASE = 'MASH';
+// what the validation run shows about ZM-131: the mechanism, from a liver signal through the liver to the heart
+const MOA_PATH = ['liver-2', 'liver', 'heart', 'rate'];
 const DISCOVER_QUERY = ['gut', 'liver', 'metabolism', 'kidney'];
 const DISCOVER_WALK = [['gut', 'liver'], ['liver', 'metabolism'], ['metabolism', 'gut'], ['liver', 'kidney']];
+// new targets sit on the mechanism lines XenoEx walks, part way (u) from one node to the other
 const TARGETS = [
-  { id: 'T1', x: .57, y: .64, links: ['liver', 'metabolism'], where: 'liver · metabolism', score: .86 },
-  { id: 'T2', x: .29, y: .69, links: ['gut', 'liver'],        where: 'gut–liver axis',     score: .74 },
-  { id: 'T3', x: .75, y: .50, links: ['liver-2', 'kidney'],   where: 'liver · kidney',     score: .61 },
+  { id: 'T1', on: ['liver', 'metabolism'], u: .55, where: 'liver · metabolism', score: .86 },
+  { id: 'T2', on: ['gut', 'liver'],        u: .5,  where: 'gut–liver axis',     score: .74 },
+  { id: 'T3', on: ['liver', 'kidney'],     u: .62, where: 'liver · kidney',     score: .61 },
 ];
 
 (function timeline() {
@@ -143,8 +146,8 @@ const STEP_TEXT = {
   organoids: ['Organoids', 'Organoids add detail at single organs, here liver and brain.'],
   chip:      ['Organ-on-chip', 'An organ-on-chip couples two organs, gut and liver. The graph works with or without them.'],
   predict:   ['Predict', 'XenoEx queries the graph organ by organ and returns a human risk profile for each candidate, safest first.'],
-  validate:  ['Validate', 'Where its confidence is under the agreed threshold, XenoEx designs a validation run for the biofoundry. The result updates the ranking.'],
-  discover:  ['Discover', 'Asked about a disease instead, XenoEx follows its mechanisms through the graph and proposes new targets.'],
+  validate:  ['Validate', 'Where its confidence is under the agreed threshold, XenoEx sends a validation run to the biofoundry. The result traces the mechanism through the graph and updates the ranking.'],
+  discover:  ['Discover', 'Asked about a disease instead, XenoEx follows its mechanisms through the graph and proposes new targets on them.'],
 };
 const CHAPTER_LABEL = { biofoundry: 'Run', interactome: 'Translate', xenoex: 'Reason' };
 const BEATS = [
@@ -671,6 +674,7 @@ function buildXeno() {
     [V, 'ZM-131 · heart: low confidence', COL.flag],
     [V + VALIDATE.reqAt, 'validation run \u2192 biofoundry', COL.flag],
     [V + VALIDATE.backAt, 'result in: above threshold', COL.live],
+    [V + VALIDATE.moaAt + 400, 'mechanism traced: liver \u2192 heart', COL.result],
     [V + VALIDATE.rankAt, 'ranking updated', COL.live],
     [D + DISCOVER.walkAt, 'following mechanisms\u2026', COL.medium],
     [D + DISCOVER.popAt, '3 new target hypotheses', COL.target],
@@ -756,9 +760,24 @@ function buildXeno() {
     X.req = { C: [a, { x: a.x - 200, y: -26 }, { x: b.x + 60, y: -34 }, b] };
   }
   Object.assign(X.req, { t0: V + VALIDATE.reqAt, d: VALIDATE.req });
-  X.req.path = el('path', { d: pathD(X.req.C), fill: 'none', stroke: COL.flag, 'stroke-width': 1.2, 'stroke-dasharray': '4 4', opacity: 0 }, layer.xeno);
-  X.req.dot = el('circle', { r: 4, fill: COL.flag, opacity: 0 }, layer.xeno);
-  X.req.label = txt(layer.xeno, 0, 0, 'validation run · ZM-131', 't-note', { style: `fill:${COL.flag};fill-opacity:1`, opacity: 0 });
+  X.req.path = el('path', { d: pathD(X.req.C), fill: 'none', stroke: COL.flag, 'stroke-width': 2, 'stroke-dasharray': '5 4', opacity: 0 }, layer.xeno);
+  X.req.dot = el('circle', { r: 5, fill: COL.flag, opacity: 0 }, layer.xeno);
+  X.req.label = el('g', { opacity: 0 }, layer.xeno);
+  const rl = txt(X.req.label, 12, 5, 'validation run · ZM-131', 't-label t-strong', { style: `fill:${COL.flag}` });
+  X.req.label.insertBefore(el('rect', { x: 2, y: -11, width: rl.getComputedTextLength() + 20, height: 22, rx: 11,
+                                        fill: COL.bg, 'fill-opacity': .92, stroke: COL.flag, 'stroke-opacity': .55 }), rl);
+  // the run under way: a callout at the biofoundry, from when the run starts until the ranking is updated
+  {
+    const cw = 300, ch = 62, cx = sl.x, cy = vertical() ? sl.y + sl.h + 24 : sl.y + sl.h + 10;
+    // on the top layer: it sits over the cards below the biofoundry while the run is under way
+    const C = X.call = { g: el('g', { opacity: 0 }, layer.output), bw: cw - 28 };
+    el('rect', { x: cx, y: cy, width: cw, height: ch, rx: 8, fill: COL.bg, 'fill-opacity': .95, stroke: COL.flag, 'stroke-opacity': .6 }, C.g);
+    C.dot = el('circle', { cx: cx + 17, cy: cy + 18.5, r: 3.5, fill: COL.flag }, C.g);
+    C.head = txt(C.g, cx + 28, cy + 23, '', 't-head', { style: `fill:${COL.flag};fill-opacity:1` });
+    txt(C.g, cx + 14, cy + 42, 'ZM-131 · heart · whole organism', 't-label t-strong');
+    el('rect', { x: cx + 14, y: cy + 50, width: C.bw, height: 4, rx: 2, fill: COL.line, 'fill-opacity': .18 }, C.g);
+    C.bar = el('rect', { x: cx + 14, y: cy + 50, width: 0, height: 4, rx: 2, fill: COL.flag }, C.g);
+  }
   // the run itself: the imaged card lights up and its heart link carries new data
   const runAt = V + VALIDATE.runAt;
   const hk = S.links.find(k => k.src === 'imaged' && k.to.id === 'heart');
@@ -768,22 +787,39 @@ function buildXeno() {
     S.pulses.push({ node: hk.to, t0: runAt + 1100, d: 800, color: COL.live });
   }
 
-  // discovery: a walk through the backbone, then new nodes where the mechanisms meet
+  // the mechanism of action, traced along the graph once the result is back
+  X.moa = MOA_PATH.slice(1).map((id, i) => {
+    const A = S.N.get(MOA_PATH[i]).p, B = S.N.get(id).p, t0 = V + VALIDATE.moaAt + i * VALIDATE.moaStep;
+    const at = { x1: A.x, y1: A.y, x2: A.x, y2: A.y, stroke: COL.result, 'stroke-linecap': 'round', opacity: 0 };
+    const glow = el('line', Object.assign({ 'stroke-width': 8, 'stroke-opacity': .18 }, at), layer.xeno);
+    const line = el('line', Object.assign({ 'stroke-width': 2.6 }, at), layer.xeno);
+    S.pulses.push({ node: S.N.get(id), t0: t0 + 380, d: 700, color: COL.result });
+    return { A, B, glow, line, t0 };
+  });
+  {
+    const a = S.N.get('liver').p, b = S.N.get('heart').p;
+    X.moaTag = el('g', { opacity: 0, transform: `translate(${(a.x + b.x) / 2 + 36},${(a.y + b.y) / 2 + 12})` }, layer.xeno);
+    const tt = txt(X.moaTag, 0, 4.5, 'MoA · ZM-131', 't-note', { 'text-anchor': 'middle', style: `fill:${COL.result};fill-opacity:1;font-weight:500` });
+    const tw = tt.getComputedTextLength() + 18;
+    X.moaTag.insertBefore(el('rect', { x: -tw / 2, y: -10, width: tw, height: 20, rx: 10, fill: COL.bg, 'fill-opacity': .92,
+                                       stroke: COL.result, 'stroke-opacity': .5 }), tt);
+  }
+
+  // discovery: XenoEx walks the disease's mechanisms through the backbone; new targets appear on those lines
   X.walk = DISCOVER_WALK.map(([p, q], i) => {
     const A = S.N.get(p), B = S.N.get(q);
-    const line = el('line', { x1: A.p.x, y1: A.p.y, x2: A.p.x, y2: A.p.y, stroke: COL.target, 'stroke-width': 2, 'stroke-linecap': 'round', opacity: 0 }, layer.xeno);
+    const line = el('line', { x1: A.p.x, y1: A.p.y, x2: A.p.x, y2: A.p.y, stroke: COL.target, 'stroke-width': 2.2, 'stroke-linecap': 'round', opacity: 0 }, layer.xeno);
     return { A, B, line, t0: D + DISCOVER.walkAt + i * DISCOVER.walkStep };
   });
   X.targets = TARGETS.map((tg, i) => {
-    const p = S.U(tg.x, tg.y), t0 = D + DISCOVER.popAt + i * DISCOVER.popStep;
-    const ends = tg.links.map(id => S.N.get(id).p);
-    const edges = ends.map(() => el('line', { x1: p.x, y1: p.y, x2: p.x, y2: p.y, stroke: COL.target, 'stroke-width': 1.1, 'stroke-opacity': .6, opacity: 0 }, layer.xeno));
+    const A = S.N.get(tg.on[0]).p, B = S.N.get(tg.on[1]).p, t0 = D + DISCOVER.popAt + i * DISCOVER.popStep;
+    const p = { x: lerp(A.x, B.x, tg.u), y: lerp(A.y, B.y, tg.u) };
     const g = el('g', { opacity: 0 }, layer.xeno);
-    el('circle', { r: 9, fill: 'none', stroke: COL.target, 'stroke-opacity': .45, 'stroke-width': 1 }, g);
-    el('circle', { r: 4.6, fill: COL.target }, g);
-    txt(g, 12, 4, tg.id, 't-note', { style: `fill:${COL.target};fill-opacity:1;font-weight:500` });
+    el('circle', { r: 10, fill: COL.bg, 'fill-opacity': .7, stroke: COL.target, 'stroke-opacity': .5, 'stroke-width': 1 }, g);
+    el('circle', { r: 5, fill: COL.target }, g);
+    txt(g, 13, -7, tg.id, 't-note', { style: `fill:${COL.target};fill-opacity:1;font-weight:600` });
     S.pulses.push({ node: { p, kind: 'target' }, t0: t0 + 100, d: 800, color: COL.target });
-    return { p, g, edges, ends, t0 };
+    return { p, g, t0 };
   });
 }
 
@@ -1020,29 +1056,44 @@ function frameXeno(t) {
 
   // the validation run on its way to the biofoundry
   const R = X.req, us = clamp((t - R.t0) / R.d);
-  R.path.setAttribute('opacity', (.7 * prog(t, R.t0, 300) * (1 - prog(t, V + VALIDATE.updAt, 600))).toFixed(3));
+  R.path.setAttribute('opacity', (.9 * prog(t, R.t0, 300) * (1 - prog(t, V + VALIDATE.updAt, 600))).toFixed(3));
   if (us > 0 && us < 1) {
     const p = bez(R.C, E.inOut(us));
     R.dot.setAttribute('cx', p.x.toFixed(1)); R.dot.setAttribute('cy', p.y.toFixed(1)); R.dot.setAttribute('opacity', 1);
-    R.label.setAttribute('x', (p.x + 9).toFixed(1)); R.label.setAttribute('y', (p.y + 16).toFixed(1));
-    R.label.setAttribute('opacity', Math.min(1, Math.sin(Math.PI * us) * 2).toFixed(3));
+    R.label.setAttribute('transform', `translate(${p.x.toFixed(1)},${(p.y + 20).toFixed(1)})`);
+    R.label.setAttribute('opacity', Math.min(1, Math.sin(Math.PI * us) * 2.5).toFixed(3));
   } else { R.dot.setAttribute('opacity', 0); R.label.setAttribute('opacity', 0); }
 
-  // discovery
+  // the run under way, then its result
+  const C = X.call, c0 = V + VALIDATE.runAt, done = t >= V + VALIDATE.backAt;
+  C.g.setAttribute('opacity', (prog(t, c0 - 300, 300) * (1 - prog(t, V + VALIDATE.updAt + 400, 400))).toFixed(3));
+  const hs = done ? 'RESULT IN \u00b7 ABOVE THRESHOLD' : 'PERFORMING A VALIDATION RUN';
+  if (C.head.textContent !== hs) {
+    C.head.textContent = hs;
+    C.head.style.fill = done ? COL.live : COL.flag;
+    C.dot.setAttribute('fill', done ? COL.live : COL.flag); C.bar.setAttribute('fill', done ? COL.live : COL.flag);
+  }
+  C.bar.setAttribute('width', (C.bw * clamp((t - c0) / (V + VALIDATE.backAt - c0))).toFixed(1));
+  C.dot.setAttribute('opacity', done ? 1 : (.4 + .6 * Math.abs(Math.sin(flowT / 300))).toFixed(3));
+
+  // the mechanism of action: bright while the result is read, then a trace once the question changes
+  const moaOn = 1 - .7 * prog(t, D, 700);
+  X.moa.forEach(m => {
+    const u = prog(t, m.t0, 420), x2 = lerp(m.A.x, m.B.x, u).toFixed(1), y2 = lerp(m.A.y, m.B.y, u).toFixed(1);
+    [m.glow, m.line].forEach(l => { l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('opacity', u > 0 ? moaOn.toFixed(3) : 0); });
+  });
+  X.moaTag.setAttribute('opacity', (prog(t, V + VALIDATE.moaAt + 2 * VALIDATE.moaStep, 400) * (1 - prog(t, D, 500))).toFixed(3));
+
+  // discovery: the mechanism lines stay, and the targets appear on them
   X.walk.forEach(w => {
     const u = prog(t, w.t0, 450);
     w.line.setAttribute('x2', lerp(w.A.p.x, w.B.p.x, u).toFixed(1)); w.line.setAttribute('y2', lerp(w.A.p.y, w.B.p.y, u).toFixed(1));
-    w.line.setAttribute('opacity', u > 0 ? lerp(.9, .3, prog(t, w.t0 + 900, 700)).toFixed(3) : 0);
+    w.line.setAttribute('opacity', u > 0 ? lerp(.9, .6, prog(t, w.t0 + 900, 700)).toFixed(3) : 0);
   });
   X.targets.forEach(tg => {
     const u = prog(t, tg.t0, 500);
     tg.g.setAttribute('opacity', u.toFixed(3));
     tg.g.setAttribute('transform', `translate(${tg.p.x},${tg.p.y}) scale(${(.4 + .6 * u).toFixed(3)})`);
-    const ue = prog(t, tg.t0 + 200, 500);
-    tg.edges.forEach((e, k) => {
-      e.setAttribute('x2', lerp(tg.p.x, tg.ends[k].x, ue).toFixed(1)); e.setAttribute('y2', lerp(tg.p.y, tg.ends[k].y, ue).toFixed(1));
-      e.setAttribute('opacity', ue > 0 ? 1 : 0);
-    });
   });
 }
 
