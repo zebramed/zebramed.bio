@@ -1,6 +1,6 @@
 {% comment %}
-The platform as one scrolling story: the pinned figure. Drawn by assets/js/platform.js on wide
-screens without reduced motion; elsewhere it stays hidden and the three panes show instead.
+The platform as one story, played like a film: the figure. Drawn and played by assets/js/platform.js;
+without it, it stays hidden and the three panes show instead.
 Clips from ZebraMed imaging and tracking; heatmap from simulated data; candidates, targets and
 values are fictional.
 {% endcomment %}
@@ -15,18 +15,9 @@ values are fictional.
         <svg class="pf-layer" data-layer="chrome" aria-hidden="true"></svg>
         <svg class="pf-layer" data-layer="output" aria-hidden="true"></svg>
     </div>
-    <p class="pf-hint" data-pf-hint>
-        <span>Scroll to continue</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="pf-hint-or">or</span>
-        <button type="button" data-pf-hint-play>let it play</button>
-    </p>
     </div>
     <p class="pf-narration" data-pf-narration><span class="label" data-pf-step></span><span class="pf-n-text" data-pf-text></span></p>
     <div class="pf-controls">
-        <span class="pf-buttons"><button type="button" class="pf-btn pf-walk" data-pf-walk aria-pressed="false">Play the walkthrough</button><button type="button" class="pf-btn" data-pf-pause aria-pressed="false">Pause motion</button></span>
         <span class="pf-player-buttons"><button type="button" class="pf-btn" data-pf-prev aria-label="Previous step">&lsaquo; Previous</button><button type="button" class="pf-btn pf-walk" data-pf-play>Pause</button><button type="button" class="pf-btn" data-pf-next aria-label="Next step">Next &rsaquo;</button></span>
-        {% comment %}test only: compare the ways of driving the story{% endcomment %}
-        <span class="pf-drive" data-pf-drive>test: <a href="?drive=read#platform" data-drive="read">read</a> &middot; <a href="?drive=player#platform" data-drive="player">player</a> &middot; <a href="?drive=states#platform" data-drive="states">states</a> &middot; <a href="?drive=steps#platform" data-drive="steps">steps</a> &middot; <a href="?drive=scrub#platform" data-drive="scrub">scrub</a></span>
     </div>
 </div>

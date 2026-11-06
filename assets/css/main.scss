@@ -465,76 +465,35 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     .is-enhanced .row.is-flipped .plate { order: 0; }
 }
 
-/* platform as one scrolling story (platform.js adds .is-scrolly on wide screens without
-   reduced motion): the figure stays pinned on the right, the three texts scroll past as
-   chapters, the bar marks progress through each and jumps to it */
+/* platform as one story, played like a film (platform.js adds .is-scrolly): the figure on the right, the
+   text of the chapter that is playing on the left, the bar marks progress through each chapter and jumps to it */
 .pf-sticky[hidden] { display: none; }
-.platform-select.is-scrolly .select-bar {
-    position: sticky; top: 4.5rem; z-index: 20;
-    margin-top: 3rem; padding: 0.25rem 0 0.75rem; background: var(--color-bg-deep);
-    /* the background runs the full width, so chapter text scrolls out of sight under it */
-    box-shadow: 0 0 0 100vmax var(--color-bg-deep); clip-path: inset(0 -100vmax);
-}
+.platform-select.is-scrolly .select-bar { margin-top: 3rem; padding: 0.25rem 0 0.75rem; background: var(--color-bg-deep); }
 .is-scrolly .select-bar button { position: relative; padding-top: 0.6rem; flex-direction: row; align-items: baseline; gap: 0.75rem; }
-/* progress through each chapter: solid for what has played, faint for where the reader has scrolled to (steps) */
-.is-scrolly .select-bar button::before, .is-scrolly .select-bar button::after {
+/* progress through each chapter */
+.is-scrolly .select-bar button::after {
     content: ''; position: absolute; left: 0; right: 0; top: -2px; height: 2px; transform-origin: left;
+    background: var(--color-accent-primary); transform: scaleX(var(--p, 0));
 }
-.is-scrolly .select-bar button::before { background: rgba(var(--color-accent-primary-rgb), 0.3); transform: scaleX(var(--s, 0)); }
-.is-scrolly .select-bar button::after { background: var(--color-accent-primary); transform: scaleX(var(--p, 0)); }
 .is-scrolly .select-bar button.is-active { border-top-color: rgba(var(--color-line-rgb), 0.25); }
 .is-scrolly .select-name { font-size: 1.125rem; }
 .is-scrolly .pf-story {
     --pf-w: min(calc(100vw - 4rem), 90rem);
-    display: grid; grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr); gap: 3.5rem; align-items: start;
+    display: grid; grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr); gap: 3.5rem; align-items: center;
     position: relative; width: var(--pf-w); left: 50%; margin-left: calc(var(--pf-w) / -2);
 }
-.is-scrolly .rows { grid-column: 1; grid-row: 1; display: block; margin-top: 0; }
-.platform-select.is-enhanced.is-scrolly [data-select-panel] { display: block; min-height: var(--h, 100vh); }
+.is-scrolly .rows { grid-column: 1; grid-row: 1; margin-top: 0; }
+/* the chapter texts share one place and crossfade */
+.platform-select.is-enhanced.is-scrolly [data-select-panel] {
+    display: block; grid-area: 1 / 1;
+    opacity: 0; visibility: hidden; transition: opacity 500ms ease, visibility 0s linear 500ms;
+}
+.platform-select.is-enhanced.is-scrolly [data-select-panel].is-active { opacity: 1; visibility: visible; transition: opacity 500ms ease; }
 .platform-select.is-scrolly .row.is-active { animation: none; }
 .is-scrolly .row .plate { display: none; }
-.is-scrolly .row-text { position: sticky; top: calc(var(--pf-top, 9rem) + 1.5rem); padding-top: 1.5rem; }
 .is-scrolly .row-text .row-title { font-size: 1.625rem; }
 .is-scrolly .row-text > p:not(.label) { font-size: 0.975rem; }
-/* steps: the text follows the playback, so the chapter texts share one pinned place and crossfade */
-.is-scrolly.pf-steps .pf-story { grid-template-rows: var(--story-h, auto); }
-.is-scrolly.pf-steps .rows { position: sticky; top: var(--pf-top, 9rem); height: calc(100vh - var(--pf-top, 9rem)); align-self: start; }
-.platform-select.is-enhanced.is-scrolly.pf-steps [data-select-panel] {
-    position: absolute; inset: 0; min-height: 0;
-    opacity: 0; visibility: hidden; transition: opacity 500ms ease, visibility 0s linear 500ms;
-}
-.platform-select.is-enhanced.is-scrolly.pf-steps [data-select-panel].is-active { opacity: 1; visibility: visible; transition: opacity 500ms ease; }
-.is-scrolly.pf-steps .row-text { position: static; }
-/* reading: the chapter title stays at the top of the text column; short paragraphs scroll under it and
-   play their part of the story as they reach the reading line, 55% down the screen */
-.pf-read-step { display: none; }
-.is-scrolly.pf-read .pf-read-step { display: block; padding-bottom: 27vh; opacity: 0.32; transition: opacity 300ms ease; }
-.is-scrolly.pf-read .pf-read-step.is-current { opacity: 1; }
-.is-scrolly.pf-read .pf-read-step p { font-size: 1.0625rem; line-height: 1.65; color: var(--color-text-light); }
-.is-scrolly.pf-read .rows > .pf-read-step:first-child { padding-top: 40vh; }
-.is-scrolly.pf-read .rows > :last-child .pf-read-step:last-child { padding-bottom: calc(100vh - var(--pf-top, 9rem)); }
-.platform-select.is-enhanced.is-scrolly.pf-read [data-select-panel] { min-height: 0; }
-.is-scrolly.pf-read .row-text {
-    position: sticky; top: var(--pf-top, 9rem); z-index: 2;
-    padding: 1.25rem 0 1rem; margin-bottom: 2rem; background: var(--color-bg-deep);
-}
-.is-scrolly.pf-read .row-text > p:not(.label) { display: none; }
-.is-scrolly.pf-read .pf-narration { display: none; }
-/* player: the story plays like a film while in view; the page scrolls normally */
-.pf-player-buttons { display: none; }
-.pf-player .pf-player-buttons { display: inline-flex; }
-.pf-player .pf-buttons { display: none; }
-.platform-select.is-scrolly.pf-player .select-bar { position: static; box-shadow: none; clip-path: none; }
-.is-scrolly.pf-player .pf-story { align-items: center; }
-.is-scrolly.pf-player .pf-sticky { position: static; height: auto; padding: 0; }
-.is-scrolly.pf-player .pf-frame { max-width: none; }
-.is-scrolly.pf-player .rows { display: grid; }
-.platform-select.is-enhanced.is-scrolly.pf-player [data-select-panel] {
-    grid-area: 1 / 1; min-height: 0;
-    opacity: 0; visibility: hidden; transition: opacity 500ms ease, visibility 0s linear 500ms;
-}
-.platform-select.is-enhanced.is-scrolly.pf-player [data-select-panel].is-active { opacity: 1; visibility: visible; transition: opacity 500ms ease; }
-.is-scrolly.pf-player .row-text { position: static; padding-top: 0; }
+.pf-player-buttons { display: inline-flex; }
 /* narrower than the two-column layout: one column, the figure first, then the chapter text */
 .pf-narrow.is-scrolly .pf-story { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; width: auto; left: 0; margin-left: 0; }
 .pf-narrow.is-scrolly .pf-sticky { grid-column: 1; grid-row: 1; }
@@ -542,43 +501,22 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .pf-narrow .select-bar button { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
 .pf-narrow .select-name { font-size: clamp(0.875rem, 3.4vw, 1.125rem); }
 .pf-narrow .pf-controls { flex-wrap: wrap; justify-content: center; }
-.pf-narrow .pf-drive { display: none; }
 .pf-narrow .pf-narration { min-height: 0; }
 /* the portrait figure, sized so that it, the step line and the controls fit the screen together */
 .pf-compact .pf-stage { aspect-ratio: 400 / 600; }
-.is-scrolly.pf-player.pf-compact .pf-frame { max-width: calc((100svh - 18.5rem) * 0.667); }
+.pf-compact .pf-frame { max-width: calc((100svh - 18.5rem) * 0.667); }
 /* small phones: the bar keeps Run / Translate / Reason only */
 @media (max-width: 559px) {
     .pf-narrow .select-name { display: none; }
     .pf-narrow .select-bar { margin-top: 2rem; }
     .pf-narrow.is-scrolly .pf-story { gap: 1.25rem; }
 }
-.pf-sticky {
-    grid-column: 2; grid-row: 1; align-self: start;
-    position: sticky; top: var(--pf-top, 9rem); height: calc(100vh - var(--pf-top, 9rem));
-    display: flex; flex-direction: column; justify-content: center; padding-bottom: 1rem;
-}
-.pf-frame { position: relative; width: 100%; margin-inline: auto; max-width: calc((100vh - var(--pf-top, 9rem) - 8.5rem) * 1.852); }
+.pf-sticky { grid-column: 2; grid-row: 1; align-self: start; display: flex; flex-direction: column; justify-content: center; }
+.pf-frame { position: relative; width: 100%; margin-inline: auto; }
 .pf-stage {
     position: relative; width: 100%; aspect-ratio: 1000 / 540; overflow: hidden;
     border-radius: 1rem; border: 1px solid rgba(var(--color-line-rgb), 0.14);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
-}
-/* after a few seconds at rest without scrolling: the story goes on */
-.pf-hint {
-    position: absolute; left: 1rem; bottom: 1rem; transform: translateY(6px);
-    display: flex; align-items: center; gap: 0.5rem; margin: 0; max-width: none; white-space: nowrap;
-    padding: 0.45rem 1.1rem; border-radius: 999px; font-size: 0.875rem; color: var(--color-text-light);
-    background: rgba(var(--color-bg-dark-rgb), 0.94); border: 1px solid rgba(var(--color-accent-primary-rgb), 0.35);
-    opacity: 0; visibility: hidden; transition: opacity 400ms ease, transform 400ms ease, visibility 0s linear 400ms;
-}
-.pf-hint.is-shown { opacity: 1; visibility: visible; transform: none; transition: opacity 400ms ease, transform 400ms ease; }
-.pf-hint svg { color: var(--color-accent-primary); animation: pf-nudge 1.6s ease-in-out infinite; }
-@keyframes pf-nudge { 50% { transform: translateY(3px); } }
-.pf-hint-or { color: rgba(var(--color-text-light-rgb), 0.6); }
-.pf-hint button {
-    font: inherit; color: var(--color-accent-primary); background: none; border: 0; padding: 0; cursor: pointer;
-    text-decoration: underline; text-underline-offset: 3px;
 }
 .pf-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .pf-narration { width: 100%; max-width: 62ch; min-height: 4.4em; margin: 1rem auto 0; }
@@ -594,8 +532,6 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;
     margin: 0.75rem auto 0; font-size: 0.8125rem; color: rgba(var(--color-text-light-rgb), 0.55);
 }
-.pf-controls a { color: inherit; }
-.pf-controls a[aria-current] { color: var(--color-accent-primary); text-decoration: none; }
 .pf-btn {
     font: inherit; color: var(--color-text-medium); background: none; cursor: pointer;
     border: 1px solid rgba(var(--color-line-rgb), 0.35); border-radius: 999px; padding: 0.2rem 0.9rem;
@@ -603,8 +539,6 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .pf-btn + .pf-btn { margin-left: 0.5rem; }
 .pf-btn:hover { color: var(--color-text-light); border-color: var(--color-accent-primary); }
 .pf-walk { color: var(--color-text-light); border-color: rgba(var(--color-accent-primary-rgb), 0.6); }
-.pf-walk[aria-pressed="true"] { color: var(--color-bg-deep); background: var(--color-accent-primary); border-color: var(--color-accent-primary); }
-.pf-scrub .pf-buttons { visibility: hidden; }
 
 /* team */
 .person-photo { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(var(--color-line-rgb), 0.3); }
@@ -673,5 +607,5 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     .cue svg, .nav-link::after, .btn, .site-header { transition: none; }
     .is-enhanced .row.is-active { animation: none; }
     .pf-narration.is-fresh { animation: none; }
-    .platform-select.is-enhanced.is-scrolly.pf-player [data-select-panel] { transition: none; }
+    .platform-select.is-enhanced.is-scrolly [data-select-panel] { transition: none; }
 }

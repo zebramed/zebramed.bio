@@ -1,8 +1,6 @@
 /*
- * The platform as one scrolling story (test branch).
- * On wide screens without reduced motion, the figure stays pinned while the three texts
- * (Run, Translate, Reason) scroll past as chapters, and the scroll position drives the figure.
- * Anywhere else this script does nothing and the three panes show as before.
+ * The platform as one story, played like a film while it is in view: the figure, a line for each step,
+ * and the chapters (Run, Translate, Reason) with previous/next. Without this script the three panes show as before.
  * 2D renderer ported from docs/preview/graph-backbone.html. Illustrative, fictional values.
  */
 (() => {
@@ -16,7 +14,7 @@ const story = group.querySelector('[data-pf-story]');
 const bar = group.querySelector('[data-select-bar]');
 const narr = group.querySelector('[data-pf-narration]');
 const nStep = group.querySelector('[data-pf-step]'), nText = group.querySelector('[data-pf-text]');
-const wideQ = window.matchMedia('(min-width: 1024px) and (min-height: 620px)');   // room for the scroll-driven tests
+const wideQ = window.matchMedia('(min-width: 1024px) and (min-height: 620px)');   // the text beside the figure; below, under it
 const layoutQ = window.matchMedia('(min-width: 720px)');                          // the wide figure; below, the portrait one
 const reduceQ = window.matchMedia('(prefers-reduced-motion: reduce)');
 const MEDIA = stage.dataset.media || '/assets/media/platform/';
@@ -119,14 +117,9 @@ const TARGETS = [
   TL.end = t;
 })();
 
-// chapters, in page order, and the steps inside each (scroll is shared out by step length)
-const CHAPTERS = [
-  { key: 'biofoundry',  bounds: [TL.inputs[0], TL.inputs[1], TL.inputs[2], TL.prop] },
-  { key: 'interactome', bounds: [TL.prop, ...TL.models, TL.predict] },
-  { key: 'xenoex',      bounds: [TL.predict, TL.validate, TL.discover, TL.end] },
-];
-// The story in steps: when each starts, where it comes to rest, its chapter, and what the page says.
-// In step mode each step plays from the previous rest to its own, at its own pace.
+// chapters, in page order
+const CHAPTERS = [{ key: 'biofoundry' }, { key: 'interactome' }, { key: 'xenoex' }];
+// The story in steps: when each starts (t), where it comes to rest, its chapter, and what the page says.
 const STEP_TEXT = {
   backbone:  ['Systemic graph', 'A multi-species knowledge graph of the body as one system: organs, and the functions and molecular signals that connect them.'],
   imaged:    ['Imaged', 'A living organism is imaged whole: organs, vessels and nerves seen together, in context.'],
@@ -153,68 +146,6 @@ const BEATS = [
 ].map(b => {
   const [label, text] = STEP_TEXT[b.id];
   return Object.assign(b, { label, text, narr: b.ch ? `${CHAPTER_LABEL[b.ch]} \u00b7 ${label.toLowerCase()}` : label });
-});
-// common fields for the scroll to step through: when its line shows (start), where its playback
-// begins (from) and where it comes to rest (to)
-BEATS.forEach((b, i) => Object.assign(b, { start: b.t, from: i ? BEATS[i - 1].rest : 0, to: b.rest }));
-
-// The story as states (state mode, the newsroom pattern): each a stable picture the reader can stay on.
-// Reaching one plays a short intro (from -> to), then it rests there with the clips, link dots and
-// heatmap still moving; moving on is a short transition. Each modality has two: shown large, then connected.
-const STATE_TEXT = {
-  sequenced:   ['Sequenced', 'Its gene activity is read out and clustered.'],
-  imagedOn:    ['Imaged, connected', 'What is seen connects to the graph, at the organs where it was seen.'],
-  trackedOn:   ['Tracked, connected', 'Behaviour connects to the functions and organs it reflects.'],
-  sequencedOn: ['Sequenced, connected', 'The clusters connect to the molecular signals of the graph.'],
-  validate:    ['Validate', 'Where its confidence is under the agreed threshold, XenoEx designs a validation run and sends it to the biofoundry.'],
-  result:      ['Result', 'The run comes back above the threshold, and ZM-131 moves up the ranking.'],
-};
-// how long each modality's large card plays before it rests: the segmentation in, a swim bout, the clusters formed
-const INTRO = { imaged: 8200, tracked: 3800, sequenced: 4600 };
-const STATES = [
-  { id: 'backbone', ch: null, from: 0, to: TL.inputs[0] - 300 },
-  ...INPUTS.flatMap((inp, i) => {
-    const T = TL.inputs[i], st = inp.step;
-    return [{ id: inp.id, ch: 'biofoundry', from: T + st.appear, to: T + Math.min(INTRO[inp.id], st.dockAt - 200) },
-            { id: inp.id + 'On', ch: 'biofoundry', from: T + st.dockAt, to: T + st.end + 900 }];
-  }),
-  { id: 'spread', ch: 'interactome', from: TL.prop, to: TL.prop + PROPAGATE.wave + 200 },
-  ...MODELS.map((m, i) => ({ id: m.id, ch: 'interactome', from: TL.models[i] + m.step.appear, to: TL.models[i] + m.step.end + 300 })),
-  { id: 'predict', ch: 'xenoex', from: TL.predict, to: TL.validate - 300 },
-  { id: 'validate', ch: 'xenoex', from: TL.validate, to: TL.validate + VALIDATE.backAt },
-  { id: 'result', ch: 'xenoex', from: TL.validate + VALIDATE.backAt, to: TL.discover - 300 },
-  { id: 'discover', ch: 'xenoex', from: TL.discover, to: TL.end },
-].map(s => {
-  const [label, text] = STATE_TEXT[s.id] || STEP_TEXT[s.id];
-  return Object.assign(s, { start: s.from, label, text, narr: s.ch ? `${CHAPTER_LABEL[s.ch]} \u00b7 ${label.toLowerCase()}` : label });
-});
-
-// The story as reading (reading mode): short paragraphs in the text column, each sized so that reading it
-// takes about as long as its part of the animation (3 to 4 words a second). Each covers the timeline from
-// the previous one's end to its own. Draft copy, from the site's existing wording.
-const READ = [
-  [null, TL.inputs[0] - 300, 'Everything here sits on one map, the systemic graph: a multi-species knowledge graph of organs, the functions they carry out and the molecular signals between them, connected as they are in a living body.'],
-  ['biofoundry', TL.inputs[0] + 4800, 'The biofoundry starts from transparent zebrafish larvae. They share 82% of human disease-associated genes and have a working liver, heart, nervous system and blood-brain barrier. ZebraChip microfluidics hold each larva in place to be imaged whole.'],
-  ['biofoundry', TL.inputs[0] + INTRO.imaged, 'FishEye computer vision segments what the camera sees: the brain and spinal cord first, then each organ in view.'],
-  ['biofoundry', TL.inputs[0] + INPUTS[0].step.end + 900, 'Each measurement is placed on the graph at the organ where it was seen: here the brain, the gut and the heart.'],
-  ['biofoundry', TL.inputs[1] + INTRO.tracked, 'The same larvae are filmed swimming, one per well. Tracking reads how each one moves, rests and responds, frame by frame.'],
-  ['biofoundry', TL.inputs[1] + INPUTS[1].step.end + 900, 'Behaviour connects to the functions it reflects, such as activity, and to the organs behind them.'],
-  ['biofoundry', TL.inputs[2] + INTRO.sequenced, 'Their gene activity is read out by sequencing. Samples group by dose, and genes group into programmes that rise, fall or switch on together.'],
-  ['biofoundry', TL.inputs[2] + INPUTS[2].step.end + 900, 'Each programme is mapped to the molecular signals of the graph it belongs to.'],
-  ['interactome', TL.prop + PROPAGATE.wave + 200, 'The graph does not stop where a measurement lands. Orthology, shared ontologies and OECD adverse outcome pathways carry each observation on, step by mechanistic step, to its human counterpart and to the organs and functions it connects to.'],
-  ['interactome', TL.models[0] + MODELS[0].step.end + 300, 'A client\u2019s own models can join the same graph. Cell cultures plug in at the molecular signals they observe.'],
-  ['interactome', TL.models[1] + MODELS[1].step.end + 300, 'Organoids add detail at single organs, here the liver and the brain.'],
-  ['interactome', TL.models[2] + MODELS[2].step.end + 300, 'An organ-on-chip couples two organs, the gut and the liver. These models add resolution; the graph works without them.'],
-  ['xenoex', TL.predict + PREDICT.barsAt, 'XenoEx reasons over the graph in steps a scientist can read, audit and redirect. Asked to rank four candidates, it queries the graph organ by organ and collects what comes back.'],
-  ['xenoex', TL.validate - 300, 'It returns a human risk profile for each, across liver, heart, brain and kidney, and ranks them safest first.'],
-  ['xenoex', TL.validate + VALIDATE.reqAt, 'One prediction is uncertain: the heart risk of ZM-131 falls under the confidence threshold agreed with the client.'],
-  ['xenoex', TL.validate + VALIDATE.backAt, 'So XenoEx designs the run that would settle it and sends it to the biofoundry, to be tested on whole organisms.'],
-  ['xenoex', TL.discover - 300, 'The result comes back above the threshold. The heart risk is lower than feared, and ZM-131 moves up the ranking.'],
-  ['xenoex', TL.discover + DISCOVER.popAt, 'XenoEx can also be asked the other way round: not which candidate is safest, but what to target in a disease. It follows the disease\u2019s mechanisms through the graph.'],
-  ['xenoex', TL.end, 'Where those mechanisms meet, it proposes new targets, each scored by the evidence behind it.'],
-].map(([ch, to, text], i, all) => {
-  const from = i ? all[i - 1][1] : 0;
-  return { ch, from, to, start: from, text, label: ch ? CHAPTER_LABEL[ch] : 'Systemic graph', narr: ch ? CHAPTER_LABEL[ch] : 'Systemic graph' };
 });
 
 // ---------- layouts (viewBox units) ----------
@@ -510,7 +441,7 @@ function animateHeat(H, ms, live) {
     return;
   }
   H.state = 'live';
-  const sortU = prog(ms, 1700, 1700, E.inOut), breathe = prog(ms, 3600, 900), ts = (drive === 'scrub' ? ms : flowT) / 1000;
+  const sortU = prog(ms, 1700, 1700, E.inOut), breathe = prog(ms, 3600, 900), ts = flowT / 1000;
   H.rows.forEach(r => {
     r.g.setAttribute('transform', `translate(0,${(H.y0 + lerp(r.raw, r.final, sortU) * H.rh).toFixed(2)})`);
     r.rects.forEach((rect, c) => {
@@ -792,9 +723,7 @@ function buildGraphSVG() {
 
 // ---------- frames ----------
 let visible = false;
-let flowT = 0;   // phase of the dots on links: story time when scrubbing, wall time otherwise (so they move at rest)
-// motion stopped by the reader: Pause motion, or Pause in the player
-const stillNow = () => paused || (drive === 'player' && userPaused);
+let flowT = 0;   // phase of the dots on links and of the heatmap's breathing: wall time, so they move at rest
 function frameChrome(t) {
   S.fades.forEach(f => f.el.setAttribute('opacity', prog(t, f.t0, f.d)));
   let dim = 0;
@@ -812,20 +741,16 @@ function frameChrome(t) {
     if (r.video) {
       if (live) {
         const ct = clamp((t - r.T) / 1000, 0, (r.video.duration || 10) - .05);
-        const rate = drive === 'scrub' || stillNow() ? 0 : clipRate;
-        if (rate !== 0) {
-          // playing (rate > 0): the clip runs at the story's rate, drift corrected; resting (rate < 0): it just loops
-          const pr = rate > 0 ? rate : 1;
-          if (r.video.playbackRate !== pr) r.video.playbackRate = pr;
+        if (playing) {
+          // the clip runs with the story, drift corrected
           if (r.video.paused) r.video.play().catch(() => {});
-          if (rate > 0 && r.video.readyState >= 1 && Math.abs(r.video.currentTime - ct) > .3) r.video.currentTime = ct;
+          if (r.video.readyState >= 1 && Math.abs(r.video.currentTime - ct) > .3) r.video.currentTime = ct;
         } else {
-          // scrubbing, rewinding, resting or paused: the clip follows the story time
+          // paused, out of view or jumping: the clip follows the story time
           if (!r.video.paused) r.video.pause();
           if (r.video.readyState >= 1 && Math.abs(r.video.currentTime - ct) > .034) r.video.currentTime = ct;
         }
-      } else if (ua > 0 && r.video.paused && visible && !stillNow()) {
-        r.video.playbackRate = 1;
+      } else if (ua > 0 && r.video.paused && visible && !userPaused) {
         r.video.play().catch(() => {});
       }
       r.shown = ua > 0;
@@ -996,45 +921,39 @@ function camRect(t) {
   return { x: lerp(A.x, B.x, u), y: lerp(A.y, B.y, u), w: lerp(A.w, B.w, u), h: lerp(A.h, B.h, u) };
 }
 
-// ---------- what drives the clock ----------
-// 'player' (default, and always on narrow screens or with reduced motion): plays like a film when in view,
-// with chapters and previous/next. 'read', 'states', 'steps' and 'scrub' are the scroll-driven tests
-// (?drive=..., wide screens only).
-const DRIVE_PARAM = new URLSearchParams(window.location.search).get('drive');
-const DRIVE_PREF = ['read', 'states', 'steps', 'scrub'].includes(DRIVE_PARAM) ? DRIVE_PARAM : 'player';
-const stopsFor = d => (d === 'states' ? STATES : d === 'read' ? READ : BEATS);
-let drive = DRIVE_PREF, STOPS = stopsFor(drive);   // what the story steps through
+// ---------- the clock ----------
+// Plays like a film while most of the figure is on screen, with chapters and previous/next; the page scrolls normally.
 let reduced = reduceQ.matches;
-let clockSpeed = 0, clipRate = 0, paused = false, hold = false;
+let playing = false, hold = false;   // hold: a moment kept on screen for review (?pf-t)
+let clockT = 0, raf = 0, lastNow = 0, fade = null;
 
 let narrIdx = -1;
-// the step or state on screen at time t: the last one that has started
-function stopAt(t) { let i = 0; STOPS.forEach((b, k) => { if (t >= b.start) i = k; }); return i; }
+// the step on screen at time t: the last one that has started
+function stepAt(t) { let i = 0; BEATS.forEach((b, k) => { if (t >= b.t) i = k; }); return i; }
 function narrate(t) {
-  const i = stopAt(t);
+  const i = stepAt(t);
   if (i === narrIdx) return;
   narrIdx = i;
-  nStep.textContent = STOPS[i].narr;
-  nText.textContent = STOPS[i].text;
+  nStep.textContent = BEATS[i].narr;
+  nText.textContent = BEATS[i].text;
   narr.classList.remove('is-fresh'); void narr.offsetWidth; narr.classList.add('is-fresh');
 }
 
 let lastVB = '';
 function render(t) {
-  flowT = drive === 'scrub' ? t : performance.now();
+  flowT = performance.now();
   const vb = camRect(t), vbs = `${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}`;
   if (vbs !== lastVB) { LAYERS.forEach(n => layer[n].setAttribute('viewBox', vbs)); lastVB = vbs; }
   frameChrome(t); frameSVG(t); frameXeno(t); narrate(t);
 }
 
-// ---------- chapters (both modes) ----------
+// ---------- chapters ----------
 let on = false, activeIdx = -1;
 CHAPTERS.forEach(c => {
   c.el = group.querySelector(`[data-select-panel="${c.key}"]`);
   c.btn = group.querySelector(`[data-select="${c.key}"]`);
 });
 const docY = n => n.getBoundingClientRect().top + window.scrollY;
-const pinTop = () => parseFloat(group.style.getPropertyValue('--pf-top')) || 0;
 function setActiveChapter(active) {
   if (active === activeIdx) return;
   activeIdx = active;
@@ -1043,221 +962,48 @@ function setActiveChapter(active) {
     if (c.btn) { c.btn.classList.toggle('is-active', i === active); c.btn.setAttribute('aria-pressed', String(i === active)); }
   });
 }
-function layoutScroll() {
-  const header = document.getElementById('site-header');
-  group.style.setProperty('--pf-top', `${(header ? header.offsetHeight : 72) + bar.offsetHeight}px`);
-  if (drive === 'scrub') layoutScrub(); else if (drive === 'read') layoutRead(); else if (drive !== 'player') layoutSteps();
-}
-
-// ---------- scrub: the scroll position is the time ----------
-// Each chapter is as tall as its steps need: scroll per step grows with its length, compressed.
-const UNIT_VH = 24;
-const weight = (a, b) => Math.pow((b - a) / 1000, .8);
-let map = [], chapterY = [];
-function layoutScrub() {
-  const vh = window.innerHeight, top = pinTop();
-  const unit = vh * UNIT_VH / 100;
-  const ws = CHAPTERS.map(c => c.bounds.slice(1).map((b, k) => weight(c.bounds[k], b)));
-  const spans = ws.map(w => w.reduce((a, b) => a + b, 0) * unit);
-  // the last chapter also holds the final frame while its text scrolls away
-  CHAPTERS.forEach((c, i) => c.el.style.setProperty('--h', `${Math.round(spans[i] + (i === CHAPTERS.length - 1 ? vh - top : 0))}px`));
-  const s0 = docY(story);
-  map = [[s0 - vh * .5, s0 - top, 0, TL.inputs[0]]];   // the backbone builds as the figure comes up
-  chapterY = CHAPTERS.map((c, i) => {
-    const y0 = docY(c.el) - top, W = ws[i].reduce((a, b) => a + b, 0);
-    let y = y0;
-    ws[i].forEach((w, k) => { const dy = spans[i] * w / W; map.push([y, y + dy, c.bounds[k], c.bounds[k + 1]]); y += dy; });
-    return [y0, y];
-  });
-}
-function timeAt(y) {
-  if (y <= map[0][0]) return 0;
-  for (const [y0, y1, t0, t1] of map) if (y <= y1) return y < y0 ? t0 : lerp(t0, t1, (y - y0) / (y1 - y0));
-  return TL.end;
-}
-function yAt(t) {
-  for (const [y0, y1, t0, t1] of map) if (t <= t1) return lerp(y0, y1, clamp((t - t0) / (t1 - t0)));
-  return map[map.length - 1][1];
-}
-function chaptersScrub(y) {
-  let active = 0;
-  chapterY.forEach(([y0, y1], i) => {
-    if (CHAPTERS[i].btn) CHAPTERS[i].btn.style.setProperty('--p', clamp((y - y0) / (y1 - y0)).toFixed(3));
-    if (y >= y0 - 2) active = i;
-  });
-  setActiveChapter(active);
-}
-let tNow = 0, target = 0, following = false;
-function follow() {
-  const d = target - tNow;
-  tNow = Math.abs(d) < 4 ? target : tNow + d * .16;
-  render(tNow);
-  if (tNow !== target) requestAnimationFrame(follow); else following = false;
-}
-
-// ---------- steps and states: the scroll picks where the story goes, the story plays in time ----------
-// Each step or state is a stretch of scroll. What is shown (figure, step line, chapter text, bar) follows
-// the playback, so it always agrees; the scroll only says where the story should go.
-const stepIdx = c => STOPS.map((b, i) => [b, i]).filter(([b]) => b.ch === c.key || (c === CHAPTERS[0] && !b.ch)).map(([, i]) => i);
-let stepY = [], beatIdx = -1, clockT = 0, raf = 0, lastNow = 0, walking = false;
-function layoutSteps() {
-  const vh = window.innerHeight, top = pinTop();
-  // steps: about a screen each, more for longer ones; states: a little less, more for longer intros;
-  // then a stretch holding the end
-  const hs = STOPS.map(s => {
-    const sec = (s.to - s.from) / 1000;
-    return vh * (drive === 'states' ? clamp(.5 + .03 * sec, .5, .85) : Math.min(1.05, .55 + .035 * sec));
-  });
-  story.style.setProperty('--story-h', `${Math.round(hs.reduce((a, h) => a + h, 0) + vh * .8 + vh - top)}px`);
-  let y = docY(story) - top - vh * .2;   // the backbone starts just before the figure is pinned
-  stepY = hs.map(h => { const s = [y, y + h]; y += h; return s; });
-  chapterY = CHAPTERS.map(c => { const ids = stepIdx(c); return [stepY[ids[0]][0], stepY[ids[ids.length - 1]][1]]; });
-}
-// chapter text and bar: the chapter that is playing is shown; the bar fills solid with what has played
-// and faintly with where the reader has scrolled to
-function chaptersSteps() {
-  const y = window.scrollY;
-  setActiveChapter(Math.max(0, CHAPTERS.findIndex(c => c.key === STOPS[stopAt(clockT)].ch)));
-  CHAPTERS.forEach((c, i) => {
+const stepIdx = c => BEATS.map((b, i) => [b, i]).filter(([b]) => b.ch === c.key || (c === CHAPTERS[0] && !b.ch)).map(([, i]) => i);
+// chapter text and bar: the chapter that is playing is shown, and its bar fills with what has played
+function markChapters() {
+  setActiveChapter(Math.max(0, CHAPTERS.findIndex(c => c.key === BEATS[stepAt(clockT)].ch)));
+  CHAPTERS.forEach(c => {
     if (!c.btn) return;
-    const ids = stepIdx(c), t0 = STOPS[ids[0]].from, t1 = STOPS[ids[ids.length - 1]].to;
+    const ids = stepIdx(c), t0 = ids[0] ? BEATS[ids[0] - 1].rest : 0, t1 = BEATS[ids[ids.length - 1]].rest;
     c.btn.style.setProperty('--p', clamp((clockT - t0) / (t1 - t0)).toFixed(3));
-    if (drive !== 'player') c.btn.style.setProperty('--s', clamp((y - chapterY[i][0]) / (chapterY[i][1] - chapterY[i][0])).toFixed(3));
   });
 }
-function beatAtScroll(y) {
-  let b = -1;
-  stepY.forEach(([s], i) => { if (y >= s) b = i; });
-  return b;
-}
-// steps: the step that is playing is the first whose resting point is still ahead
-function playingIdx(t) { let i = 0; while (i < BEATS.length - 1 && t > BEATS[i].rest) i++; return i; }
-// where the page should be while the walkthrough plays time t
-function yForClock(t) {
-  const i = stopAt(t), next = i + 1 < STOPS.length ? STOPS[i + 1].start : TL.end;
-  const u = clamp((t - STOPS[i].start) / Math.max(1, next - STOPS[i].start));
-  return stepY[i][0] + 2 + u * (stepY[i][1] - stepY[i][0] - 4);
-}
-const restOf = b => (b < 0 ? 0 : STOPS[b].to);
 
-// steps: play to the step's rest; steps scrolled past play faster (2x one behind, up to 4x); back rewinds
-function stepsClock(dt) {
-  const rest = restOf(beatIdx);
-  if (clockT < rest) {
-    const lag = beatIdx - playingIdx(clockT);
-    clockSpeed = lag <= 0 ? 1 : Math.min(4, lag + 1);
-    clockT = Math.min(rest, clockT + dt * clockSpeed);
-  } else if (clockT > rest) {
-    if (clockT - rest > 6000) clockT = rest + 1500;
-    clockSpeed = -6;
-    clockT = Math.max(rest, clockT + dt * clockSpeed);
-  } else clockSpeed = 0;
-  clipRate = clockSpeed > 0 ? clockSpeed : 0;
-}
-
-// states: 'intro' plays the state in time, 'rest' holds it (things keep looping), 'finish' completes an
-// intro quickly when the reader has moved on, 'tween' is the short transition to the state they are at
-let sMode = 'rest', ci = -1, tw = null;
-function tweenTo(i, now) {
-  const forward = i > ci;
-  const to = i < 0 ? 0 : forward ? STOPS[i].from : STOPS[i].to;
-  const gap = Math.abs(to - clockT);
-  const D = gap <= 1500 ? gap : Math.min(2200, 1500 + Math.sqrt(gap - 1500) * 6);   // never much over 2 s
-  tw = { i, from: clockT, to, start: now, D: Math.max(1, D), forward };
-  sMode = 'tween';
-}
-function statesClock(now, dt) {
-  const want = beatIdx;
-  if (sMode === 'tween') { if (tw.i !== want) tweenTo(want, now); }
-  else if (want !== ci) {
-    if (want > ci && ci >= 0 && (sMode === 'intro' || sMode === 'finish')) sMode = 'finish';
-    else tweenTo(want, now);
-  } else if (sMode === 'finish') sMode = 'intro';
-  if (sMode === 'finish') {
-    clockT = Math.min(STOPS[ci].to, clockT + dt * 4); clockSpeed = clipRate = 4;
-    if (clockT >= STOPS[ci].to) tweenTo(want, now);
-  }
-  if (sMode === 'tween') {
-    const u = clamp((now - tw.start) / tw.D);
-    clockT = lerp(tw.from, tw.to, E.inOut(u)); clockSpeed = 2; clipRate = 0;
-    if (u >= 1) { ci = tw.i; sMode = tw.forward && ci >= 0 ? 'intro' : 'rest'; }
-  } else if (sMode === 'intro') {
-    clockT = Math.min(STOPS[ci].to, clockT + dt); clockSpeed = clipRate = 1;
-    if (clockT >= STOPS[ci].to) sMode = 'rest';
-  }
-  if (sMode === 'rest') { clockSpeed = 0; clipRate = -1; }
-}
-
-// ---------- reading: the text scrolls; each paragraph plays its part when it reaches the reading line ----------
-// Read at a normal pace, the text keeps up with the animation by itself. If the reader moves on while a part
-// is still playing, the rest of it plays a little faster (1.5x); a jump further, or back, is a quick fade
-// straight to where the reader is. Nothing is fast-forwarded.
-const LINE = .55;
-let readEls = [], readCur = -1, fade = null;
-function makeReadSteps() {
-  if (readEls.length) return;
-  const rows = story.querySelector('.rows');
-  readEls = READ.map(s => {
-    const d = document.createElement('div');
-    d.className = 'pf-read-step';
-    const p = document.createElement('p'); p.textContent = s.text; d.appendChild(p);
-    if (s.ch) CHAPTERS.find(c => c.key === s.ch).el.appendChild(d); else rows.insertBefore(d, rows.firstChild);
-    return d;
-  });
-}
-function layoutRead() {
-  const line = window.innerHeight * LINE, tops = readEls.map(e => docY(e) - line);
-  stepY = tops.map((y, i) => [y, i + 1 < tops.length ? tops[i + 1] : y + window.innerHeight * .5]);
-  chapterY = CHAPTERS.map(c => { const ids = stepIdx(c); return [stepY[ids[0]][0], stepY[ids[ids.length - 1]][1]]; });
-}
-function markRead(i) {
-  if (i === readCur) return;
-  readCur = i;
-  readEls.forEach((e, k) => e.classList.toggle('is-current', k === i));
-}
-// a quick fade through the background to another moment (jumps, previous/next, chapters); a cut with reduced motion
+// a quick fade through the background to another moment (previous/next, chapters); a cut with reduced motion
 function cutTo(t, i, now) {
-  if (reduced) { clockT = t; ci = i; return; }
+  if (reduced) { clockT = t; return; }
   fade = { t, i, start: now, out: true };
 }
 function stepFade(now) {
   const u = clamp((now - fade.start) / 160);
-  clockSpeed = clipRate = 0;
+  playing = false;
   if (fade.out) {
     stage.style.opacity = (1 - u).toFixed(3);
-    if (u >= 1) { clockT = fade.t; ci = fade.i; fade.out = false; fade.start = now; }
+    if (u >= 1) { clockT = fade.t; fade.out = false; fade.start = now; }
   } else {
     stage.style.opacity = u.toFixed(3);
     if (u >= 1) { stage.style.opacity = ''; fade = null; }
   }
 }
-function readClock(now, dt) {
-  const want = beatIdx;
-  if (want < 0) { if (ci >= 0) cutTo(0, -1, now); clockSpeed = clipRate = 0; return; }   // above the story
-  if (ci < 0) { if (want === 0) ci = 0; else { cutTo(STOPS[want].from, want, now); return; } }
-  if (want === ci || (want === ci + 1 && clockT < STOPS[ci].to)) {
-    // play this part at its pace; if the reader is already on the next one, a little faster
-    const speed = want === ci ? 1 : 1.5;
-    if (clockT < STOPS[ci].to) { clockT = Math.min(STOPS[ci].to, clockT + dt * speed); clockSpeed = clipRate = speed; }
-    else { clockSpeed = 0; clipRate = -1; }
-  } else if (want === ci + 1) ci = want;   // this part is done: the next one starts from here
-  else cutTo(want < 0 ? 0 : want > ci ? STOPS[want].from : STOPS[want].to, want, now);
-}
 
-// ---------- player: plays like a film when in view; the page scrolls normally ----------
+// ---------- player ----------
 let userPaused = false, ended = false, inView = false;
 const playBtn = group.querySelector('[data-pf-play]');
 function updatePlay() { playBtn.textContent = ended ? 'Replay' : userPaused ? 'Play' : 'Pause'; }
 function playerClock(dt) {
-  if (inView && !userPaused && !ended) {
-    clockT = Math.min(TL.end, clockT + dt); clockSpeed = clipRate = 1;
-    if (clockT >= TL.end) { ended = true; updatePlay(); }
-  } else { clockSpeed = 0; clipRate = 0; }
+  playing = inView && !userPaused && !ended;
+  if (!playing) return;
+  clockT = Math.min(TL.end, clockT + dt);
+  if (clockT >= TL.end) { ended = true; updatePlay(); }
 }
 function playerJump(i) {
   ended = false; updatePlay();
   // paused with reduced motion: show the step finished; otherwise play it from its start
-  cutTo(reduced && userPaused ? STOPS[i].to : STOPS[i].start, i, performance.now());
+  cutTo(reduced && userPaused ? BEATS[i].rest : BEATS[i].t, i, performance.now());
   startTick();
 }
 playBtn.addEventListener('click', () => {
@@ -1265,142 +1011,36 @@ playBtn.addEventListener('click', () => {
   userPaused = !userPaused; updatePlay(); startTick();
 });
 // the step on screen, or the one a fade is already heading to (so quick repeated clicks keep stepping)
-const stepNow = () => (fade ? fade.i : stopAt(clockT));
+const stepNow = () => (fade ? fade.i : stepAt(clockT));
 group.querySelector('[data-pf-prev]').addEventListener('click', () => {
   const i = stepNow(), still = reduced && userPaused;
-  playerJump(!still && !fade && (clockT - STOPS[i].start > 1500 || i === 0) ? i : Math.max(0, i - 1));   // to this step's start, or the one before
+  playerJump(!still && !fade && (clockT - BEATS[i].t > 1500 || i === 0) ? i : Math.max(0, i - 1));   // to this step's start, or the one before
 });
-group.querySelector('[data-pf-next]').addEventListener('click', () => playerJump(Math.min(STOPS.length - 1, stepNow() + 1)));
+group.querySelector('[data-pf-next]').addEventListener('click', () => playerJump(Math.min(BEATS.length - 1, stepNow() + 1)));
 // plays while most of the figure is on screen
 new IntersectionObserver(entries => { inView = entries[0].intersectionRatio >= .6; startTick(); }, { threshold: [0, .6, 1] }).observe(stage);
 
 function tick(now) {
   raf = 0;
-  if (!on || drive === 'scrub' || !visible) return;
+  if (!on || !visible) return;
   const dt = Math.min(64, now - lastNow); lastNow = now;
   if (fade) stepFade(now);
-  else if (hold) { /* held for review */ }
-  else if (drive === 'player') playerClock(dt);
-  else if (walking) {
-    clockSpeed = clipRate = 1;
-    clockT = Math.min(TL.end, clockT + dt);
-    window.scrollTo({ top: yForClock(clockT), behavior: 'instant' });
-    if (clockT >= TL.end) setWalking(false);
-  } else if (paused) { clockT = restOf(beatIdx); clockSpeed = clipRate = 0; ci = beatIdx; sMode = 'rest'; }
-  else if (drive === 'states') statesClock(now, dt);
-  else if (drive === 'read') readClock(now, dt);
-  else stepsClock(dt);
+  else if (!hold) playerClock(dt);
   render(clockT);
-  chaptersSteps();
-  // resting a while with more to come: remind the reader the story goes on
-  const settled = drive === 'states' ? sMode === 'rest' && ci === beatIdx
-    : drive === 'read' ? !fade && ci === beatIdx && clockT >= restOf(ci) : clockSpeed === 0;
-  const resting = drive !== 'player' && settled && !walking && !paused && !hold && beatIdx >= 0 && beatIdx < STOPS.length - 1;
-  if (!resting) atRestSince = 0; else if (!atRestSince) atRestSince = now;
-  showHint(resting && now - Math.max(atRestSince, lastScrollAt) > HINT_AFTER);
+  markChapters();
   raf = requestAnimationFrame(tick);
 }
 function startTick() {
-  if (raf || !on || drive === 'scrub' || !visible) return;
+  if (raf || !on || !visible) return;
   lastNow = performance.now();
   raf = requestAnimationFrame(tick);
 }
 
-// the hint: shown after HINT_AFTER ms at rest without scrolling, gone as soon as the reader scrolls
-const HINT_AFTER = 4000;
-const hint = group.querySelector('[data-pf-hint]');
-let lastScrollAt = 0, atRestSince = 0, hintOn = false;
-function showHint(s) {
-  if (s === hintOn) return;
-  hintOn = s;
-  hint.classList.toggle('is-shown', s);
-}
-
-// motion that plays by itself needs a way to stop it
-const pauseBtn = group.querySelector('[data-pf-pause]');
-function setPaused(p) {
-  paused = p;
-  if (p) setWalking(false);
-  pauseBtn.setAttribute('aria-pressed', String(p));
-  pauseBtn.textContent = p ? 'Resume motion' : 'Pause motion';
-  if (p && S) S.insets.forEach(r => r.video && r.video.pause());
-}
-pauseBtn.addEventListener('click', () => setPaused(!paused));
-
-// the walkthrough: the story plays at its own pace and the page follows; any scroll by the reader stops it.
-// The button plays it from the start, the hint from where the reader is.
-const walkBtn = group.querySelector('[data-pf-walk]');
-function setWalking(w, fromStart = true) {
-  if (w === walking) return;
-  walking = w;
-  walkBtn.setAttribute('aria-pressed', String(w));
-  walkBtn.textContent = w ? 'Stop the walkthrough' : 'Play the walkthrough';
-  if (w) {
-    if (paused) setPaused(false);
-    hold = false;
-    if (fromStart || beatIdx < 0) clockT = 0;
-    showHint(false);
-    window.scrollTo({ top: yForClock(clockT), behavior: 'instant' });
-    startTick();
-  } else if (drive === 'states' || drive === 'read') {
-    // carry on from where the walkthrough stopped
-    ci = stopAt(clockT);
-    sMode = clockT < STOPS[ci].to ? 'intro' : 'rest';
-  }
-}
-walkBtn.addEventListener('click', () => setWalking(!walking));
-group.querySelector('[data-pf-hint-play]').addEventListener('click', () => setWalking(true, false));
-const SCROLL_KEYS = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '];
-['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(type => window.addEventListener(type, e => {
-  if (!walking || walkBtn.contains(e.target)) return;
-  if (type === 'keydown' && !SCROLL_KEYS.includes(e.key)) return;
-  setWalking(false);
-}, { passive: true }));
-group.querySelectorAll('[data-pf-drive] a').forEach(a => {
-  if (a.dataset.drive === drive) a.setAttribute('aria-current', 'true');
-});
-
-// ---------- both ----------
-function onScroll() {
-  if (!on || drive === 'player') return;
-  if (drive === 'scrub') {
-    chaptersScrub(window.scrollY);
-    target = timeAt(window.scrollY);
-    if (!following) { following = true; requestAnimationFrame(follow); }
-  } else {
-    beatIdx = beatAtScroll(window.scrollY);
-    if (drive === 'read') markRead(beatIdx);
-    if (!walking) { lastScrollAt = performance.now(); showHint(false); }
-    startTick();
-  }
-}
-window.addEventListener('scroll', onScroll, { passive: true });
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => { if (on) { layoutScroll(); onScroll(); } }, 150);
-});
-
-// the Run / Translate / Reason buttons jump to their chapter (in steps, the chapter then plays from its start)
-CHAPTERS.forEach((c, i) => c.btn && c.btn.addEventListener('click', () => {
+// the Run / Translate / Reason buttons play their chapter from its start
+CHAPTERS.forEach(c => c.btn && c.btn.addEventListener('click', () => {
   if (!on) return;
-  setWalking(false);
-  if (drive === 'scrub') { window.scrollTo({ top: chapterY[i][0] + 2, behavior: 'smooth' }); return; }
-  const first = stepIdx(c)[0];
   hold = false;
-  if (drive === 'player') { playerJump(first); return; }
-  if (drive === 'read') {
-    window.scrollTo({ top: stepY[first][0] + 2, behavior: 'instant' });
-    beatIdx = first; markRead(first);
-    cutTo(STOPS[first].from, first, performance.now());
-    startTick();
-    return;
-  }
-  clockT = STOPS[first].from;
-  ci = first; sMode = 'intro';
-  window.scrollTo({ top: stepY[first][0] + 2, behavior: 'instant' });
-  beatIdx = first;
-  startTick();
+  playerJump(stepIdx(c)[0]);
 }));
 
 // clips play only while the story is on screen (browsers may also pause muted video; restart it)
@@ -1410,7 +1050,7 @@ new IntersectionObserver(entries => {
   if (visible) startTick();
 }).observe(story);
 setInterval(() => {
-  if (!on || !S || !visible || stillNow()) return;
+  if (!on || !S || !visible || userPaused) return;
   S.insets.forEach(r => { if (r.video && r.shown && r.video.paused && !r.presenting) r.video.play().catch(() => {}); });
 }, 700);
 
@@ -1418,101 +1058,50 @@ function setOn(want) {
   if (want === on) return;
   on = want;
   group.classList.toggle('is-scrolly', on);
-  group.classList.toggle('pf-steps', on && (drive === 'steps' || drive === 'states'));
-  group.classList.toggle('pf-read', on && drive === 'read');
-  group.classList.toggle('pf-player', on && drive === 'player');
-  group.classList.toggle('pf-scrub', on && drive === 'scrub');
   group.classList.toggle('pf-narrow', on && !wideQ.matches);
   group.classList.toggle('pf-compact', on && vertical());
   sticky.hidden = !on;
   if (on) {
     if (!S) build();
-    if (drive === 'read') makeReadSteps();
     activeIdx = -1;
-    layoutScroll();
-    if (drive === 'scrub') {
-      tNow = target = timeAt(window.scrollY);
-      chaptersScrub(window.scrollY);
-      render(tNow);
-    } else if (drive === 'player') {
-      // with reduced motion it waits for Play, showing the first step finished
-      userPaused = reduced; ended = false; ci = 0;
-      clockT = reduced ? STOPS[0].to : 0;
-      updatePlay();
-      render(clockT);
-      chaptersSteps();
-      startTick();
-    } else {
-      // arriving mid-page (reload, link): show where that step rests, no catching up
-      beatIdx = beatAtScroll(window.scrollY);
-      clockT = restOf(beatIdx);
-      ci = beatIdx; sMode = 'rest';
-      if (drive === 'read') markRead(beatIdx);
-      render(clockT);
-      chaptersSteps();
-      startTick();
-    }
+    // with reduced motion it waits for Play, showing the first step finished
+    userPaused = reduced; ended = false;
+    clockT = reduced ? BEATS[0].rest : 0;
+    updatePlay();
+    render(clockT);
+    markChapters();
+    startTick();
   } else {
-    setWalking(false);
     stage.style.opacity = '';
-    story.style.removeProperty('--story-h');
-    CHAPTERS.forEach(c => { c.el.style.removeProperty('--h'); if (c.btn) { c.btn.style.removeProperty('--p'); c.btn.style.removeProperty('--s'); } });
+    CHAPTERS.forEach(c => c.btn && c.btn.style.removeProperty('--p'));
     if (S) S.insets.forEach(r => r.video && r.video.pause());
   }
 }
-// The player everywhere it can't be a wide scroll test (narrow windows, reduced motion); the figure's layout
-// follows the window. Switching keeps the player's place.
+// The figure's layout follows the window; a change keeps the place in the story.
 function evaluate() {
-  const d = wideQ.matches && !reduceQ.matches ? DRIVE_PREF : 'player';
   const kind = layoutQ.matches ? 'wide' : 'compact';
-  if (on && d === drive && kind === L.kind && reduced === reduceQ.matches &&
+  if (on && kind === L.kind && reduced === reduceQ.matches &&
       group.classList.contains('pf-narrow') === !wideQ.matches) return;
-  const keepT = on && d === 'player' && drive === 'player' ? clockT : null;
+  const keepT = on ? clockT : null;
   setOn(false);
-  drive = d; STOPS = stopsFor(d); reduced = reduceQ.matches;
+  reduced = reduceQ.matches;
   if (kind !== L.kind) { L = LAYOUTS[kind]; S = null; }
   setOn(true);
-  if (keepT !== null) { clockT = keepT; render(clockT); chaptersSteps(); }
+  if (keepT !== null) { clockT = keepT; render(clockT); markChapters(); }
 }
 [wideQ, layoutQ, reduceQ].forEach(q => q.addEventListener('change', evaluate));
-// content above the story (images, fonts) can move it: measure again when the page changes height
-let lastDocH = 0;
-new ResizeObserver(() => {
-  const h = document.documentElement.scrollHeight;
-  if (!on || h === lastDocH) return;
-  lastDocH = h;
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => { layoutScroll(); onScroll(); }, 100);
-}).observe(document.body);
 
 // after main.js has set up the bar (its DOMContentLoaded listener runs first) and the fonts are in
 const domReady = document.readyState === 'loading'
   ? new Promise(r => document.addEventListener('DOMContentLoaded', r, { once: true })) : Promise.resolve();
 Promise.all([domReady, document.fonts.ready]).then(() => {
   evaluate();
-  const params = new URLSearchParams(window.location.search);
-  // ?pf-debug: where each step or state starts on the page, and what the clock is doing (for tests)
-  if (params.has('pf-debug')) window.pfDebug = () => ({ starts: stepY.map(s => Math.round(s[0])), mode: sMode, ci, t: Math.round(clockT) });
-  // ?walkthrough (e.g. in a link sent to someone) starts the walkthrough as soon as the page is ready
-  if (on && drive !== 'scrub' && drive !== 'player' && params.has('walkthrough') && !params.has('pf-t')) { setWalking(true); return; }
   // ?pf-t=<ms> opens the page at that moment of the story and holds it there (for review)
-  const at = params.get('pf-t');
-  if (!on || at === null) return;
-  const t = +at;
-  if (drive === 'scrub') {
-    window.scrollTo({ top: yAt(t), behavior: 'instant' });
-    tNow = target = t;
-    chaptersScrub(window.scrollY);
-  } else if (drive === 'player') {
-    window.scrollTo({ top: docY(story) - pinTop() - 16, behavior: 'instant' });
-    hold = true; clockT = t; chaptersSteps();
-  } else {
-    const k = stopAt(t);
-    window.scrollTo({ top: stepY[k][0] + 4, behavior: 'instant' });
-    hold = true; clockT = t;
-    beatIdx = ci = k; chaptersSteps();
-    if (drive === 'read') markRead(k);
-  }
-  render(t);
+  const at = new URLSearchParams(window.location.search).get('pf-t');
+  if (at === null) return;
+  const header = document.getElementById('site-header');
+  window.scrollTo({ top: docY(story) - (header ? header.offsetHeight : 72) - bar.offsetHeight - 16, behavior: 'instant' });
+  hold = true; clockT = +at;
+  render(clockT); markChapters();
 });
 })();
