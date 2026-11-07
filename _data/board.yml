@@ -34,7 +34,6 @@ groups:
     members:
       - name: Stephen J. Haggarty
         photo: stephen-haggarty.png
-        title: Prof.
         role: Scientific board
         line: >-
           Associate professor of neurology at Harvard Medical School and MGH,
@@ -43,7 +42,6 @@ groups:
         linkedin: "https://www.linkedin.com/in/stephen-j-haggarty-0942a59/"
       - name: Vincenzo Di Donato
         photo: vincenzo-di-donato.png
-        title: Dr
         role: Scientific board
         line: >-
           Co-founder and executive director at Gene4All, former scientific
@@ -52,7 +50,6 @@ groups:
         linkedin: "https://www.linkedin.com/in/vincenzo-di-donato-10028935/"
       - name: Arthur Llau
         photo: arthur-llau.png
-        title: Dr
         role: Scientific board
         line: >-
           Chief scientist at Flowlity and professor of data science at Sorbonne

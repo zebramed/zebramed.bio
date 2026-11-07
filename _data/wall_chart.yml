@@ -34,9 +34,7 @@ series:
     style: live
     points: "0,100 0.66,90 0.82,20 1,12"
 caption: >-
-  Asset survival through the clinical phases, drawn as a schematic. AI-designed
-  candidates clear Phase I far more often than the historic average, then fail
-  Phase II as often as ever.
+  Asset survival from preclinical development to Phase II.
 source: >-
   After Jayatunga et al., Boston Consulting Group,
   <a href="https://doi.org/10.1016/j.drudis.2024.104009">Drug Discovery Today, 2024</a>.

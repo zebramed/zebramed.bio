@@ -2,15 +2,14 @@
 - text: >-
     The bottleneck is not the algorithms. It's a corpus that allows our AI models to learn
     causality, a corpus that needs to be intentionally generated, at scale, in human-relevant
-    systems. [...] AI is amazing at connecting the dots, but the dots of biology barely exist.
+    systems. [...] <b>AI is amazing at connecting the dots, but the dots of biology barely exist.</b>
   name: Daphne Koller
   role: CEO of insitro
   source: "“The Data Bottleneck in AI Drug Discovery”"
 - text: >-
-    Human biology is conversational, not transactional. Most public datasets look at isolated
-    tissue or single cellular responses, creating a massive life-science data problem. If your AI
-    cannot capture the systemic, conditional nature of how a whole organism reacts to a disease
-    pathway, the model is simply optimizing for bench tests that will dissolve during prospective
-    human trials.
+    Most public datasets look at isolated tissue or single cellular responses, creating a massive
+    life-science data problem. If your AI cannot capture the systemic, conditional nature of how a
+    whole organism reacts to a disease pathway, <b>the model is simply optimizing for bench tests that
+    will dissolve during prospective human trials.</b>
   name: Alex Zhavoronkov
   role: Co-CEO of Insilico Medicine
