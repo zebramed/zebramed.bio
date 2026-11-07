@@ -1,0 +1,41 @@
+# What we offer: one card per development stage, each ending in the decisions
+# it supports. The wording keeps to what the platform section already claims.
+title: What we offer
+lede: >-
+  Each engagement answers a decision a programme team takes before the clinic,
+  with whole-organism evidence and the reasoning behind it. The way in is a
+  six-week validation pilot.
+stages:
+  - stage: Discovery
+    title: Target identification and prioritisation
+    text: >-
+      XenoEx follows a disease through the systemic graph, from the organs it
+      affects to the molecular signals between them, and proposes targets, each
+      with the mechanistic path that supports it, so teams see which hypotheses
+      deserve chemistry before it is committed.
+    benefits:
+      - Novel targets, ranked
+      - A mechanistic path behind every target
+      - Chemistry committed to the strongest hypotheses
+  - stage: Lead optimisation
+    title: Systemic efficacy and toxicity profiling
+    text: >-
+      Candidates run on whole zebrafish larvae in the automated biofoundry.
+      XenoEx scores each one for systemic efficacy and multi-organ toxicity and
+      reads the result in human terms, so a series can be ranked on whole-body
+      evidence before the first rodent study.
+    benefits:
+      - Efficacy and multi-organ toxicity from one run
+      - Candidate ranking with an auditable rationale
+      - Liabilities flagged before the first mammalian cohort
+  - stage: Preclinical development
+    title: Asset re-evaluation and go/no-go
+    text: >-
+      Shelved and stalled assets get a second look against whole-organism data
+      and human pathobiology. Data from a client's own models, such as cell
+      lines, organoids or other species, joins the same graph, so earlier
+      results can be read in human terms ahead of IND.
+    benefits:
+      - A second look at shelved assets
+      - Existing data read in human terms
+      - Go/no-go evidence ahead of IND

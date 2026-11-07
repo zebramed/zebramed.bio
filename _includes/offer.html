@@ -1,0 +1,25 @@
+{% assign of = site.data.offer %}
+<section id="offer" class="section band offer">
+  <div class="wrap">
+    <header class="section-head">
+        <h2 class="title">{{ of.title }}</h2>
+        <p class="lede">{{ of.lede }}</p>
+    </header>
+
+    <div class="offers">
+        {% for s in of.stages %}
+        <article class="feature">
+            <p class="label">{{ s.stage }}</p>
+            <h3 class="h3">{{ s.title }}</h3>
+            <p>{{ s.text }}</p>
+            <div class="offer-benefits">
+                <p class="label">Benefits</p>
+                <ul>
+                    {% for b in s.benefits %}<li>{{ b }}</li>{% endfor %}
+                </ul>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+  </div>
+</section>

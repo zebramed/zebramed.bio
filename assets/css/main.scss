@@ -440,6 +440,16 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .duo { display: grid; gap: 1.5rem; margin-top: 4rem; }
 @media (min-width: 768px) { .duo { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
+/* offer: one card per development stage, benefits lined up at the foot */
+.offer { border-top: 1px solid rgba(var(--color-line-rgb), 0.12); }
+.offers { display: grid; gap: 1.5rem; margin-top: 4rem; }
+@media (min-width: 1024px) { .offers { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.offer-benefits { margin-top: auto; padding-top: 1.75rem; }
+.offer-benefits .label { color: var(--color-text-medium); }
+.offer-benefits ul { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; gap: 0.5rem; }
+.offer-benefits li { position: relative; padding-left: 1.25rem; font-size: 0.9375rem; color: var(--color-text-light); }
+.offer-benefits li::before { content: ''; position: absolute; left: 0; top: 0.75em; width: 0.5rem; height: 2px; background: var(--color-accent-secondary); }
+
 /* problem: causes as an editorial row */
 .cause { border-top: 1px solid rgba(var(--color-line-rgb), 0.22); padding-top: 1.5rem; }
 .cause p { margin-top: 0.75rem; font-size: 0.975rem; }
