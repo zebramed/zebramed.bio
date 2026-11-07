@@ -2,9 +2,10 @@
 # it supports. The wording keeps to what the platform section already claims.
 title: What we offer
 lede: >-
-  Each engagement answers a decision a programme team takes before the clinic,
-  with whole-organism evidence and the reasoning behind it. The way in is a
-  six-week validation pilot.
+  Each engagement answers a decision a programme team takes before the clinic.
+  We start from the client's existing data and our systemic graph, and run new
+  whole-organism experiments only where XenoEx is not yet confident. The way in
+  is a validation pilot.
 stages:
   - stage: Discovery
     title: Target identification and prioritisation
@@ -20,13 +21,14 @@ stages:
   - stage: Lead optimisation
     title: Systemic efficacy and toxicity profiling
     text: >-
-      Candidates run on whole zebrafish larvae in the automated biofoundry.
-      XenoEx scores each one for systemic efficacy and multi-organ toxicity and
-      reads the result in human terms, so a series can be ranked on whole-body
-      evidence before the first rodent study.
+      XenoEx scores each candidate for systemic efficacy and multi-organ
+      toxicity from the client's existing data and the systemic graph, and
+      reads the result in human terms. Candidates it cannot score with
+      confidence run on whole zebrafish larvae in the biofoundry, so the series
+      is ranked on whole-body evidence before the first rodent study.
     benefits:
-      - Efficacy and multi-organ toxicity from one run
       - Candidate ranking with an auditable rationale
+      - Wet-lab runs only where they change the answer
       - Liabilities flagged before the first mammalian cohort
   - stage: Preclinical development
     title: Asset re-evaluation and go/no-go
