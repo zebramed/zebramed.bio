@@ -36,17 +36,19 @@ hand. Every value drawn here is fictional.
             <circle class="hair" cx="212" cy="222" r="140"/>
             <circle class="pulse" cx="212" cy="222" r="140"/>
         </g>
-        <!-- The detour to the wet lab: out after Run, into the biofoundry box from the left to the larva,
-             back in before Structure. -->
-        <path class="lab-path" d="M333.2 292C318 318 296 380 338 400"/>
-        <path class="lab-path" d="M338 400C300 404 276 360 292.3 336.7"/>
-        <path class="ping ping-out" pathLength="1" d="M333.2 292C318 318 296 380 338 400"/>
-        <path class="ping ping-back" pathLength="1" d="M338 400C300 404 276 360 292.3 336.7"/>
-        <!-- The biofoundry: where the wet-lab loops run, counted as the pings arrive. -->
+        <!-- The detour to the wet lab, a second loop hanging off the ring: out after Run, down its
+             right side into the biofoundry box to the larva, back round its left side and in before
+             Structure. -->
+        <path class="lab-path" d="M333.2 292C348 316 352 368 341 391"/>
+        <path class="lab-path" d="M341 391C325 402 276 372 292.3 336.7"/>
+        <path class="ping ping-out" pathLength="1" d="M333.2 292C348 316 352 368 341 391"/>
+        <path class="ping ping-back" pathLength="1" d="M341 391C325 402 276 372 292.3 336.7"/>
+        <!-- The biofoundry: where the wet-lab loops run, counted as the pings arrive. Its heading
+             sits right so the loop can come in at the top left. -->
         <g class="lab-frame">
             <rect class="lab-box" x="318" y="342" width="158" height="134" rx="10"/>
-            <text class="lab-head" x="330" y="360">Biofoundry</text>
-            <text class="gloss" x="330" y="374">data generation</text>
+            <text class="lab-head" x="466" y="360" text-anchor="end">Biofoundry</text>
+            <text class="gloss" x="466" y="374" text-anchor="end">data generation</text>
             <text class="lab-count" x="466" y="458" text-anchor="end">loop <tspan class="lab-n">00</tspan></text>
         </g>
 
