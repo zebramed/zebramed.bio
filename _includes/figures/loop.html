@@ -36,15 +36,15 @@ hand. Every value drawn here is fictional.
             <circle class="hair" cx="212" cy="222" r="140"/>
             <circle class="pulse" cx="212" cy="222" r="140"/>
         </g>
-        <!-- The detour to the wet lab, a second loop hanging off the ring: out after Run, down its
-             right side into the biofoundry box to the larva, back round its left side and in before
-             Structure. -->
-        <path class="lab-path" d="M333.2 292C348 316 352 368 341 391"/>
-        <path class="lab-path" d="M341 391C325 402 276 372 292.3 336.7"/>
-        <path class="ping ping-out" pathLength="1" d="M333.2 292C348 316 352 368 341 391"/>
-        <path class="ping ping-back" pathLength="1" d="M341 391C325 402 276 372 292.3 336.7"/>
+        <!-- The detour to the wet lab: arcs of one circle (r 38.24, centre 329.96,330.09) that meets
+             the ring after Run and before Structure. The ping goes out to the biofoundry's top edge
+             and comes back from its left edge; the part of the circle inside the box is not drawn. -->
+        <path class="lab-path" d="M333.24 292A38.24 38.24 0 0 1 366.3 342"/>
+        <path class="lab-path" d="M318 366.41A38.24 38.24 0 0 1 292.3 336.68"/>
+        <path class="ping ping-out" pathLength="1" d="M333.24 292A38.24 38.24 0 0 1 366.3 342"/>
+        <path class="ping ping-back" pathLength="1" d="M318 366.41A38.24 38.24 0 0 1 292.3 336.68"/>
         <!-- The biofoundry: where the wet-lab loops run, counted as the pings arrive. Its heading
-             sits right so the loop can come in at the top left. -->
+             sits right, clear of where the detour meets the frame. -->
         <g class="lab-frame">
             <rect class="lab-box" x="318" y="342" width="158" height="134" rx="10"/>
             <text class="lab-head" x="466" y="360" text-anchor="end">Biofoundry</text>

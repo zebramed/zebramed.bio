@@ -254,17 +254,22 @@ p { max-width: 62ch; color: var(--color-text-medium); }
 .loop-ring .lab-path { fill: none; stroke: var(--color-line); stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 3 4; }
 .loop-ring .ping {
     fill: none; stroke: var(--color-flag); stroke-width: 3; stroke-linecap: round;
-    stroke-dasharray: 0.14 2; stroke-dashoffset: 0.14; opacity: 0;
+    stroke-dasharray: 0.14 2; stroke-dashoffset: 0.2; opacity: 0;
 }
 .loop-ring.is-playing .ping { opacity: 1; animation: 12s linear var(--ping-delay, 0s) infinite; }
 .loop-ring.is-playing .ping-out { animation-name: ping-out; }
 .loop-ring.is-playing .ping-back { animation-name: ping-back; }
-@keyframes ping-out { 0% { stroke-dashoffset: 0.14; } 16%, 100% { stroke-dashoffset: -1; } }
-@keyframes ping-back { 0%, 34% { stroke-dashoffset: 0.14; } 50%, 100% { stroke-dashoffset: -1; } }
+/* at rest the dash sits just off either end of its path, so its round cap leaves no dot */
+@keyframes ping-out { 0% { stroke-dashoffset: 0.2; } 16%, 100% { stroke-dashoffset: -1.06; } }
+@keyframes ping-back { 0%, 34% { stroke-dashoffset: 0.2; } 50%, 100% { stroke-dashoffset: -1.06; } }
 .loop-ring.is-playing .station-lab { animation: lab-visit 12s linear var(--ping-delay, 0s) infinite; }
 .loop-ring.is-playing .station-lab .name { animation: lab-name 12s linear var(--ping-delay, 0s) infinite; }
-@keyframes lab-visit { 0%, 13% { opacity: 0.5; } 17%, 33% { opacity: 1; } 38%, 100% { opacity: 0.5; } }
+@keyframes lab-visit { 0%, 13% { opacity: 0.8; } 17%, 33% { opacity: 1; } 38%, 100% { opacity: 0.8; } }
 @keyframes lab-name { 0%, 14% { fill: var(--color-text-light); } 17%, 33% { fill: var(--color-flag); } 36%, 100% { fill: var(--color-text-light); } }
+/* the larva is drawn lighter than other station drawings so it reads inside the box */
+.loop-ring .station-lab .hair   { stroke: var(--color-text-medium); stroke-opacity: 0.6; }
+.loop-ring .station-lab .hair-2 { stroke: var(--color-text-medium); stroke-opacity: 0.9; }
+.loop-ring .station-lab .hair-f { fill: var(--color-text-medium); fill-opacity: 0.9; }
 /* the biofoundry box around Measure: its frame turns amber while the ping is in, and counts the loops */
 .loop-ring .lab-box { fill: none; stroke: var(--color-line); stroke-opacity: 0.5; stroke-width: 1; }
 .loop-ring .lab-head { fill: var(--color-text-medium); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -397,7 +402,7 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 @media (min-width: 1024px) { .hero { padding-block: 5rem 7rem; } }
 .hero-grid { display: grid; gap: 3rem; align-items: center; }
 @media (min-width: 1024px) { .hero-grid { grid-template-columns: 7fr 6fr; gap: 2rem; } }
-.hero-copy .lede { margin-top: 2rem; }
+.hero-copy .lede { margin-top: 2rem; font-size: clamp(1.25rem, 1.7vw, 1.4375rem); line-height: 1.45; }
 .hero-copy .cue { margin-top: 2.5rem; }
 .hero-art { position: relative; }
 /* a halftone field behind the ring, thinning towards the edges */
