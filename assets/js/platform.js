@@ -386,7 +386,6 @@ function makeInset(def, T, grp) {
   const heat = art && art.rows ? art : null;
   const rec = { g, cap, present, dock, T, port, group: grp, step: def.step, heat, video: g.querySelector('video'), shown: false };
   if (def.kind === 'behaviour') rec.track = makeTrack(g, sl.w, s);
-  if (art && art.organs) rec.organs = art.organs;
   rec.pc = PRESENT[def.id] ? makePresentCaption(rec, PRESENT[def.id], sl, s)
     : grp === 'model' ? el('g', {}, g)
     : txt(g, sl.w / 2, sl.h + 20 / s, def.title, 't-label t-strong', { 'text-anchor': 'middle', style: `font-size:${15 / s}px` });
@@ -580,7 +579,7 @@ function animateHeat(H, ms, live) {
 function drawInset(g, kind, w, h, grp) {
   const tone = grp === 'model' ? COL.context : grp === 'human' ? COL.human : COL.line;
   el('rect', { x: 0, y: 0, width: w, height: h, rx: 4, fill: '#151b4a', stroke: tone, 'stroke-opacity': .55, 'stroke-width': 1 }, g);
-  if (kind === 'human') return { organs: drawHuman(g, w, h) };
+  if (kind === 'human') return drawHuman(g, w, h);
   const clip = CLIPS[kind];
   if (clip) {
     el('image', { href: clip.src + '.jpg', x: 0, y: 0, width: w, height: h, preserveAspectRatio: 'xMidYMid slice' }, g);
@@ -624,23 +623,38 @@ function drawInset(g, kind, w, h, grp) {
   return null;
 }
 
-// The human card: a stylised human figure, drawn solid so it reads when shown large, with the organs
-// where human toxicity shows (heart, liver, kidneys). Drawn in a 36-unit design space.
+// The human card: a plain front-view human outline, as on a body chart, drawn solid so it reads when
+// shown large. Drawn in a 36-unit design space, centred on 0.
+const HUMAN_OUTLINE = `M0 -15.6C0.4 -15.6 0.9 -15.5 1.2 -15.2C1.5 -15 1.5 -14.6 1.6 -14.2C1.7 -13.8 1.6 -13.3 1.5 -12.9C1.4 -12.6
+1.3 -12.2 1.1 -11.9C1 -11.7 0.8 -11.6 0.8 -11.4C0.7 -11.3 0.7 -11 0.8 -10.8C0.9 -10.6 1.4 -10.4 1.7 -10.3C2.1
+-10.1 2.6 -10.1 3 -9.9C3.3 -9.8 3.6 -9.7 3.8 -9.5C4 -9.3 4.1 -9 4.2 -8.6C4.3 -8.1 4.3 -7.5 4.4 -6.9C4.4 -6.3
+4.5 -5.7 4.5 -5.2C4.6 -4.8 4.7 -4.4 4.8 -4C4.8 -3.5 4.9 -2.9 5 -2.3C5.1 -1.7 5.1 -1 5.2 -0.5C5.2 -0.2 5.2 0.1
+5.2 0.3C5.3 0.6 5.4 0.9 5.5 1.2C5.5 1.6 5.6 2 5.5 2.3C5.4 2.6 5.3 2.9 5.2 3C5.1 3 4.9 3 4.8 2.9C4.6 2.7 4.6
+2.1 4.6 1.7C4.6 1.3 4.6 1 4.5 0.6C4.5 0 4.4 -0.6 4.3 -1.2C4.2 -1.8 4.1 -2.5 4 -3C3.9 -3.4 3.8 -3.8 3.8
+-4.2C3.6 -4.7 3.6 -5.4 3.5 -6C3.3 -6.5 3.2 -7.6 3.1 -7.5C3 -7.5 3 -7 2.9 -6.6C2.8 -6.1 2.8 -5.4 2.7 -4.8C2.6
+-4.2 2.5 -3.7 2.5 -3.1C2.4 -2.5 2.6 -1.8 2.7 -1.2C2.8 -0.6 3 0 3 0.6C3 1.2 3 1.7 3 2.3C2.9 2.9 2.8 3.6 2.7
+4.3C2.7 5 2.5 5.8 2.4 6.4C2.3 6.9 2.2 7.3 2.2 7.8C2.2 8.3 2.3 8.8 2.3 9.4C2.3 10.1 2.2 10.8 2.1 11.5C2 12.2
+1.7 13 1.7 13.6C1.7 14 1.9 14.3 1.9 14.6C2 14.8 2.2 15.1 2.2 15.2C2.2 15.4 2 15.5 1.9 15.6C1.6 15.7 1.2 15.7
+1 15.6C0.8 15.5 0.8 15.2 0.7 14.9C0.7 14.6 0.8 14.1 0.8 13.6C0.8 13 0.7 12.1 0.7 11.4C0.7 10.8 0.8 10.2 0.8
+9.6C0.7 9 0.6 8.4 0.6 7.8C0.5 7.1 0.5 6.3 0.4 5.6C0.4 4.9 0.4 4 0.3 3.4C0.2 3 0.1 2.2 0 2.2C-0.1 2.2 -0.2 3
+-0.3 3.4C-0.4 4 -0.4 4.9 -0.4 5.6C-0.5 6.3 -0.5 7.1 -0.6 7.8C-0.6 8.4 -0.7 9 -0.8 9.6C-0.8 10.2 -0.7 10.8
+-0.7 11.4C-0.7 12.1 -0.8 13 -0.8 13.6C-0.8 14.1 -0.7 14.6 -0.7 14.9C-0.8 15.2 -0.8 15.5 -1 15.6C-1.2 15.7
+-1.6 15.7 -1.9 15.6C-2 15.5 -2.2 15.4 -2.2 15.2C-2.2 15.1 -2 14.8 -1.9 14.6C-1.9 14.3 -1.7 14 -1.7 13.6C-1.7
+13 -2 12.2 -2.1 11.5C-2.2 10.8 -2.3 10.1 -2.3 9.4C-2.3 8.8 -2.2 8.3 -2.2 7.8C-2.2 7.3 -2.3 6.9 -2.4 6.4C-2.5
+5.8 -2.7 5 -2.7 4.3C-2.8 3.6 -2.9 2.9 -3 2.3C-3 1.7 -3 1.2 -3 0.6C-3 0 -2.8 -0.6 -2.7 -1.2C-2.6 -1.8 -2.4
+-2.5 -2.5 -3.1C-2.5 -3.7 -2.6 -4.2 -2.7 -4.8C-2.8 -5.4 -2.8 -6.1 -2.9 -6.6C-3 -7 -3 -7.5 -3.1 -7.5C-3.2 -7.6
+-3.3 -6.5 -3.5 -6C-3.6 -5.4 -3.6 -4.7 -3.8 -4.2C-3.8 -3.8 -3.9 -3.4 -4 -3C-4.1 -2.5 -4.2 -1.8 -4.3 -1.2C-4.4
+-0.6 -4.5 0 -4.5 0.6C-4.6 1 -4.6 1.3 -4.6 1.7C-4.6 2.1 -4.6 2.7 -4.8 2.9C-4.9 3 -5.1 3 -5.2 3C-5.3 2.9 -5.4
+2.6 -5.5 2.3C-5.6 2 -5.5 1.6 -5.5 1.2C-5.4 0.9 -5.3 0.6 -5.2 0.3C-5.2 0.1 -5.2 -0.2 -5.2 -0.5C-5.1 -1 -5.1
+-1.7 -5 -2.3C-4.9 -2.9 -4.8 -3.5 -4.8 -4C-4.7 -4.4 -4.6 -4.8 -4.5 -5.2C-4.5 -5.7 -4.4 -6.3 -4.4 -6.9C-4.3
+-7.5 -4.3 -8.1 -4.2 -8.6C-4.1 -9 -4 -9.3 -3.8 -9.5C-3.6 -9.7 -3.3 -9.8 -3 -9.9C-2.6 -10.1 -2.1 -10.1 -1.7
+-10.3C-1.4 -10.4 -0.9 -10.6 -0.8 -10.8C-0.7 -11 -0.7 -11.3 -0.8 -11.4C-0.8 -11.6 -1 -11.7 -1.1 -11.9C-1.3
+-12.2 -1.4 -12.6 -1.5 -12.9C-1.6 -13.3 -1.7 -13.8 -1.6 -14.2C-1.5 -14.6 -1.5 -15 -1.2 -15.2C-0.9 -15.5 -0.4
+-15.6 0 -15.6Z`;
 function drawHuman(g, w, h) {
   const z = Math.min(w, h) / 36, c = COL.human;
-  const fg = el('g', { transform: `translate(${w / 2},${h / 2 + .6 * z}) scale(${z})` }, g);
-  el('circle', { cx: 0, cy: -11.4, r: 3.3, fill: c, 'fill-opacity': .22, stroke: c, 'stroke-width': .55 }, fg);
-  el('path', { d: 'M-1.6 -7.2L1.6 -7.2C4.8 -7 6.2 -6 6.6 -3.6L7.6 3.2C7.7 4.2 6.4 4.4 6.2 3.4L5 -2.2L4.6 2.6L4.4 14C4.4 15.2 2.6 15.2 2.5 14L1.2 5L-1.2 5L-2.5 14C-2.6 15.2 -4.4 15.2 -4.4 14L-4.6 2.6L-5 -2.2L-6.2 3.4C-6.4 4.4 -7.7 4.2 -7.6 3.2L-6.6 -3.6C-6.2 -6 -4.8 -7 -1.6 -7.2Z',
-               fill: c, 'fill-opacity': .22, stroke: c, 'stroke-width': .55, 'stroke-linejoin': 'round' }, fg);
-  // seen from the front: the heart on the figure's left, the liver on its right, the kidneys low on both sides
-  return [
-    el('path', { d: 'M1.5 -1.9C.2 -2.9 -.2 -3.9 .5 -4.5C1 -4.9 1.4 -4.6 1.5 -4.2C1.6 -4.6 2 -4.9 2.5 -4.5C3.2 -3.9 2.8 -2.9 1.5 -1.9Z', fill: c }, fg),
-    el('ellipse', { cx: -1.7, cy: -.8, rx: 2.3, ry: 1.2, transform: 'rotate(-12 -1.7 -.8)', fill: c }, fg),
-    el('g', { fill: c }, fg),
-  ].map((o, i) => {
-    if (i === 2) { el('ellipse', { cx: -2.1, cy: 1.9, rx: .75, ry: 1.05 }, o); el('ellipse', { cx: 2.1, cy: 1.9, rx: .75, ry: 1.05 }, o); }
-    return o;
-  });
+  const fg = el('g', { transform: `translate(${w / 2},${h / 2}) scale(${z})` }, g);
+  el('path', { d: HUMAN_OUTLINE, fill: c, 'fill-opacity': .22, stroke: c, 'stroke-width': .5, 'stroke-linejoin': 'round' }, fg);
 }
 
 // ---------- XenoEx: the panel, its exchanges with the backbone, the run it sends, the targets it finds ----------
@@ -912,9 +926,6 @@ function frameChrome(t) {
     if (r.heat) animateHeat(r.heat, t - r.T, live);
     if (r.checks && live) frameChecks(r, t - r.T);
     if (r.track) frameTrack(r, t - r.T, live ? 1 - ud : 0);
-    // the human card's sources light up as their checks tick, and stay lit once docked
-    // the human figure's organs light up in turn while it is shown large, and stay lit once docked
-    if (r.organs) r.organs.forEach((o, i) => o.setAttribute('opacity', ud > 0 ? 1 : (.35 + .65 * prog(t - r.T, r.checks[i].at - 400, 500)).toFixed(3)));
     if (r.video) {
       if (live) {
         const ct = clamp((t - r.T) / 1000, 0, (r.video.duration || 10) - .05);
