@@ -32,9 +32,9 @@ const HOLD       = { imaged: 9000, tracked: 5200, sequenced: 5600, human: 4400 }
 // While each whole-organism (and the human) card is shown large: what is at work, what it does, and a
 // checklist that ticks as the card shows each read-out (ms after the card starts).
 const PRESENT = {
-  imaged:    { head: 'FishEye in action', sub: 'Extracting phenomics from the perturbed larva',
+  imaged:    { head: 'FishEye in action', sub: 'Our computer vision, extracting phenomics from the perturbed larva',
                checks: [['vessels', 3000], ['organs', 5600], ['morphology', 8000]] },
-  tracked:   { head: 'FishEye in action', sub: 'Tracking behaviour under perturbation',
+  tracked:   { head: 'FishEye in action', sub: 'Our computer vision, tracking behaviour under perturbation',
                checks: [['keypoints', 1000], ['swim path', 3600], ['speed', 4800]] },
   sequenced: { head: 'Whole-organism transcriptomics', sub: 'The gene programmes the perturbation changes',
                checks: [['reads', 1000], ['genes', 2600], ['programmes', 4000]] },
