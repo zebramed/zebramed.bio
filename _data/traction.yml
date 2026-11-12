@@ -8,20 +8,24 @@
 features:
   - kicker: Pharma
     lede: pharma partnerships
-    title: Under contract with a top-50 pharma company
+    title: Commercial contract and NAM collaboration
     text: >-
-      A paid contract with a top-50 pharma company, and a collaborative project
-      on New Approach Methodologies (NAMs) started with a second pharma company.
+      A paid contract with a top-50 pharma company (Servier), alongside an active
+      collaborative framework on New Approach Methodologies (NAMs) started with a
+      second international pharma company (Step4NAM).
     logos:
       - name: Servier
         file: servier_logo.svg
-      - name: Ipsen
-        file: ipsen_logo.svg
+      - name: Top-50 pharma company
+        file: top50_pharma_logo.svg
   - kicker: Research collaborations
     lede: research collaborations
-    title: Joint research with TEFOR (CNRS/CEA) and Sorbonne ISIR
+    title: Co-development with TEFOR (CNRS) and Sorbonne ISIR
     text: >-
-      Active collaborations on zebrafish resources and automation.
+      Strategic collaborations with the TEFOR infrastructure (CNRS, Université
+      Paris-Saclay) for biological models and laboratory hosting, and with the
+      Institute for Intelligent Systems and Robotics (ISIR, Sorbonne Université)
+      for robotic automation.
     logos:
       - name: TEFOR
         file: tefor_logo.png
@@ -31,9 +35,11 @@ features:
         file: isir_logo.png
   - kicker: Acceleration programmes
     lede: acceleration programmes
-    title: Selected by three leading acceleration programmes
+    title: Selected by premier life-science programmes
     text: >-
-      Creative Destruction Lab, HEC Paris Challenge+ and DayOne in Basel.
+      Highly selective incubation and acceleration across Basel, Paris, and
+      international hubs: DayOne Accelerator (Basel), HEC Paris Challenge+, and
+      Creative Destruction Lab (CDL Nurture).
     logos:
       - name: Creative Destruction Lab
         file: cdl_logo.svg
@@ -43,9 +49,11 @@ features:
         file: dayone_logo.svg
   - kicker: Awards and grants
     lede: awards and grants
-    title: Awards and grants received
+    title: National deeptech innovation awards
     text: >-
-      Recognition through various awards and non-dilutive grants supporting our research and development efforts.
+      Winner of the prestigious i-Lab national innovation prize, funded by the
+      French government (France 2030) and operated by Bpifrance, alongside
+      competitive support from Wilco and Genopole.
     logos:
       - name: Datacraft Awards
         file: datacraft_logo.jpg
@@ -55,8 +63,8 @@ features:
         file: logo_ilab.webp
 measures:
   - value: "2"
-    label: contracts and collaborations running
+    label: active pharma contracts and collaborations
   - value: "1 + 6"
     label: patent applications, one priority filed and six planned; freedom to operate cleared
-  - value: "4"
-    label: non-dilutive grants awarded
+  - value: "€700k+"
+    label: pre-seed capital and competitive non-dilutive deeptech grants
