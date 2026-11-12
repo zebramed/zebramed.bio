@@ -65,7 +65,7 @@ const ORGANS = [
 ];
 // molecular signals around each organ, by angle (deg, y down); the label sits below, so no 60–120
 const SIGNALS = { liver: [-140, -60, 15], brain: [-150, -40], heart: [-130, -20],
-                  kidney: [-30, 150], gut: [-150, 170], muscle: [-110, 170] };
+                  kidney: [-30, 160], gut: [-150, 170], muscle: [-110, 170] };
 const FUNCS = [
   { id: 'activity',   label: 'activity',   x: .10, y: .25, links: ['brain', 'muscle'] },
   { id: 'rate',       label: 'heart rate', x: .93, y: .34, links: ['heart'] },
@@ -209,6 +209,8 @@ const LAYOUTS = {
       cells: { x: 110, y: 510, w: 34, h: 34 }, organoids: { x: 205, y: 510, w: 34, h: 34 }, chip: { x: 290, y: 510, w: 34, h: 34 },
     },
     present: { cx: 200, cy: 270, maxW: 376, maxH: 260, maxS: 12 },
+    tlab: { T3: [0, 22, 'middle'] },   // target labels placed apart from the default (beside, above right)
+    moaTag: [-60, 6],                  // the mechanism tag left of the liver-heart line, clear of 'heart rate'
     out: { x: 8, y: 384, w: 384, h: 208 },
     xp: { title: 22, tabBar: 28, qY: 34, qH: 24, caretY: 40, qText: 51, status: 74, head: 92, rowTop: 98, pitch: 26, legend: false, tRow0: 116, tPitch: 30 },
   },
@@ -362,17 +364,20 @@ function build() {
 
 function buildChrome() {
   const g = layer.chrome;
-  // backbone title, on a pill so links can pass under it
+  // the names of organs and functions, over the links and the XenoEx traces, on a halo (frameSVG moves them with their nodes)
+  S.labelLayer = el('g', {}, g);
+  // backbone title, on a pill so links can pass under it; the pill fits the longer line
   const tg = el('g', {}, g);
-  const tw = 196;
-  el('rect', { x: L.bbTitle.x - tw / 2, y: L.bbTitle.y - 18, width: tw, height: 42, rx: 8, fill: COL.bg, 'fill-opacity': .82 }, tg);
-  txt(tg, L.bbTitle.x, L.bbTitle.y, 'Systemic atlas', 't-head', { 'text-anchor': 'middle', style: 'fill:#fff;fill-opacity:1' });
-  txt(tg, L.bbTitle.x, L.bbTitle.y + 18, 'a multi-species knowledge graph', 't-note', { 'text-anchor': 'middle' });
+  const pill = el('rect', { y: L.bbTitle.y - 16, height: 44, rx: 8, fill: COL.bg, 'fill-opacity': .82 }, tg);
+  const lines = [txt(tg, L.bbTitle.x, L.bbTitle.y, 'Systemic atlas', 't-head', { 'text-anchor': 'middle', style: 'fill:#fff;fill-opacity:1' }),
+                 txt(tg, L.bbTitle.x, L.bbTitle.y + 18, 'a multi-species knowledge graph', 't-note', { 'text-anchor': 'middle' })];
+  const tw = Math.max(...lines.map(n => n.getComputedTextLength())) + 28;
+  pill.setAttribute('x', L.bbTitle.x - tw / 2); pill.setAttribute('width', tw);
   S.fades.push({ el: tg, t0: 0, d: 500 });
 
-  const hw = txt(g, L.heads.whole.x, L.heads.whole.y, 'Whole organism', 't-head', { style: `fill:${COL.live}` });
-  const hh = txt(g, L.heads.human.x, L.heads.human.y, vertical() ? 'Human' : 'Human pathobiology', 't-head', { style: `fill:${COL.human}` });
-  const hm = txt(g, L.heads.models.x, L.heads.models.y, 'Other models · optional', 't-head', { style: `fill:${COL.context};fill-opacity:.75` });
+  const hw = txt(g, L.heads.whole.x, L.heads.whole.y, 'Whole organism', 't-head t-halo', { style: `fill:${COL.live}` });
+  const hh = txt(g, L.heads.human.x, L.heads.human.y, vertical() ? 'Human' : 'Human pathobiology', 't-head t-halo', { style: `fill:${COL.human}` });
+  const hm = txt(g, L.heads.models.x, L.heads.models.y, 'Other models · optional', 't-head t-halo', { style: `fill:${COL.context};fill-opacity:.75` });
   S.fades.push({ el: hw, t0: TL.inputs[0], d: 300, left: true }, { el: hh, t0: TL.human, d: 300, left: true }, { el: hm, t0: TL.models[0], d: 300 });
 
   S.backdrop = el('rect', { x: L.bb.x - 24, y: L.bb.y - 24, width: L.bb.w + 48, height: L.bb.h + 48, rx: 14, fill: COL.bg, opacity: 0 }, g);
@@ -419,19 +424,41 @@ function makePresentCaption(rec, info, sl, s) {
   const hw = head.getComputedTextLength();
   rec.liveDot = el('circle', { cx: -hw / 2 - 11, cy: 19.5, r: 3.5, fill: col }, pg);
   const sub = txt(pg, 0, 45, info.sub, 't-label t-strong', { 'text-anchor': 'middle' });
-  const row = el('g', {}, pg);
-  let x = 0;
-  rec.checks = info.checks.map(([label, at]) => {
-    const box = el('rect', { x, y: 59, width: 11, height: 11, rx: 2.5, fill: 'none', stroke: col, 'stroke-width': 1.2 }, row);
-    const tick = el('path', { d: `M${x + 2.6} ${64.6}l2.4 2.4l4.2 -4.6`, fill: 'none', stroke: COL.bg, 'stroke-width': 1.8,
-                              'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0 }, row);
-    const t = txt(row, x + 17, 69, label, 't-note');
-    x += 17 + t.getComputedTextLength() + 22;
-    return { box, tick, at };
+  // wider than the figure leaves room for (the portrait one): two balanced lines
+  let subW = sub.getComputedTextLength(), dy = 0;
+  if (subW > L.w - 64) {
+    const words = info.sub.split(' '), width = s => { sub.textContent = s; return sub.getComputedTextLength(); };
+    let best = null;
+    for (let k = 1; k < words.length; k++) {
+      const w = Math.max(width(words.slice(0, k).join(' ')), width(words.slice(k).join(' ')));
+      if (!best || w < best.w) best = { k, w };
+    }
+    sub.textContent = words.slice(0, best.k).join(' ');
+    txt(pg, 0, 45 + 18, words.slice(best.k).join(' '), 't-label t-strong', { 'text-anchor': 'middle' });
+    subW = best.w; dy = 18;
+  }
+  // the read-outs in a row, centred; on more rows when the figure is too narrow for one
+  const items = info.checks.map(([label, at]) => {
+    const g = el('g', {}, pg);
+    const box = el('rect', { y: 59, width: 11, height: 11, rx: 2.5, fill: 'none', stroke: col, 'stroke-width': 1.2 }, g);
+    const tick = el('path', { d: 'M2.6 64.6l2.4 2.4l4.2 -4.6', fill: 'none', stroke: COL.bg, 'stroke-width': 1.8,
+                              'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0 }, g);
+    const t = txt(g, 17, 69, label, 't-note');
+    return { g, box, tick, at, w: 17 + t.getComputedTextLength() };
   });
-  row.setAttribute('transform', `translate(${-(x - 22) / 2},0)`);
-  const bw = Math.max(hw + 30, sub.getComputedTextLength(), x - 22) + 40;
+  const rows = [];
+  items.forEach(it => {
+    const r = rows[rows.length - 1];
+    if (r && r.w + 22 + it.w <= L.w - 56) { r.items.push(it); r.w += 22 + it.w; } else rows.push({ items: [it], w: it.w });
+  });
+  rows.forEach((r, k) => {
+    let x = -r.w / 2;
+    r.items.forEach(it => { it.g.setAttribute('transform', `translate(${x},${dy + 18 * k})`); x += it.w + 22; });
+  });
+  rec.checks = items.map(({ box, tick, at }) => ({ box, tick, at }));
+  const bw = Math.max(hw + 30, subW, ...rows.map(r => r.w)) + 40;
   back.setAttribute('x', -bw / 2); back.setAttribute('width', bw);
+  back.setAttribute('height', 74 + dy + 18 * (rows.length - 1));
   return pg;
 }
 function frameChecks(r, ms) {
@@ -796,7 +823,8 @@ function buildXeno() {
   X.req.dot = el('circle', { r: 5, fill: COL.flag, opacity: 0 }, layer.xeno);
   X.req.label = el('g', { opacity: 0 }, layer.xeno);
   const rl = txt(X.req.label, 12, 5, 'validation run · ZM-131', 't-label t-strong', { style: `fill:${COL.flag}` });
-  X.req.label.insertBefore(el('rect', { x: 2, y: -11, width: rl.getComputedTextLength() + 20, height: 22, rx: 11,
+  const rb = rl.getBBox();   // the pill fits the text, 10 to the sides and 4 above and below
+  X.req.label.insertBefore(el('rect', { x: 2, y: rb.y - 4, width: rb.width + 20, height: rb.height + 8, rx: rb.height / 2 + 4,
                                         fill: COL.bg, 'fill-opacity': .92, stroke: COL.flag, 'stroke-opacity': .55 }), rl);
   // the run under way: a callout at the biofoundry, from when the run starts until the ranking is updated
   {
@@ -830,11 +858,12 @@ function buildXeno() {
   });
   {
     const a = S.N.get('liver').p, b = S.N.get('heart').p;
-    X.moaTag = el('g', { opacity: 0, transform: `translate(${(a.x + b.x) / 2 + 36},${(a.y + b.y) / 2 + 12})` }, layer.xeno);
+    const [dx, dy] = L.moaTag || [36, 12];
+    X.moaTag = el('g', { opacity: 0, transform: `translate(${(a.x + b.x) / 2 + dx},${(a.y + b.y) / 2 + dy})` }, layer.xeno);
     const tt = txt(X.moaTag, 0, 4.5, 'MoA · ZM-131', 't-note', { 'text-anchor': 'middle', style: `fill:${COL.result};fill-opacity:1;font-weight:500` });
-    const tw = tt.getComputedTextLength() + 18;
-    X.moaTag.insertBefore(el('rect', { x: -tw / 2, y: -10, width: tw, height: 20, rx: 10, fill: COL.bg, 'fill-opacity': .92,
-                                       stroke: COL.result, 'stroke-opacity': .5 }), tt);
+    const tb = tt.getBBox(), tw = tb.width + 18;
+    X.moaTag.insertBefore(el('rect', { x: -tw / 2, y: tb.y - 4, width: tw, height: tb.height + 8, rx: tb.height / 2 + 4, fill: COL.bg,
+                                       'fill-opacity': .92, stroke: COL.result, 'stroke-opacity': .5 }), tt);
   }
 
   // discovery: XenoEx walks the disease's mechanisms through the backbone; new targets appear on those lines
@@ -849,7 +878,8 @@ function buildXeno() {
     const g = el('g', { opacity: 0 }, layer.xeno);
     el('circle', { r: 10, fill: COL.bg, 'fill-opacity': .7, stroke: COL.target, 'stroke-opacity': .5, 'stroke-width': 1 }, g);
     el('circle', { r: 5, fill: COL.target }, g);
-    txt(g, 13, -7, tg.id, 't-note', { style: `fill:${COL.target};fill-opacity:1;font-weight:600` });
+    const [lx, ly, anchor] = (L.tlab && L.tlab[tg.id]) || [13, -7, 'start'];
+    txt(g, lx, ly, tg.id, 't-note t-halo', { 'text-anchor': anchor, style: `fill:${COL.target};fill-opacity:1;font-weight:600` });
     S.pulses.push({ node: { p, kind: 'target' }, t0: t0 + 100, d: 800, color: COL.target });
     return { p, g, t0 };
   });
@@ -912,12 +942,14 @@ function buildGraphSVG() {
     if (n.kind === 'organ') {
       el('circle', { r: 11, fill: COL.plate, stroke: COL.line, 'stroke-opacity': .9, 'stroke-width': 1.7 }, g);
       el('circle', { r: 3.2, fill: COL.line, 'fill-opacity': .8 }, g);
-      txt(g, 0, 28, n.label, 't-label t-strong', { 'text-anchor': 'middle' });
     } else if (n.kind === 'signal') {
       el('circle', { r: 3.4, fill: COL.medium }, g);
     } else {
       el('path', { d: 'M0 -8 L8 0 L0 8 L-8 0 Z', fill: COL.plate, stroke: COL.line, 'stroke-opacity': .9, 'stroke-width': 1.5 }, g);
-      txt(g, 0, 25, n.label, 't-note', { 'text-anchor': 'middle' });
+    }
+    if (n.label) {
+      n.lab = el('g', { opacity: 0 }, S.labelLayer);
+      txt(n.lab, 0, n.kind === 'organ' ? 28 : 25, n.label, n.kind === 'organ' ? 't-label t-strong t-halo' : 't-note t-halo', { 'text-anchor': 'middle' });
     }
     n.el = g;
   });
@@ -975,8 +1007,10 @@ function frameChrome(t) {
 function frameSVG(t) {
   S.nodes.forEach(n => {
     const u = prog(t, n.t0, n.d);
+    const tr = `translate(${n.p.x},${n.p.y}) scale(${(.55 + .45 * u).toFixed(3)})`;
     n.el.setAttribute('opacity', u);
-    n.el.setAttribute('transform', `translate(${n.p.x},${n.p.y}) scale(${(.55 + .45 * u).toFixed(3)})`);
+    n.el.setAttribute('transform', tr);
+    if (n.lab) { n.lab.setAttribute('opacity', u); n.lab.setAttribute('transform', tr); }
   });
   S.edges.forEach(e => {
     const u = prog(t, e.t0, e.d);

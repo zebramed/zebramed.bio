@@ -617,6 +617,11 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .pf-stage .t-label { fill: var(--color-text-medium); font-size: 14px; }
 .pf-stage .t-strong { fill: var(--color-text-light); font-weight: 500; }
 .pf-stage .t-note { fill: var(--color-text-medium); fill-opacity: 0.78; font-size: 12.5px; }
+/* the portrait figure is drawn 400 wide and shown at phone width: its text a step larger */
+.pf-compact .pf-stage .t-label { font-size: 15px; }
+.pf-compact .pf-stage .t-note, .pf-compact .pf-stage .t-head { font-size: 13.5px; }
+/* a halo in the stage colour keeps names legible where lines pass */
+.pf-stage .t-halo { paint-order: stroke; stroke: #10153b; stroke-width: 4px; stroke-linejoin: round; }
 .pf-controls {
     display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;
     margin: 0.75rem auto 0; font-size: 0.875rem; color: rgba(var(--color-text-light-rgb), 0.55);
