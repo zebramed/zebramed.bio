@@ -990,7 +990,8 @@ function frameChrome(t) {
     const la = r.group === 'model' ? 1 : leftA;
     set(r.g, 'opacity', ua * la * (r.group === 'model' ? lerp(1, .7, ud) : 1));
     set(r.g, 'transform', `translate(${x},${y}) scale(${s})`);
-    set(r.pc, 'opacity', (1 - ud) * prog(t, r.T + 200, 300));   // after the backdrop has darkened the graph
+    // in once the backdrop has darkened the graph; out in the first third of the dock, before it shrinks over the graph
+    set(r.pc, 'opacity', (1 - prog(t, r.T + st.dockAt, st.dock * .35)) * prog(t, r.T + 200, 300));
     set(r.cap, 'opacity', prog(t, r.T + st.dockAt + 250, 250) * la * (r.group === 'model' ? .75 : 1));
     if (r.group !== 'model') dim = Math.max(dim, ua * (1 - ud));
     const live = ua > 0 && ud < 1;
