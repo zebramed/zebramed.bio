@@ -764,6 +764,12 @@ function buildXeno() {
     return { g: rg, hl, rank, bars, i, flagged: !!c.unsure, y0: rowTop + pitch * i,
              y1: rowTop + pitch * o1.indexOf(i), y2: rowTop + pitch * o2.indexOf(i), r1: o1.indexOf(i) + 1, r2: o2.indexOf(i) + 1 };
   });
+  // re-ranking: the rows that rise are drawn on top, and the rows they pass dim while they move
+  X.rerank = [['y0', 'y1'], ['y1', 'y2']].map(([a, b]) => {
+    const up = X.rows.filter(r => r[b] < r[a]), span = r => [Math.min(r[a], r[b]), Math.max(r[a], r[b])];
+    return { up, dim: X.rows.filter(r => !up.includes(r) && up.some(q => span(r)[0] <= span(q)[1] && span(r)[1] >= span(q)[0])) };
+  });
+  X.rerankOn = -1;
   const ly = O.y + O.h - 16;
   if (Q.legend) {
     [[16, COL.result, 'lower risk'], [100, COL.flag, 'higher risk']].forEach(([dx, c, s]) => {
@@ -971,7 +977,7 @@ function frameChrome(t) {
     const la = r.group === 'model' ? 1 : leftA;
     r.g.setAttribute('opacity', ua * la * (r.group === 'model' ? lerp(1, .7, ud) : 1));
     r.g.setAttribute('transform', `translate(${x},${y}) scale(${s})`);
-    r.pc.setAttribute('opacity', 1 - ud);
+    r.pc.setAttribute('opacity', (1 - ud) * prog(t, r.T + 200, 300));   // after the backdrop has darkened the graph
     r.cap.setAttribute('opacity', prog(t, r.T + st.dockAt + 250, 250) * la * (r.group === 'model' ? .75 : 1));
     if (r.group !== 'model') dim = Math.max(dim, ua * (1 - ud));
     const live = ua > 0 && ud < 1;
@@ -1087,8 +1093,12 @@ function frameXeno(t) {
   const u1 = prog(t, P + PREDICT.rankAt, PREDICT.rank, E.inOut), u2 = prog(t, V + VALIDATE.rankAt, VALIDATE.rank, E.inOut);
   const upd = prog(t, V + VALIDATE.updAt, VALIDATE.upd, E.inOut);
   const flagOn = prog(t, V, 400) * (1 - prog(t, V + VALIDATE.updAt + VALIDATE.upd, 500));
+  const k = u2 > 0 ? 1 : 0;
+  if (k !== X.rerankOn) { X.rerankOn = k; X.rerank[k].up.forEach(r => X.cand.appendChild(r.g)); }
   X.rows.forEach(r => {
     r.g.setAttribute('transform', `translate(0,${lerp(lerp(r.y0, r.y1, u1), r.y2, u2).toFixed(2)})`);
+    const pass = Math.max(X.rerank[0].dim.includes(r) ? Math.sin(Math.PI * u1) : 0, X.rerank[1].dim.includes(r) ? Math.sin(Math.PI * u2) : 0);
+    r.g.setAttribute('opacity', (1 - .7 * pass).toFixed(3));
     const rk = String(u2 > .5 ? r.r2 : r.r1);
     if (r.rank.textContent !== rk) r.rank.textContent = rk;
     r.rank.setAttribute('opacity', prog(t, P + PREDICT.rankAt + PREDICT.rank - 200, 300));
@@ -1131,7 +1141,8 @@ function frameXeno(t) {
     const p = bez(R.C, E.inOut(us));
     R.dot.setAttribute('cx', p.x.toFixed(1)); R.dot.setAttribute('cy', p.y.toFixed(1)); R.dot.setAttribute('opacity', 1);
     R.label.setAttribute('transform', `translate(${p.x.toFixed(1)},${(p.y + 20).toFixed(1)})`);
-    R.label.setAttribute('opacity', Math.min(1, Math.sin(Math.PI * us) * 2.5).toFixed(3));
+    // in quickly, and gone before the run lands on the biofoundry's caption
+    R.label.setAttribute('opacity', (clamp(us / .12) * (1 - clamp((us - .55) / .2))).toFixed(3));
   } else { R.dot.setAttribute('opacity', 0); R.label.setAttribute('opacity', 0); }
 
   // the run under way, then its result
