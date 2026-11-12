@@ -167,6 +167,18 @@ const BEATS = [
   const [label, text] = STEP_TEXT[b.id];
   return Object.assign(b, { label, text, narr: b.ch ? `${CHAPTER_LABEL[b.ch]} \u00b7 ${label.toLowerCase()}` : label });
 });
+// every step line in one grid cell, all but the current one hidden: the step line keeps the height of the
+// longest at any width, so nothing under it moves when it changes
+function stack(host, lines) {
+  const now = document.createElement('span');
+  host.replaceChildren(now, ...lines.map(s => {
+    const g = document.createElement('span');
+    g.className = 'pf-ghost'; g.setAttribute('aria-hidden', 'true'); g.textContent = s;
+    return g;
+  }));
+  return now;
+}
+const nStepNow = stack(nStep, BEATS.map(b => b.narr)), nTextNow = stack(nText, BEATS.map(b => b.text));
 
 // ---------- layouts (viewBox units) ----------
 // wide: inputs, human data and models down the left, XenoEx on the right. compact (phones, narrow windows):
@@ -1148,8 +1160,8 @@ function narrate(t) {
   const i = stepAt(t);
   if (i === narrIdx) return;
   narrIdx = i;
-  nStep.textContent = BEATS[i].narr;
-  nText.textContent = BEATS[i].text;
+  nStepNow.textContent = BEATS[i].narr;
+  nTextNow.textContent = BEATS[i].text;
   narr.classList.remove('is-fresh'); void narr.offsetWidth; narr.classList.add('is-fresh');
 }
 

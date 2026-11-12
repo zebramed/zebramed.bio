@@ -585,15 +585,16 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .pf-narrow .select-name { font-size: clamp(0.875rem, 3.4vw, 1.125rem); }
 .pf-narrow .pf-controls { flex-wrap: wrap; justify-content: center; }
 /* the portrait figure, sized so that it, the step line and the controls fit the screen together, but never
-   narrower than 17.5rem: on the smallest phones the controls are a short scroll away instead */
+   narrower than 17rem: on the smallest phones the controls are a short scroll away instead */
 .pf-compact .pf-stage { aspect-ratio: 400 / 600; }
-.pf-compact .pf-frame { max-width: max(17.5rem, calc((100svh - 18.5rem) * 0.667)); }
+.pf-compact .pf-frame { max-width: max(17rem, calc((100svh - 18.5rem) * 0.667)); }
 /* small phones: the bar keeps Run / Translate / Reason only */
 @media (max-width: 559px) {
     .pf-narrow .select-name { display: none; }
     .pf-narrow .select-bar { margin-top: 2rem; }
     .pf-narrow.is-scrolly .pf-story { gap: 1.25rem; }
-    .pf-narrow .pf-n-text { font-size: 0.9375rem; line-height: 1.45; }
+    .pf-narrow .pf-narration { margin-top: 0.75rem; }
+    .pf-narrow .pf-n-text { font-size: 0.9375rem; line-height: 1.4; }
 }
 .pf-sticky { grid-column: 2; grid-row: 1; align-self: start; display: flex; flex-direction: column; justify-content: center; }
 .pf-frame { position: relative; width: 100%; margin-inline: auto; }
@@ -603,10 +604,13 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
 }
 .pf-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.pf-narration { width: 100%; max-width: 62ch; min-height: 4.4em; margin: 1rem 0 0; }
+.pf-narration { width: 100%; max-width: 62ch; margin: 1rem 0 0; }
 .pf-narrow .pf-narration { margin-inline: auto; }
-.pf-narration .label { display: block; }
-.pf-n-text { display: block; margin-top: 0.3rem; font-size: 1rem; line-height: 1.5; color: var(--color-text-light); }
+.pf-n-text { margin-top: 0.3rem; font-size: 1rem; line-height: 1.5; color: var(--color-text-light); }
+/* platform.js stacks every step line in one cell, so the step line keeps the height of the longest */
+.pf-narration .label, .pf-n-text { display: grid; }
+.pf-narration .label > *, .pf-n-text > * { grid-area: 1 / 1; }
+.pf-ghost { visibility: hidden; }
 .pf-narration.is-fresh { animation: select-in 400ms ease; }
 .pf-stage text { font-family: var(--font-family-sans); }
 .pf-stage .t-head { font-family: var(--font-family-display); fill: var(--color-text-medium); fill-opacity: 0.8; font-size: 12.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; }
