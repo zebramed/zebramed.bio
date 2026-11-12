@@ -373,7 +373,7 @@ function buildChrome() {
   const hw = txt(g, L.heads.whole.x, L.heads.whole.y, 'Whole organism', 't-head', { style: `fill:${COL.live}` });
   const hh = txt(g, L.heads.human.x, L.heads.human.y, vertical() ? 'Human' : 'Human pathobiology', 't-head', { style: `fill:${COL.human}` });
   const hm = txt(g, L.heads.models.x, L.heads.models.y, 'Other models · optional', 't-head', { style: `fill:${COL.context};fill-opacity:.75` });
-  S.fades.push({ el: hw, t0: TL.inputs[0], d: 300 }, { el: hh, t0: TL.human, d: 300 }, { el: hm, t0: TL.models[0], d: 300 });
+  S.fades.push({ el: hw, t0: TL.inputs[0], d: 300, left: true }, { el: hh, t0: TL.human, d: 300, left: true }, { el: hm, t0: TL.models[0], d: 300 });
 
   S.backdrop = el('rect', { x: L.bb.x - 24, y: L.bb.y - 24, width: L.bb.w + 48, height: L.bb.h + 48, rx: 14, fill: COL.bg, opacity: 0 }, g);
   S.insetLayer = el('g', {}, g);
@@ -929,15 +929,18 @@ let visible = false;
 // move at rest, and stops with it (paused, ended, out of view, reduced motion)
 let flowT = 0;
 function frameChrome(t) {
-  S.fades.forEach(f => f.el.setAttribute('opacity', prog(t, f.t0, f.d)));
+  // the left column (whole-organism and human data) fades as the camera pans past it, rather than being cut mid-word
+  const leftA = 1 - clamp(cam.x / 30);
+  S.fades.forEach(f => f.el.setAttribute('opacity', prog(t, f.t0, f.d) * (f.left ? leftA : 1)));
   let dim = 0;
   S.insets.forEach(r => {
     const st = r.step, ua = prog(t, r.T, st.appear), ud = prog(t, r.T + st.dockAt, st.dock, E.inOut);
     const x = lerp(r.present.x, r.dock.x, ud), y = lerp(r.present.y, r.dock.y, ud), s = lerp(r.present.s, r.dock.s, ud);
-    r.g.setAttribute('opacity', ua * (r.group === 'model' ? lerp(1, .7, ud) : 1));
+    const la = r.group === 'model' ? 1 : leftA;
+    r.g.setAttribute('opacity', ua * la * (r.group === 'model' ? lerp(1, .7, ud) : 1));
     r.g.setAttribute('transform', `translate(${x},${y}) scale(${s})`);
     r.pc.setAttribute('opacity', 1 - ud);
-    r.cap.setAttribute('opacity', prog(t, r.T + st.dockAt + 250, 250) * (r.group === 'model' ? .75 : 1));
+    r.cap.setAttribute('opacity', prog(t, r.T + st.dockAt + 250, 250) * la * (r.group === 'model' ? .75 : 1));
     if (r.group !== 'model') dim = Math.max(dim, ua * (1 - ud));
     const live = ua > 0 && ud < 1;
     r.presenting = live;
@@ -1168,9 +1171,9 @@ function narrate(t) {
   narr.classList.remove('is-fresh'); void narr.offsetWidth; narr.classList.add('is-fresh');
 }
 
-let lastVB = '';
+let lastVB = '', cam = { x: 0 };
 function render(t) {
-  const vb = camRect(t), vbs = `${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}`;
+  const vb = cam = camRect(t), vbs = `${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}`;
   if (vbs !== lastVB) { LAYERS.forEach(n => layer[n].setAttribute('viewBox', vbs)); lastVB = vbs; }
   frameChrome(t); frameSVG(t); frameXeno(t); narrate(t);
 }
