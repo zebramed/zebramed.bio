@@ -137,16 +137,16 @@ const TARGETS = [
 const CHAPTERS = [{ key: 'biofoundry' }, { key: 'interactome' }, { key: 'xenoex' }];
 // The story in steps: when each starts (t), where it comes to rest, its chapter, and what the page says.
 const STEP_TEXT = {
-  backbone:  ['Systemic graph', 'A multi-species knowledge graph of the body as one system: organs, and the functions and molecular signals that connect them.'],
+  backbone:  ['Systemic atlas', 'A multi-species knowledge graph of the body as one system: organs, and the functions and molecular signals that connect them.'],
   imaged:    ['Imaged', 'A living organism, perturbed by a compound, is imaged whole. FishEye segments it and extracts its phenomics: vessels, organs, morphology.'],
   tracked:   ['Tracked', 'The same perturbed organism is filmed swimming. FishEye tracks it keypoint by keypoint: how it moves, rests and responds.'],
-  sequenced: ['Sequenced', 'Whole-organism transcriptomics reads out its gene activity. Genes cluster into the programmes the perturbation changes, mapped onto the molecular signals of the graph.'],
-  spread:    ['Through the system', 'The graph carries each observation on, from where it was measured to the organs and functions it connects to.'],
+  sequenced: ['Sequenced', 'Whole-organism transcriptomics reads out its gene activity. Genes cluster into the programmes the perturbation changes, mapped onto the molecular signals of the atlas.'],
+  spread:    ['Through the system', 'The atlas carries each observation on, from where it was measured to the organs and functions it connects to.'],
   human:     ['Human pathobiology', 'Human data joins on the human side: clinical trials of molecules from the same families, concordance studies and existing datasets, at the organs where human toxicity shows.'],
-  models:    ['Other models', 'Other models are optional. Cell cultures, organoids and an organ-on-chip attach where they observe: molecular signals, single organs, the gut\u2013liver axis. The graph works with or without them.'],
-  predict:   ['Predict', 'XenoEx queries the graph organ by organ and returns a human risk profile for each candidate, safest first.'],
-  validate:  ['Validate', 'Where its confidence is under the agreed threshold, XenoEx sends a validation run to the biofoundry. The result traces the mechanism through the graph and updates the ranking.'],
-  discover:  ['Discover', 'Asked about a disease instead, XenoEx follows its mechanisms through the graph and proposes new targets on them.'],
+  models:    ['Other models', 'Other models are optional. Cell cultures, organoids and an organ-on-chip attach where they observe: molecular signals, single organs, the gut\u2013liver axis. The atlas works with or without them.'],
+  predict:   ['Predict', 'XenoEx queries the atlas organ by organ and returns a human risk profile for each candidate, safest first.'],
+  validate:  ['Validate', 'Where its confidence is under the agreed threshold, XenoEx sends a validation run to the biofoundry. The result traces the mechanism through the atlas and updates the ranking.'],
+  discover:  ['Discover', 'Asked about a disease instead, XenoEx follows its mechanisms through the atlas and proposes new targets on them.'],
 };
 const CHAPTER_LABEL = { biofoundry: 'Run', interactome: 'Translate', xenoex: 'Reason' };
 const BEATS = [
@@ -350,7 +350,7 @@ function buildChrome() {
   const tg = el('g', {}, g);
   const tw = 196;
   el('rect', { x: L.bbTitle.x - tw / 2, y: L.bbTitle.y - 18, width: tw, height: 42, rx: 8, fill: COL.bg, 'fill-opacity': .82 }, tg);
-  txt(tg, L.bbTitle.x, L.bbTitle.y, 'Systemic graph', 't-head', { 'text-anchor': 'middle', style: 'fill:#fff;fill-opacity:1' });
+  txt(tg, L.bbTitle.x, L.bbTitle.y, 'Systemic atlas', 't-head', { 'text-anchor': 'middle', style: 'fill:#fff;fill-opacity:1' });
   txt(tg, L.bbTitle.x, L.bbTitle.y + 18, 'a multi-species knowledge graph', 't-note', { 'text-anchor': 'middle' });
   S.fades.push({ el: tg, t0: 0, d: 500 });
 
@@ -684,7 +684,7 @@ function buildXeno() {
   X.status = txt(card, O.x + 16, O.y + Q.status, '', 't-note');
   X.statusIdx = -2;
   X.statuses = [
-    [P + PREDICT.outAt, 'querying the graph\u2026', COL.medium],
+    [P + PREDICT.outAt, 'querying the atlas\u2026', COL.medium],
     [P + PREDICT.barsAt, '4 profiles scored, organ by organ', COL.medium],
     [P + PREDICT.rankAt, 'ranked, safest first', COL.medium],
     [V, 'ZM-131 · heart: low confidence', COL.flag],

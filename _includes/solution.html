@@ -2,17 +2,18 @@
   <div class="wrap">
     <header class="section-head">
         <h2 class="title">The platform</h2>
+        <p class="vision">A closed loop between multi-modal AI reasoning and human systemic biology.</p>
         <p class="lede">
-            Our biofoundry produces whole-organism data. The systemic graph links it, and the data
-            clients bring, to human biology, and XenoEx reasons over the graph to decide what to run
-            next, guide asset decisions, and identify novel targets.
+            XenoEx reasons over our cross-species systemic atlas to predict how the human body will
+            respond to a candidate. When predictive confidence falls below threshold, our automated
+            biofoundry runs targeted experiments to generate physical ground truth on demand.
         </p>
     </header>
 
     <div class="platform-select" data-select-group data-platform>
     <div class="select-bar" role="group" aria-label="Parts of the platform" data-select-bar hidden>
         <button type="button" data-select="biofoundry" aria-controls="pt-biofoundry"><span class="label">Run</span><span class="select-name">Biofoundry</span></button>
-        <button type="button" data-select="interactome" aria-controls="pt-interactome"><span class="label">Translate</span><span class="select-name">Systemic graph</span></button>
+        <button type="button" data-select="interactome" aria-controls="pt-interactome"><span class="label">Translate</span><span class="select-name">Systemic atlas</span></button>
         <button type="button" data-select="xenoex" aria-controls="pt-xenoex"><span class="label">Reason</span><span class="select-name">XenoEx</span></button>
     </div>
     <div class="pf-story" data-pf-story>
@@ -25,11 +26,13 @@
                 <p class="label">Run</p>
                 <h3 class="row-title">The automated biofoundry</h3>
                 <p>
-                    Transparent zebrafish larvae share 82% of human disease-associated genes and carry a
-                    working liver, heart, nervous system and blood-brain barrier. ZebraChip microfluidics
-                    load each larva and hold it in a fixed lateral position; our FishEye computer vision reads
-                    morphology and behaviour. We built the pipeline for the New Approach Methodology
-                    framework of the FDA Modernization Act 2.0.
+                    The transparent zebrafish larva is a whole-organism vertebrate model small enough for
+                    automated microfluidic screening. Sharing 82% of human disease-associated genes, it
+                    possesses functional organs including an active liver, heart, nervous system, and
+                    blood-brain barrier. Our biofoundry standardises high-throughput data generation, using
+                    FishEye computer vision to capture multi-organ morphology and behavioural phenotypes at
+                    scale. Larvae are used at stages not protected under EU Directive 2010/63/EU, and the
+                    pipeline is built as a New Approach Methodology in line with the FDA Modernization Act 2.0.
                 </p>
             </div>
         </article>
@@ -41,17 +44,14 @@
             </figure>
             <div class="row-text">
                 <p class="label">Translate</p>
-                <h3 class="row-title">The systemic graph</h3>
+                <h3 class="row-title">The cross-species systemic atlas</h3>
                 <p>
-                    A multi-species, multi-modal knowledge graph of systemic biology: organs, the
-                    functions they carry out and the molecular signals between them, connected as they
-                    are in a living body. Its core is zebrafish data, gene expression linked to the
-                    phenotypes and behaviours observed with it. Orthology, shared ontologies and OECD
-                    adverse outcome pathways connect each link to its human counterpart, step by
-                    mechanistic step. Human pathobiology data, from clinical trials of molecules in the same
-                    families, concordance studies and existing datasets, anchors it on the human side. Data
-                    from a client's own models, such as cell lines, organoids or
-                    other species, joins the same graph, so its results can be read in human terms.
+                    A proprietary multi-species knowledge graph mapping organs, physiological functions,
+                    and molecular signalling pathways into a unified systemic network. Whole-body larval
+                    perturbation data is enriched with human pathobiology and aligned with clinical
+                    outcomes through genetic orthology and adverse outcome pathways. The atlas ingests
+                    client in vitro, organoid, or rodent data, placing isolated bench readouts into
+                    whole-body context to improve translational accuracy.
                 </p>
             </div>
         </article>
@@ -62,14 +62,14 @@
             </figure>
             <div class="row-text">
                 <p class="label">Reason</p>
-                <h3 class="row-title">XenoEx, interpretable multi-agent AI</h3>
+                <h3 class="row-title">XenoEx: interpretable reasoning</h3>
                 <p>
-                    XenoEx reasons over the graph in steps a scientist can read, audit and redirect.
-                    It humanises signatures, scores candidates for systemic efficacy and multi-organ
-                    toxicity, re-evaluates shelved assets and ranks target hypotheses. When its confidence
-                    falls under the client's agreed threshold, it designs the validation run and sends it
-                    to the biofoundry. For target identification, it follows a disease through the graph
-                    and proposes novel targets, each with the mechanistic path that supports it.
+                    XenoEx reasons over the atlas in auditable steps that research teams can inspect and
+                    redirect. It scores candidates for multi-organ toxicity and efficacy, re-evaluates
+                    stalled assets, and ranks target hypotheses along complete mechanistic chains. When its
+                    confidence on a molecule falls under the threshold agreed with the client, XenoEx
+                    autonomously designs a targeted validation run and dispatches it to the biofoundry,
+                    updating the atlas once physical data returns.
                 </p>
             </div>
         </article>
@@ -77,6 +77,7 @@
     {% include figures/platform.html %}
     </div>
     </div>
+    <p class="basis">Priority patent application filed on ZebraChip microfluidic positioning and automated screening protocols.</p>
 
     <div class="section-foot">
         <a class="btn btn-solid" href="{{ site.data.links.pilot }}">
