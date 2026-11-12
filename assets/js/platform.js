@@ -386,7 +386,9 @@ function buildChrome() {
   const hw = txt(g, L.heads.whole.x, L.heads.whole.y, 'Whole organism', 't-head t-halo', { style: `fill:${COL.live}` });
   const hh = txt(g, L.heads.human.x, L.heads.human.y, vertical() ? 'Human' : 'Human pathobiology', 't-head t-halo', { style: `fill:${COL.human}` });
   const hm = txt(g, L.heads.models.x, L.heads.models.y, 'Other models · optional', 't-head t-halo', { style: `fill:${COL.context};fill-opacity:.75` });
-  S.fades.push({ el: hw, t0: TL.inputs[0], d: 300, left: true }, { el: hh, t0: TL.human, d: 300, left: true }, { el: hm, t0: TL.models[0], d: 300 });
+  // the human heading arrives with its card as it docks (in the portrait figure it sits under the large card's caption)
+  S.fades.push({ el: hw, t0: TL.inputs[0], d: 300, left: true }, { el: hh, t0: TL.human + HUMAN.step.dockAt, d: 300, left: true },
+               { el: hm, t0: TL.models[0], d: 300 });
 
   S.backdrop = el('rect', { x: L.bb.x - 24, y: L.bb.y - 24, width: L.bb.w + 48, height: L.bb.h + 48, rx: 14, fill: COL.bg, opacity: 0 }, g);
   S.insetLayer = el('g', {}, g);
