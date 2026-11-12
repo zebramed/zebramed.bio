@@ -25,15 +25,15 @@ stages:
       systemic atlas. Every prediction is anchored in physical biology,
       continuously updated through our automated biofoundry.
     benefits:
-      - Multi-organ toxicity and efficacy profiling at in vitro stage
+      - Multi-organ toxicity and efficacy profiling at the in vitro stage
       - Early systemic profiling ahead of GLP studies
   - stage: Preclinical development
     title: Asset re-evaluation and go/no-go
     text: >-
-      Stalled, shelved, or ambiguous programmes are re-evaluated against our
-      cross-species systemic atlas enriched with your existing in vitro,
-      organoid, or animal data. XenoEx exposes alternative indications,
-      clarifies off-target liabilities, and delivers definitive go/no-go
+      Stalled, shelved or ambiguous programmes are re-evaluated against our
+      cross-species systemic atlas, enriched with your existing in vitro,
+      organoid or animal data. XenoEx exposes alternative indications,
+      clarifies off-target liabilities and delivers definitive go/no-go
       criteria ahead of GLP.
     benefits:
       - Repositioning and mechanistic audit of stalled assets

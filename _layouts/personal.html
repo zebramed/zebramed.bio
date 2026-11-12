@@ -32,7 +32,8 @@
             <img src="{{ '/assets/images/' | append: page.photo | relative_url }}" alt="{{ page.person_name }}" loading="lazy" class="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto mb-6 border-2 border-accent-primary-50">
             <h1 class="title">{{ page.person_name }}</h1>
             <p class="gradient-text font-medium text-lg mt-2">{{ page.role }}</p>
-            <p class="mt-6 mx-auto text-text-medium leading-relaxed">{{ page.bio }}</p>
+            {%- assign member = site.data.team | where: "page", page.permalink | first %}
+            <p class="mt-6 mx-auto text-text-medium leading-relaxed">{{ member.bio | default: page.bio }}</p>
 
             <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 {% if page.linkedin %}

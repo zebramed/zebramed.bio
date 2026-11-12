@@ -3,7 +3,7 @@
 {% assign parts = "" | split: "" %}
 {% for f in tr.features %}{% unless prod and f.pending %}{% assign parts = parts | push: f.lede %}{% endunless %}{% endfor %}
 {% assign parts = parts | push: "public programmes" %}
-{% capture lede %}{% for x in parts %}{% if forloop.last and forloop.length > 1 %} and {% elsif forloop.index > 1 %}, {% endif %}{{ x }}{% endfor %}{% endcapture %}
+{% capture lede %}{% for x in parts %}{% if forloop.last and forloop.length > 1 %}{% assign i = forloop.index0 | minus: 1 %}{% if parts[i] contains " and " %}, and {% else %} and {% endif %}{% elsif forloop.index > 1 %}, {% endif %}{{ x }}{% endfor %}{% endcapture %}
 {% assign shown = 0 %}{% for m in tr.measures %}{% unless prod and m.pending %}{% assign shown = shown | plus: 1 %}{% endunless %}{% endfor %}
 <section id="traction" class="section band">
   <div class="wrap">
