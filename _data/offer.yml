@@ -1,41 +1,40 @@
-# What we offer: one card per development stage, each ending in the decisions
-# it supports. The wording keeps to what the platform section already claims.
+# What we offer: a callout line under the title, then one card per development
+# stage, each ending in the decisions it supports.
 title: What we offer
+callout: From target discovery to pre-GLP, grounded in causal systemic evidence.
 lede: >-
-  We start from the client's existing data and our systemic graph, and run new
-  whole-organism experiments only where XenoEx is not yet confident.
+  We map your proprietary data across our cross-species systemic atlas,
+  generating automated wet-lab ground truth only when XenoEx confidence
+  requires it.
 stages:
   - stage: Discovery
     title: Target identification and prioritisation
     text: >-
-      XenoEx follows a disease through the systemic graph, from the organs it
-      affects to the molecular signals between them, and proposes targets, each
-      with the mechanistic path that supports it, so teams see which hypotheses
-      deserve chemistry before it is committed.
+      XenoEx traverses disease pathways across multiple organs and molecular
+      layers to propose and rank novel targets. Every target is delivered with
+      an auditable mechanistic trace, giving discovery teams clear proof of
+      target rationale before committing chemistry.
     benefits:
-      - Novel targets, ranked
-      - A mechanistic path behind every target
-      - Chemistry committed to the strongest hypotheses
+      - Ranked hypotheses grounded in causal biology
+      - Complete mechanistic trail behind every target
   - stage: Lead optimisation
     title: Systemic efficacy and toxicity profiling
     text: >-
-      XenoEx scores each candidate for systemic efficacy and multi-organ
-      toxicity from the client's existing data and the systemic graph, and
-      reads the result in human terms. Candidates it cannot score with
-      confidence run on whole zebrafish larvae in the biofoundry, so the series
-      is ranked on whole-body evidence before the first rodent study.
+      Candidates are iteratively scored for systemic efficacy and multi-organ
+      safety by evaluating your in vitro data against our cross-species
+      systemic atlas. Every prediction is anchored in physical biology,
+      continuously updated through our automated biofoundry.
     benefits:
-      - Candidate ranking with an auditable rationale
-      - Wet-lab runs only where they change the answer
-      - Liabilities flagged before the first mammalian cohort
+      - Multi-organ toxicity and efficacy profiling at in vitro stage
+      - Early systemic profiling ahead of GLP studies
   - stage: Preclinical development
     title: Asset re-evaluation and go/no-go
     text: >-
-      Shelved and stalled assets get a second look against whole-organism data
-      and human pathobiology. Data from a client's own models, such as cell
-      lines, organoids or other species, joins the same graph, so earlier
-      results can be read in human terms ahead of IND.
+      Stalled, shelved, or ambiguous programmes are re-evaluated against our
+      cross-species systemic atlas enriched with your existing in vitro,
+      organoid, or animal data. XenoEx exposes alternative indications,
+      clarifies off-target liabilities, and delivers definitive go/no-go
+      criteria ahead of GLP.
     benefits:
-      - A second look at shelved assets
-      - Existing data read in human terms
-      - Go/no-go evidence ahead of IND
+      - Repositioning and mechanistic audit of stalled assets
+      - Unified data for confident human translation
