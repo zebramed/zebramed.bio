@@ -89,12 +89,14 @@ p { max-width: 62ch; color: var(--color-text-medium); }
     font-weight: 600; letter-spacing: -0.025em;
     font-size: clamp(1.875rem, 3.6vw, 2.875rem); line-height: 1.12;
     color: var(--color-accent-primary);
+    text-wrap: balance;
 }
-/* the vision line under the hero title */
+/* a callout line under a section title: one step below it, grouped with it */
 .vision {
-    font-family: var(--font-family-sans); font-style: italic; font-weight: 500;
-    font-size: clamp(1.375rem, 2.4vw, 1.75rem); line-height: 1.3; letter-spacing: -0.01em;
-    color: var(--color-accent-secondary); margin-top: 1.25rem;
+    font-family: var(--font-family-sans); font-weight: 500;
+    font-size: clamp(1.1875rem, 1.9vw, 1.375rem); line-height: 1.35; letter-spacing: -0.01em;
+    color: var(--color-text-light); margin-top: 0.75rem;
+    text-wrap: balance;
 }
 .title-sm { font-size: clamp(1.5rem, 2.6vw, 2rem); letter-spacing: -0.02em; }
 .h3 { font-family: var(--font-family-sans); font-weight: 600; letter-spacing: -0.015em; font-size: 1.5rem; line-height: 1.2; color: var(--color-text-light); }
@@ -104,7 +106,7 @@ p { max-width: 62ch; color: var(--color-text-medium); }
     font-weight: 500; font-size: 0.8125rem; letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--color-accent-secondary); max-width: none;
 }
-.lede { font-size: 1.125rem; line-height: 1.65; color: var(--color-text-medium); max-width: 58ch; }
+.lede { font-size: 1.125rem; line-height: 1.65; color: var(--color-text-medium); max-width: 58ch; text-wrap: pretty; }
 @media (min-width: 768px) { .lede { font-size: 1.1875rem; } }
 
 .section-head { max-width: 48rem; margin-inline: auto; text-align: center; }
