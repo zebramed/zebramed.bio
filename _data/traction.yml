@@ -35,7 +35,7 @@ features:
         file: isir_logo.png
   - kicker: Acceleration programmes
     lede: acceleration programmes
-    title: Selected by premier life-science programmes
+    title: Selected by premier programmes
     text: >-
       Highly selective incubation and acceleration across Basel, Paris and
       international hubs: DayOne Accelerator (Basel), HEC Paris Challenge+ and
@@ -52,7 +52,7 @@ features:
     title: National deeptech innovation awards
     text: >-
       Winner of the prestigious i-Lab national innovation prize, funded by the
-      French government (France 2030) and operated by Bpi+france, alongside
+      French government (France 2030) and operated by Bpifrance, alongside
       competitive support from Wilco and Genopole.
     logos:
       - name: Datacraft Awards

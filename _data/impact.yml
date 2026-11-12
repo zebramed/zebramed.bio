@@ -9,7 +9,7 @@
 # expenditures and a 2x higher translatability towards humans in comparison to
 # other in vitro technologies". Note the plan states translatability elsewhere
 # as "55% higher" (executive summary) and "50% to 60% closer" (same file, :19).
-statement: "What a whole-organism loop changes for a programme."
+statement: "What a whole-organism loop changes for a programme"
 basis: "Projected against a conventional rodent programme and standard in vitro models."
 measures:
   - value: "70%"

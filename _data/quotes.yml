@@ -9,7 +9,7 @@
 - text: >-
     Most public datasets look at isolated tissue or single cellular responses, creating a massive
     life-science data problem. If your AI cannot capture the systemic, conditional nature of how a
-    whole organism reacts to a disease pathway, <b>the model is simply optimizing for bench tests that
+    whole organism reacts to a disease pathway, <b>the model is simply optimising for bench tests that
     will dissolve during prospective human trials.</b>
   name: Alex Zhavoronkov
   role: Co-CEO of Insilico Medicine
