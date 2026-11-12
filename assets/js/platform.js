@@ -230,6 +230,11 @@ function el(tag, attrs, parent) {
   if (parent) parent.appendChild(n);
   return n;
 }
+// in the frame loop: write an attribute only when its value changes (most of the figure is still in any frame)
+function set(n, k, v) {
+  const c = n.pfAttrs || (n.pfAttrs = {});
+  if (c[k] !== v) { c[k] = v; n.setAttribute(k, v); }
+}
 function txt(parent, x, y, s, cls, attrs = {}) { const n = el('text', Object.assign({ x, y, class: cls }, attrs), parent); n.textContent = s; return n; }
 function bez(P, u) {
   const v = 1 - u, a = v * v * v, b = 3 * v * v * u, c = 3 * v * u * u, d = u * u * u;
@@ -462,14 +467,14 @@ function makePresentCaption(rec, info, sl, s) {
   return pg;
 }
 function frameChecks(r, ms) {
-  r.liveDot.setAttribute('opacity', (.45 + .55 * Math.abs(Math.sin(flowT / 380))).toFixed(3));
+  set(r.liveDot, 'opacity', (.45 + .55 * Math.abs(Math.sin(flowT / 380))).toFixed(3));
   let current = true;
   r.checks.forEach(c => {
     const on = ms >= c.at;
-    c.box.setAttribute('fill', on ? r.checkColor : 'none');
-    c.tick.setAttribute('opacity', on ? 1 : 0);
+    set(c.box, 'fill', on ? r.checkColor : 'none');
+    set(c.tick, 'opacity', on ? 1 : 0);
     // the read-out under way pulses until it ticks
-    c.box.setAttribute('stroke-opacity', on ? 1 : current ? (.35 + .65 * Math.abs(Math.sin(flowT / 300))).toFixed(3) : .35);
+    set(c.box, 'stroke-opacity', on ? 1 : current ? (.35 + .65 * Math.abs(Math.sin(flowT / 300))).toFixed(3) : .35);
     if (!on) current = false;
   });
 }
@@ -491,7 +496,7 @@ function makeTrack(g, w, s) {
 }
 function frameTrack(r, ms, show) {
   const tr = r.track, d = tr.data;
-  tr.g.setAttribute('opacity', d ? (show * prog(ms, PRESENT.tracked.checks[0][1] - 300, 300)).toFixed(3) : 0);
+  set(tr.g, 'opacity', d ? (show * prog(ms, PRESENT.tracked.checks[0][1] - 300, 300)).toFixed(3) : 0);
   if (!d || show <= 0) return;
   const v = r.video, sec = v && v.readyState >= 2 ? v.currentTime : ms / 1000;
   const f = Math.max(0, Math.min(d.kp.length - 1, Math.floor(sec * d.fps)));
@@ -501,16 +506,16 @@ function frameTrack(r, ms, show) {
   const from = Math.floor((PRESENT.tracked.checks[0][1] / 1000) * d.fps);   // the path is drawn from when tracking starts
   const pts = [];
   for (let i = Math.min(from, f); i <= f; i++) if (d.kp[i]) pts.push(`${(d.kp[i][0] * q).toFixed(2)},${(d.kp[i][1] * q).toFixed(2)}`);
-  tr.trail.setAttribute('points', pts.join(' '));
+  set(tr.trail, 'points', pts.join(' '));
   if (!kp) return;
   const P = [0, 1, 2, 3, 4].map(i => [kp[2 * i] * q, kp[2 * i + 1] * q]);
-  tr.body.setAttribute('points', P.map(p => p.map(c => c.toFixed(2)).join(',')).join(' '));
-  tr.dots.forEach((c, i) => { c.setAttribute('cx', P[i][0].toFixed(2)); c.setAttribute('cy', P[i][1].toFixed(2)); });
+  set(tr.body, 'points', P.map(p => p.map(c => c.toFixed(2)).join(',')).join(' '));
+  tr.dots.forEach((c, i) => { set(c, 'cx', P[i][0].toFixed(2)); set(c, 'cy', P[i][1].toFixed(2)); });
 }
 
 function makeVideo(clip) {
   const v = document.createElement('video');
-  v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+  v.muted = true; v.loop = true; v.playsInline = true; v.preload = near ? 'auto' : 'none';   // see loadClips
   v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
   v.poster = clip.src + '.jpg';
   v.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;border-radius:4px';
@@ -555,9 +560,12 @@ const HEAT = (() => {
   });
   return { z, dose, rowTree: hclust(z), colTree: hclust(dose.map((_, j) => z.map(r => r[j]))) };
 })();
-function heatColour(v) {
-  return v >= 0 ? mix('#161c4a', COL.live, Math.min(1, v) * .92) : mix('#161c4a', '#4466ee', Math.min(1, -v));
-}
+// the heatmap's colours in 65 steps from -1 to 1, so the breathing values reuse a few strings
+const HEAT_COLOURS = Array.from({ length: 65 }, (_, i) => {
+  const v = i / 32 - 1;
+  return v >= 0 ? mix('#161c4a', COL.live, v * .92) : mix('#161c4a', '#4466ee', -v);
+});
+function heatColour(v) { return HEAT_COLOURS[Math.round((clamp(v, -1, 1) + 1) * 32)]; }
 function dendro(node, leafPos, hPos, vertical, out) {
   if (!node.l) return { p: leafPos(node.leaves[0]), q: hPos(0) };
   const a = dendro(node.l, leafPos, hPos, vertical, out), b = dendro(node.r, leafPos, hPos, vertical, out), q = hPos(node.h);
@@ -597,26 +605,28 @@ function animateHeat(H, ms, live) {
   if (!live) {
     if (H.state === 'final') return;
     H.rows.forEach(r => {
-      r.g.setAttribute('transform', `translate(0,${(H.y0 + r.final * H.rh).toFixed(2)})`);
-      r.rects.forEach((rect, c) => { rect.setAttribute('opacity', 1); rect.setAttribute('fill', heatColour(H.z[r.ri][H.cOrder[c]] / 2)); });
+      set(r.g, 'transform', `translate(0,${(H.y0 + r.final * H.rh).toFixed(2)})`);
+      r.rects.forEach((rect, c) => { set(rect, 'opacity', 1); set(rect, 'fill', heatColour(H.z[r.ri][H.cOrder[c]] / 2)); });
     });
-    H.dendro.setAttribute('opacity', 1);
+    set(H.dendro, 'opacity', 1);
     H.state = 'final';
     return;
   }
   H.state = 'live';
   const sortU = prog(ms, 1700, 1700, E.inOut), breathe = prog(ms, 3600, 900), ts = flowT / 1000;
+  const refill = breathe > 0 && !(flowT - H.filled < 50);   // the breathing redraws 20 times a second
+  if (refill) H.filled = flowT;
   H.rows.forEach(r => {
-    r.g.setAttribute('transform', `translate(0,${(H.y0 + lerp(r.raw, r.final, sortU) * H.rh).toFixed(2)})`);
+    set(r.g, 'transform', `translate(0,${(H.y0 + lerp(r.raw, r.final, sortU) * H.rh).toFixed(2)})`);
     r.rects.forEach((rect, c) => {
-      rect.setAttribute('opacity', prog(ms, 350 + c * 80, 380).toFixed(3));
-      if (breathe > 0) {
+      set(rect, 'opacity', prog(ms, 350 + c * 80, 380).toFixed(3));
+      if (refill) {
         const v = H.z[r.ri][H.cOrder[c]] + breathe * .28 * Math.sin(ts * 1.9 + r.ri * .9 + c * 1.7);
-        rect.setAttribute('fill', heatColour(v / 2));
+        set(rect, 'fill', heatColour(v / 2));
       }
     });
   });
-  H.dendro.setAttribute('opacity', prog(ms, 3000, 700).toFixed(3));
+  set(H.dendro, 'opacity', prog(ms, 3000, 700).toFixed(3));
 }
 
 function drawInset(g, kind, w, h, grp) {
@@ -969,16 +979,16 @@ let flowT = 0;
 function frameChrome(t) {
   // the left column (whole-organism and human data) fades as the camera pans past it, rather than being cut mid-word
   const leftA = 1 - clamp(cam.x / 30);
-  S.fades.forEach(f => f.el.setAttribute('opacity', prog(t, f.t0, f.d) * (f.left ? leftA : 1)));
+  S.fades.forEach(f => set(f.el, 'opacity', prog(t, f.t0, f.d) * (f.left ? leftA : 1)));
   let dim = 0;
   S.insets.forEach(r => {
     const st = r.step, ua = prog(t, r.T, st.appear), ud = prog(t, r.T + st.dockAt, st.dock, E.inOut);
     const x = lerp(r.present.x, r.dock.x, ud), y = lerp(r.present.y, r.dock.y, ud), s = lerp(r.present.s, r.dock.s, ud);
     const la = r.group === 'model' ? 1 : leftA;
-    r.g.setAttribute('opacity', ua * la * (r.group === 'model' ? lerp(1, .7, ud) : 1));
-    r.g.setAttribute('transform', `translate(${x},${y}) scale(${s})`);
-    r.pc.setAttribute('opacity', (1 - ud) * prog(t, r.T + 200, 300));   // after the backdrop has darkened the graph
-    r.cap.setAttribute('opacity', prog(t, r.T + st.dockAt + 250, 250) * la * (r.group === 'model' ? .75 : 1));
+    set(r.g, 'opacity', ua * la * (r.group === 'model' ? lerp(1, .7, ud) : 1));
+    set(r.g, 'transform', `translate(${x},${y}) scale(${s})`);
+    set(r.pc, 'opacity', (1 - ud) * prog(t, r.T + 200, 300));   // after the backdrop has darkened the graph
+    set(r.cap, 'opacity', prog(t, r.T + st.dockAt + 250, 250) * la * (r.group === 'model' ? .75 : 1));
     if (r.group !== 'model') dim = Math.max(dim, ua * (1 - ud));
     const live = ua > 0 && ud < 1;
     r.presenting = live;
@@ -1004,66 +1014,66 @@ function frameChrome(t) {
       r.shown = ua > 0;
     }
   });
-  S.backdrop.setAttribute('opacity', (.78 * dim).toFixed(3));
+  set(S.backdrop, 'opacity', (.78 * dim).toFixed(3));
   const g0 = TL.validate + VALIDATE.runAt;
   const gv = prog(t, g0 - 200, 300) * (1 - prog(t, g0 + VALIDATE.run, 500));
-  S.runGlow.setAttribute('opacity', (gv * (.65 + .35 * Math.sin(t / 140))).toFixed(3));
+  set(S.runGlow, 'opacity', (gv * (.65 + .35 * Math.sin(t / 140))).toFixed(3));
 }
 
 function frameSVG(t) {
   S.nodes.forEach(n => {
     const u = prog(t, n.t0, n.d);
     const tr = `translate(${n.p.x},${n.p.y}) scale(${(.55 + .45 * u).toFixed(3)})`;
-    n.el.setAttribute('opacity', u);
-    n.el.setAttribute('transform', tr);
-    if (n.lab) { n.lab.setAttribute('opacity', u); n.lab.setAttribute('transform', tr); }
+    set(n.el, 'opacity', u);
+    set(n.el, 'transform', tr);
+    if (n.lab) { set(n.lab, 'opacity', u); set(n.lab, 'transform', tr); }
   });
   S.edges.forEach(e => {
     const u = prog(t, e.t0, e.d);
-    e.el.setAttribute('opacity', u > 0 ? 1 : 0);
-    e.el.setAttribute('x2', lerp(e.a.p.x, e.b.p.x, u));
-    e.el.setAttribute('y2', lerp(e.a.p.y, e.b.p.y, u));
+    set(e.el, 'opacity', u > 0 ? 1 : 0);
+    set(e.el, 'x2', lerp(e.a.p.x, e.b.p.x, u));
+    set(e.el, 'y2', lerp(e.a.p.y, e.b.p.y, u));
   });
   S.waves.forEach(w => {
     const u = (t - w.t0) / w.d;
-    if (u <= 0 || u >= 1) { w.el.setAttribute('opacity', 0); return; }
+    if (u <= 0 || u >= 1) { set(w.el, 'opacity', 0); return; }
     const r = E.out(clamp(u * 2));
-    w.el.setAttribute('x2', lerp(w.a.p.x, w.b.p.x, r)); w.el.setAttribute('y2', lerp(w.a.p.y, w.b.p.y, r));
-    w.el.setAttribute('opacity', (.8 * (u < .5 ? 1 : (1 - u) * 2)).toFixed(3));
+    set(w.el, 'x2', lerp(w.a.p.x, w.b.p.x, r)); set(w.el, 'y2', lerp(w.a.p.y, w.b.p.y, r));
+    set(w.el, 'opacity', (.8 * (u < .5 ? 1 : (1 - u) * 2)).toFixed(3));
   });
   S.links.forEach(k => {
     const u = prog(t, k.t0, k.d);
-    k.el.setAttribute('opacity', u > 0 ? linkAlpha(t, k) : 0);
-    if (!k.dashed) k.el.setAttribute('stroke-dashoffset', k.len * (1 - u));
-    else if (u !== k.u) { k.u = u; k.el.setAttribute('d', pathD(u >= 1 ? k.C : bezPart(k.C, Math.max(u, .001)))); }
+    set(k.el, 'opacity', u > 0 ? linkAlpha(t, k) : 0);
+    if (!k.dashed) set(k.el, 'stroke-dashoffset', k.len * (1 - u));
+    else if (u !== k.u) { k.u = u; set(k.el, 'd', pathD(u >= 1 ? k.C : bezPart(k.C, Math.max(u, .001)))); }
     const f = linkFlow(t, k);
     if (f) {
       const p = k.el.getPointAtLength(f.u * k.len);
-      k.dot.setAttribute('cx', p.x); k.dot.setAttribute('cy', p.y); k.dot.setAttribute('opacity', f.a.toFixed(3));
-    } else k.dot.setAttribute('opacity', 0);
+      set(k.dot, 'cx', p.x); set(k.dot, 'cy', p.y); set(k.dot, 'opacity', f.a.toFixed(3));
+    } else set(k.dot, 'opacity', 0);
   });
   S.rings.forEach(g => {
     const u = prog(t, g.t0, 600);
-    g.el.setAttribute('opacity', u.toFixed(3));
-    g.el.setAttribute('transform', `translate(${g.node.p.x},${g.node.p.y}) scale(${(.7 + .3 * u).toFixed(3)})`);
+    set(g.el, 'opacity', u.toFixed(3));
+    set(g.el, 'transform', `translate(${g.node.p.x},${g.node.p.y}) scale(${(.7 + .3 * u).toFixed(3)})`);
   });
   S.pulses.forEach(p => {
     const u = clamp((t - p.t0) / p.d);
-    p.el.setAttribute('opacity', u > 0 && u < 1 ? (1 - u) * (p.alpha || .9) : 0);
-    p.el.setAttribute('r', p.r0 + 16 * E.out(u));
+    set(p.el, 'opacity', u > 0 && u < 1 ? (1 - u) * (p.alpha || .9) : 0);
+    set(p.el, 'r', p.r0 + 16 * E.out(u));
   });
 }
 
 function frameXeno(t) {
   const X = S.X, P = TL.predict, V = TL.validate, D = TL.discover;
-  X.card.setAttribute('opacity', prog(t, P, PREDICT.card));
+  set(X.card, 'opacity', prog(t, P, PREDICT.card));
 
   // which question: candidates, then targets
   const sw = prog(t, D, DISCOVER.switchD, E.inOut);
-  X.cand.setAttribute('opacity', 1 - sw);
-  X.targ.setAttribute('opacity', sw);
-  X.tabBar.setAttribute('x', lerp(X.tabPos[0].x, X.tabPos[1].x, sw));
-  X.tabBar.setAttribute('width', lerp(X.tabPos[0].w, X.tabPos[1].w, sw));
+  set(X.cand, 'opacity', 1 - sw);
+  set(X.targ, 'opacity', sw);
+  set(X.tabBar, 'x', lerp(X.tabPos[0].x, X.tabPos[1].x, sw));
+  set(X.tabBar, 'width', lerp(X.tabPos[0].w, X.tabPos[1].w, sw));
   const tab = sw < .5 ? 0 : 1;
   if (tab !== X.tabOn) { X.tabOn = tab; X.tabs.forEach((n, i) => { n.style.fill = i === tab ? COL.light : ''; n.style.fillOpacity = i === tab ? 1 : ''; }); }
 
@@ -1076,8 +1086,8 @@ function frameXeno(t) {
   });
   if (t >= D && t < X.queries[1].at) q = '';
   if (X.query.textContent !== q) { X.query.textContent = q; X.qw = q ? X.query.getComputedTextLength() : 0; }
-  X.caret.setAttribute('x', L.out.x + 34 + (X.qw || 0) + 1);
-  X.caret.setAttribute('opacity', typing || (t >= D && t < X.queries[1].at) || (t >= P && t < X.queries[0].at) ? (Math.floor(t / 400) % 2 ? .2 : 1) : 0);
+  set(X.caret, 'x', L.out.x + 34 + (X.qw || 0) + 1);
+  set(X.caret, 'opacity', typing || (t >= D && t < X.queries[1].at) || (t >= P && t < X.queries[0].at) ? (Math.floor(t / 400) % 2 ? .2 : 1) : 0);
 
   let si = -1;
   X.statuses.forEach((s, k) => { if (t >= s[0]) si = k; });
@@ -1087,7 +1097,7 @@ function frameXeno(t) {
     X.status.style.fill = si < 0 ? '' : X.statuses[si][2];
     X.status.style.fillOpacity = 1;
   }
-  X.status.setAttribute('opacity', si < 0 ? 0 : prog(t, X.statuses[si][0], 300));
+  set(X.status, 'opacity', si < 0 ? 0 : prog(t, X.statuses[si][0], 300));
 
   // rows: bars grow, rank, then ZM-131 is flagged, validated and moves up
   const u1 = prog(t, P + PREDICT.rankAt, PREDICT.rank, E.inOut), u2 = prog(t, V + VALIDATE.rankAt, VALIDATE.rank, E.inOut);
@@ -1096,85 +1106,85 @@ function frameXeno(t) {
   const k = u2 > 0 ? 1 : 0;
   if (k !== X.rerankOn) { X.rerankOn = k; X.rerank[k].up.forEach(r => X.cand.appendChild(r.g)); }
   X.rows.forEach(r => {
-    r.g.setAttribute('transform', `translate(0,${lerp(lerp(r.y0, r.y1, u1), r.y2, u2).toFixed(2)})`);
+    set(r.g, 'transform', `translate(0,${lerp(lerp(r.y0, r.y1, u1), r.y2, u2).toFixed(2)})`);
     const pass = Math.max(X.rerank[0].dim.includes(r) ? Math.sin(Math.PI * u1) : 0, X.rerank[1].dim.includes(r) ? Math.sin(Math.PI * u2) : 0);
-    r.g.setAttribute('opacity', (1 - .7 * pass).toFixed(3));
+    set(r.g, 'opacity', (1 - .7 * pass).toFixed(3));
     const rk = String(u2 > .5 ? r.r2 : r.r1);
     if (r.rank.textContent !== rk) r.rank.textContent = rk;
-    r.rank.setAttribute('opacity', prog(t, P + PREDICT.rankAt + PREDICT.rank - 200, 300));
-    r.hl.setAttribute('opacity', r.flagged ? (.12 * flagOn).toFixed(3) : 0);
+    set(r.rank, 'opacity', prog(t, P + PREDICT.rankAt + PREDICT.rank - 200, 300));
+    set(r.hl, 'opacity', r.flagged ? (.12 * flagOn).toFixed(3) : 0);
     r.bars.forEach((b, j) => {
       const grow = prog(t, P + PREDICT.barsAt + r.i * 90 + j * 50, 550);
       const v = b.unsure ? lerp(b.v, b.unsure.to, upd) : b.v;
-      b.el.setAttribute('width', (X.bw * v * grow).toFixed(2));
-      b.el.setAttribute('fill', v >= .5 ? COL.flag : COL.result);
+      set(b.el, 'width', (X.bw * v * grow).toFixed(2));
+      set(b.el, 'fill', v >= .5 ? COL.flag : COL.result);
       if (b.range) {
         const lo = lerp(b.unsure.lo, b.unsure.to, upd), hi = lerp(b.unsure.hi, b.unsure.to, upd);
-        b.range.setAttribute('x', (b.x + X.bw * lo).toFixed(2));
-        b.range.setAttribute('width', Math.max(0, X.bw * (hi - lo)).toFixed(2));
-        b.range.setAttribute('opacity', (prog(t, V, 400) * (1 - prog(t, V + VALIDATE.updAt + VALIDATE.upd - 200, 300))).toFixed(3));
+        set(b.range, 'x', (b.x + X.bw * lo).toFixed(2));
+        set(b.range, 'width', Math.max(0, X.bw * (hi - lo)).toFixed(2));
+        set(b.range, 'opacity', (prog(t, V, 400) * (1 - prog(t, V + VALIDATE.updAt + VALIDATE.upd - 200, 300))).toFixed(3));
       }
     });
   });
-  X.trows.forEach(r => { r.g.setAttribute('opacity', prog(t, r.t0, 400)); r.b.setAttribute('width', (r.w * prog(t, r.t0 + 150, 600)).toFixed(2)); });
+  X.trows.forEach(r => { set(r.g, 'opacity', prog(t, r.t0, 400)); set(r.b, 'width', (r.w * prog(t, r.t0 + 150, 600)).toFixed(2)); });
 
   // exchanges with the backbone
   X.ex.forEach(x => {
-    x.path.setAttribute('opacity', (.75 * prog(t, x.on, 300) * (1 - prog(t, x.off, 500))).toFixed(3));
+    set(x.path, 'opacity', (.75 * prog(t, x.on, 300) * (1 - prog(t, x.off, 500))).toFixed(3));
     x.dots.forEach((d, k) => {
       let s = -1, out = false;
       if (x.out != null) { const so = (t - x.out - k * 260) / 700; if (so > 0 && so < 1) { s = so; out = true; } }
       const sb = (t - x.back - k * 260) / 700;
       if (sb > 0 && sb < 1) { s = sb; out = false; }
-      if (s < 0) { d.setAttribute('opacity', 0); return; }
+      if (s < 0) { set(d, 'opacity', 0); return; }
       const p = bez(x.C, out ? 1 - s : s);
-      d.setAttribute('cx', p.x.toFixed(1)); d.setAttribute('cy', p.y.toFixed(1));
-      d.setAttribute('fill', out ? COL.light : COL.result);
-      d.setAttribute('opacity', (Math.sin(Math.PI * s) * .95).toFixed(3));
+      set(d, 'cx', p.x.toFixed(1)); set(d, 'cy', p.y.toFixed(1));
+      set(d, 'fill', out ? COL.light : COL.result);
+      set(d, 'opacity', (Math.sin(Math.PI * s) * .95).toFixed(3));
     });
   });
 
   // the validation run on its way to the biofoundry
   const R = X.req, us = clamp((t - R.t0) / R.d);
-  R.path.setAttribute('opacity', (.9 * prog(t, R.t0, 300) * (1 - prog(t, V + VALIDATE.updAt, 600))).toFixed(3));
+  set(R.path, 'opacity', (.9 * prog(t, R.t0, 300) * (1 - prog(t, V + VALIDATE.updAt, 600))).toFixed(3));
   if (us > 0 && us < 1) {
     const p = bez(R.C, E.inOut(us));
-    R.dot.setAttribute('cx', p.x.toFixed(1)); R.dot.setAttribute('cy', p.y.toFixed(1)); R.dot.setAttribute('opacity', 1);
-    R.label.setAttribute('transform', `translate(${p.x.toFixed(1)},${(p.y + 20).toFixed(1)})`);
+    set(R.dot, 'cx', p.x.toFixed(1)); set(R.dot, 'cy', p.y.toFixed(1)); set(R.dot, 'opacity', 1);
+    set(R.label, 'transform', `translate(${p.x.toFixed(1)},${(p.y + 20).toFixed(1)})`);
     // in quickly, and gone before the run lands on the biofoundry's caption
-    R.label.setAttribute('opacity', (clamp(us / .12) * (1 - clamp((us - .55) / .2))).toFixed(3));
-  } else { R.dot.setAttribute('opacity', 0); R.label.setAttribute('opacity', 0); }
+    set(R.label, 'opacity', (clamp(us / .12) * (1 - clamp((us - .55) / .2))).toFixed(3));
+  } else { set(R.dot, 'opacity', 0); set(R.label, 'opacity', 0); }
 
   // the run under way, then its result
   const C = X.call, c0 = V + VALIDATE.runAt, done = t >= V + VALIDATE.backAt;
-  C.g.setAttribute('opacity', (prog(t, c0 - 300, 300) * (1 - prog(t, V + VALIDATE.updAt + 400, 400))).toFixed(3));
+  set(C.g, 'opacity', (prog(t, c0 - 300, 300) * (1 - prog(t, V + VALIDATE.updAt + 400, 400))).toFixed(3));
   const hs = done ? 'RESULT IN \u00b7 ABOVE THRESHOLD' : 'PERFORMING A VALIDATION RUN';
   if (C.head.textContent !== hs) {
     C.head.textContent = hs;
     C.head.style.fill = done ? COL.live : COL.flag;
-    C.dot.setAttribute('fill', done ? COL.live : COL.flag); C.bar.setAttribute('fill', done ? COL.live : COL.flag);
+    set(C.dot, 'fill', done ? COL.live : COL.flag); set(C.bar, 'fill', done ? COL.live : COL.flag);
   }
-  C.bar.setAttribute('width', (C.bw * clamp((t - c0) / (V + VALIDATE.backAt - c0))).toFixed(1));
-  C.dot.setAttribute('opacity', done ? 1 : (.4 + .6 * Math.abs(Math.sin(flowT / 300))).toFixed(3));
+  set(C.bar, 'width', (C.bw * clamp((t - c0) / (V + VALIDATE.backAt - c0))).toFixed(1));
+  set(C.dot, 'opacity', done ? 1 : (.4 + .6 * Math.abs(Math.sin(flowT / 300))).toFixed(3));
 
   // the mechanism of action: bright while the result is read, then a trace once the question changes
   const moaOn = 1 - .7 * prog(t, D, 700);
   X.moa.forEach(m => {
     const u = prog(t, m.t0, 420), x2 = lerp(m.A.x, m.B.x, u).toFixed(1), y2 = lerp(m.A.y, m.B.y, u).toFixed(1);
-    [m.glow, m.line].forEach(l => { l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('opacity', u > 0 ? moaOn.toFixed(3) : 0); });
+    [m.glow, m.line].forEach(l => { set(l, 'x2', x2); set(l, 'y2', y2); set(l, 'opacity', u > 0 ? moaOn.toFixed(3) : 0); });
   });
-  X.moaTag.setAttribute('opacity', (prog(t, V + VALIDATE.moaAt + 2 * VALIDATE.moaStep, 400) * (1 - prog(t, D, 500))).toFixed(3));
+  set(X.moaTag, 'opacity', (prog(t, V + VALIDATE.moaAt + 2 * VALIDATE.moaStep, 400) * (1 - prog(t, D, 500))).toFixed(3));
 
   // discovery: the mechanism lines stay, and the targets appear on them
   X.walk.forEach(w => {
     const u = prog(t, w.t0, 450);
-    w.line.setAttribute('x2', lerp(w.A.p.x, w.B.p.x, u).toFixed(1)); w.line.setAttribute('y2', lerp(w.A.p.y, w.B.p.y, u).toFixed(1));
-    w.line.setAttribute('opacity', u > 0 ? lerp(.9, .6, prog(t, w.t0 + 900, 700)).toFixed(3) : 0);
+    set(w.line, 'x2', lerp(w.A.p.x, w.B.p.x, u).toFixed(1)); set(w.line, 'y2', lerp(w.A.p.y, w.B.p.y, u).toFixed(1));
+    set(w.line, 'opacity', u > 0 ? lerp(.9, .6, prog(t, w.t0 + 900, 700)).toFixed(3) : 0);
   });
   X.targets.forEach(tg => {
     const u = prog(t, tg.t0, 500);
-    tg.g.setAttribute('opacity', u.toFixed(3));
-    tg.g.setAttribute('transform', `translate(${tg.p.x},${tg.p.y}) scale(${(.4 + .6 * u).toFixed(3)})`);
+    set(tg.g, 'opacity', u.toFixed(3));
+    set(tg.g, 'transform', `translate(${tg.p.x},${tg.p.y}) scale(${(.4 + .6 * u).toFixed(3)})`);
   });
 }
 
@@ -1218,6 +1228,7 @@ function narrate(t) {
 
 let lastVB = '', cam = { x: 0 };
 function render(t) {
+  if (!S) return;   // not built yet
   const vb = cam = camRect(t), vbs = `${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}`;
   if (vbs !== lastVB) { LAYERS.forEach(n => layer[n].setAttribute('viewBox', vbs)); lastVB = vbs; }
   frameChrome(t); frameSVG(t); frameXeno(t); narrate(t);
@@ -1298,7 +1309,7 @@ new IntersectionObserver(entries => { inView = entries[0].intersectionRatio >= .
 
 function tick(now) {
   raf = 0;
-  if (!on || !visible) return;
+  if (!on || !visible || !S) return;
   const dt = Math.min(64, now - lastNow); lastNow = now;
   const fading = !!fade;
   if (fade) stepFade(now);
@@ -1330,6 +1341,17 @@ new IntersectionObserver(entries => {
   if (!visible && S) S.insets.forEach(r => r.video && r.video.pause());
   if (visible) startTick();
 }).observe(story);
+// Not with the page: the figure is built once the browser is idle after load, or when the story comes within a
+// screen of view if that is sooner; its clips load only from then on.
+let near = false;
+function ensureBuilt() { if (on && !S) { build(); render(clockT); markChapters(); startTick(); } }
+function loadClips() {
+  if (S) S.insets.forEach(r => { if (r.video && r.video.preload !== 'auto') { r.video.preload = 'auto'; r.video.load(); } });
+}
+new IntersectionObserver(entries => {
+  near = entries[0].isIntersecting;
+  if (near) { ensureBuilt(); loadClips(); }
+}, { rootMargin: '100% 0px' }).observe(story);
 setInterval(() => {
   if (!on || !S || !visible || !playing) return;
   S.insets.forEach(r => { if (r.video && r.shown && r.video.paused && !r.presenting) r.video.play().catch(() => {}); });
@@ -1344,7 +1366,7 @@ function setOn(want) {
   group.classList.toggle('pf-compact', on && vertical());
   sticky.hidden = !on;
   if (on) {
-    if (!S) build();
+    if (!S && near) build();
     activeIdx = -1;
     // with reduced motion it waits for Play, showing the first step finished
     userPaused = reduced; ended = false;
@@ -1385,12 +1407,14 @@ const domReady = document.readyState === 'loading'
   ? new Promise(r => document.addEventListener('DOMContentLoaded', r, { once: true })) : Promise.resolve();
 Promise.all([domReady, document.fonts.ready]).then(() => {
   evaluate();
+  (window.requestIdleCallback || (f => setTimeout(f, 1500)))(ensureBuilt, { timeout: 4000 });
   // ?pf-t=<ms> opens the page at that moment of the story and holds it there (for review)
   const at = new URLSearchParams(window.location.search).get('pf-t');
   if (at === null) return;
   const header = document.getElementById('site-header');
   window.scrollTo({ top: docY(story) - (header ? header.offsetHeight : 72) - bar.offsetHeight - 16, behavior: 'instant' });
   hold = true; clockT = +at;
+  if (!S) build();
   render(clockT); markChapters();
 });
 })();
