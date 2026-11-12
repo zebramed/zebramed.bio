@@ -925,7 +925,9 @@ function buildGraphSVG() {
 
 // ---------- frames ----------
 let visible = false;
-let flowT = 0;   // phase of the dots on links and of the heatmap's breathing: wall time, so they move at rest
+// phase of the dots on links, the pulsing dots and the heatmap's breathing: it runs while the film plays, so they
+// move at rest, and stops with it (paused, ended, out of view, reduced motion)
+let flowT = 0;
 function frameChrome(t) {
   S.fades.forEach(f => f.el.setAttribute('opacity', prog(t, f.t0, f.d)));
   let dim = 0;
@@ -954,9 +956,10 @@ function frameChrome(t) {
           if (!r.video.paused) r.video.pause();
           if (r.video.readyState >= 1 && Math.abs(r.video.currentTime - ct) > .034) r.video.currentTime = ct;
         }
-      } else if (ua > 0 && r.video.paused && visible && !userPaused) {
-        r.video.play().catch(() => {});
-      }
+      } else if (ua > 0 && playing) {
+        // docked: the clip loops while the film plays
+        if (r.video.paused) r.video.play().catch(() => {});
+      } else if (!r.video.paused) r.video.pause();   // hidden, or the film paused, ended or out of view
       r.shown = ua > 0;
     }
   });
@@ -1130,7 +1133,7 @@ function frameXeno(t) {
 // a gentle zoom toward where the new thing happens, back to the whole picture between and at the end
 function camRect(t) {
   const F = { x: 0, y: 0, w: L.w, h: L.h };
-  if (vertical()) return F;
+  if (vertical() || reduced) return F;
   const w = L.w * .82, h = L.h * .82;
   const IN = { x: 0, y: 22, w, h }, HUM = IN;
   const MOD = { x: L.w * .12, y: 20, w: L.w * .88, h: L.h * .88 };   // other models, on the right: the graph's title and labels stay in
@@ -1167,7 +1170,6 @@ function narrate(t) {
 
 let lastVB = '';
 function render(t) {
-  flowT = performance.now();
   const vb = camRect(t), vbs = `${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}`;
   if (vbs !== lastVB) { LAYERS.forEach(n => layer[n].setAttribute('viewBox', vbs)); lastVB = vbs; }
   frameChrome(t); frameSVG(t); frameXeno(t); narrate(t);
@@ -1228,8 +1230,8 @@ function playerClock(dt) {
 }
 function playerJump(i) {
   ended = false; updatePlay();
-  // paused with reduced motion: show the step finished; otherwise play it from its start
-  cutTo(reduced && userPaused ? BEATS[i].rest : BEATS[i].t, i, performance.now());
+  // paused (as reduced motion starts): show the step finished; otherwise play it from its start
+  cutTo(userPaused ? BEATS[i].rest : BEATS[i].t, i, performance.now());
   startTick();
 }
 playBtn.addEventListener('click', () => {
@@ -1239,7 +1241,7 @@ playBtn.addEventListener('click', () => {
 // the step on screen, or the one a fade is already heading to (so quick repeated clicks keep stepping)
 const stepNow = () => (fade ? fade.i : stepAt(clockT));
 group.querySelector('[data-pf-prev]').addEventListener('click', () => {
-  const i = stepNow(), still = reduced && userPaused;
+  const i = stepNow(), still = userPaused;
   playerJump(!still && !fade && (clockT - BEATS[i].t > 1500 || i === 0) ? i : Math.max(0, i - 1));   // to this step's start, or the one before
 });
 group.querySelector('[data-pf-next]').addEventListener('click', () => playerJump(Math.min(BEATS.length - 1, stepNow() + 1)));
@@ -1250,11 +1252,16 @@ function tick(now) {
   raf = 0;
   if (!on || !visible) return;
   const dt = Math.min(64, now - lastNow); lastNow = now;
+  const fading = !!fade;
   if (fade) stepFade(now);
-  else if (!hold) playerClock(dt);
+  else if (hold) playing = false;
+  else playerClock(dt);
+  if (playing) flowT += dt;
   render(clockT);
   markChapters();
-  raf = requestAnimationFrame(tick);
+  // frames while the film plays or fades (and one after, to pick up playing); otherwise the last frame stands
+  // until something changes (startTick)
+  if (playing || fading) raf = requestAnimationFrame(tick);
 }
 function startTick() {
   if (raf || !on || !visible) return;
@@ -1276,7 +1283,7 @@ new IntersectionObserver(entries => {
   if (visible) startTick();
 }).observe(story);
 setInterval(() => {
-  if (!on || !S || !visible || userPaused) return;
+  if (!on || !S || !visible || !playing) return;
   S.insets.forEach(r => { if (r.video && r.shown && r.video.paused && !r.presenting) r.video.play().catch(() => {}); });
 }, 700);
 
@@ -1311,12 +1318,17 @@ function evaluate() {
   const kind = layoutQ.matches ? 'wide' : 'compact';
   if (on && kind === L.kind && reduced === reduceQ.matches && arranged === arrangement()) return;
   arranged = arrangement();
-  const keepT = on ? clockT : null;
+  // the place in the story, and whether it was paused or over, unless the motion preference itself changed
+  const keep = on ? { t: clockT, paused: userPaused, ended, reduced } : null;
   setOn(false);
   reduced = reduceQ.matches;
   if (kind !== L.kind) { L = LAYOUTS[kind]; S = null; }
   setOn(true);
-  if (keepT !== null) { clockT = keepT; render(clockT); markChapters(); }
+  if (keep) {
+    clockT = keep.t;
+    if (keep.reduced === reduced) { userPaused = keep.paused; ended = keep.ended; updatePlay(); }
+    render(clockT); markChapters();
+  }
 }
 [wideQ, shortQ, layoutQ, reduceQ].forEach(q => q.addEventListener('change', evaluate));
 
