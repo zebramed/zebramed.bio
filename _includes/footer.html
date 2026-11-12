@@ -35,6 +35,11 @@
     <div class="footer-bar">
         <p>&copy; {{ 'now' | date: "%Y" }} {{ site.title }}. All rights reserved.</p>
         <p class="mt-2 text-xs">RCS Évry 988 494 795 · VAT FR09988494795</p>
+        <nav class="footer-legal" aria-label="Legal">
+            <a href="{{ '/legal-notice.html' | relative_url }}">Legal notice</a>
+            <a href="{{ '/privacy.html' | relative_url }}">Privacy policy</a>
+            <a href="{{ '/terms.html' | relative_url }}">Terms of use</a>
+        </nav>
     </div>
   </div>
 </footer>

@@ -1,0 +1,31 @@
+{%- comment -%}
+The publisher's identity for the legal pages, from _data/company.yml.
+Usage: {% include legal-identity.html lang="en" %} (or lang="fr").
+{%- endcomment -%}
+{%- assign c = site.data.company -%}
+{%- assign fr = false -%}{%- if include.lang == "fr" -%}{%- assign fr = true -%}{%- endif -%}
+<dl class="legal-facts">
+    <dt>{% if fr %}Dénomination sociale{% else %}Company name{% endif %}</dt>
+    <dd>{{ c.name }}</dd>
+    <dt>{% if fr %}Forme juridique{% else %}Legal form{% endif %}</dt>
+    <dd>{% if fr %}{{ c.form.fr }}{% else %}{{ c.form.en }}{% endif %}</dd>
+    <dt>{% if fr %}Capital social{% else %}Share capital{% endif %}</dt>
+    <dd>{% if fr %}{{ c.capital.fr }}{% else %}{{ c.capital.en }}{% endif %}</dd>
+    <dt>{% if fr %}Siège social{% else %}Registered office{% endif %}</dt>
+    <dd>{{ c.address | join: "<br>" }}</dd>
+    <dt>{% if fr %}Immatriculation{% else %}Registration{% endif %}</dt>
+    <dd>{% if fr %}RCS {{ c.rcs }} {{ c.siren }}, inscrite au registre national des entreprises (RNE){% else %}Évry Trade and Companies Register, RCS {{ c.rcs }} {{ c.siren }}; National Business Register (RNE){% endif %}<br>SIRET {{ c.siret }}</dd>
+    <dt>{% if fr %}N° de TVA intracommunautaire{% else %}EU VAT number{% endif %}</dt>
+    <dd>{{ c.vat }}</dd>
+    <dt>{% if fr %}Courriel{% else %}Email{% endif %}</dt>
+    <dd><a href="mailto:{{ site.email }}">{{ site.email }}</a></dd>
+    {%- if c.phone != "" %}
+    <dt>{% if fr %}Téléphone{% else %}Telephone{% endif %}</dt>
+    <dd>{{ c.phone }}</dd>
+    {%- elsif jekyll.environment != "production" %}
+    <dt>{% if fr %}Téléphone{% else %}Telephone{% endif %}</dt>
+    <dd class="pending-inline">Pending: a telephone number is required (LCEN art. 6). Set `phone` in _data/company.yml.</dd>
+    {%- endif %}
+    <dt>{% if fr %}Directeur de la publication{% else %}Publication director{% endif %}</dt>
+    <dd>{{ c.publication_director.name }}, {% if fr %}{{ c.publication_director.role.fr }}{% else %}{{ c.publication_director.role.en }}{% endif %}</dd>
+</dl>

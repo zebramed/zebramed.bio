@@ -60,6 +60,11 @@
 
         <div class="mt-8 text-center text-xs text-text-medium opacity-50">
             <p class="mx-auto">&copy; {{ 'now' | date: "%Y" }} {{ site.title }}</p>
+            <nav class="footer-legal" aria-label="Legal">
+                <a href="{{ '/legal-notice.html' | relative_url }}">Legal notice</a>
+                <a href="{{ '/privacy.html' | relative_url }}">Privacy policy</a>
+                <a href="{{ '/terms.html' | relative_url }}">Terms of use</a>
+            </nav>
         </div>
 
     </div>

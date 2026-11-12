@@ -1,0 +1,27 @@
+---
+layout: default
+---
+{%- comment -%}
+Legal pages (legal-notice.md, privacy.md, terms.md): the English text, then
+the French version in <section id="fr" lang="fr">. Front matter: `title`,
+`description`, `updated` (YYYY-MM-DD).
+{%- endcomment -%}
+<article class="section band legal">
+  <div class="wrap legal-wrap">
+    <header class="legal-head">
+        <p class="label">Legal</p>
+        <h1 class="title">{{ page.title }}</h1>
+        <p class="legal-meta">Last updated {{ page.updated | date: "%-d %B %Y" }} · <a href="#fr" hreflang="fr" lang="fr">Version française</a></p>
+    </header>
+
+    <div class="legal-body">
+{{ content }}
+    </div>
+
+    <nav class="legal-nav" aria-label="Legal documents">
+        <a href="{{ '/legal-notice.html' | relative_url }}"{% if page.url == '/legal-notice.html' %} aria-current="page"{% endif %}>Legal notice</a>
+        <a href="{{ '/privacy.html' | relative_url }}"{% if page.url == '/privacy.html' %} aria-current="page"{% endif %}>Privacy policy</a>
+        <a href="{{ '/terms.html' | relative_url }}"{% if page.url == '/terms.html' %} aria-current="page"{% endif %}>Terms of use</a>
+    </nav>
+  </div>
+</article>

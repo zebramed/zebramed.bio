@@ -1,16 +1,18 @@
+{%- comment -%} Off the home page, section links go back to it. {%- endcomment -%}
+{%- assign home = '' -%}{%- unless page.url == '/' -%}{%- assign home = '/' | relative_url -%}{%- endunless -%}
 <header class="site-header" id="site-header" role="banner">
     <div class="wrap header-bar">
-        <a href="#" class="brand" aria-label="ZebraMed, back to top">
+        <a href="{{ home }}#" class="brand" aria-label="ZebraMed, back to top">
             <span class="logo-mask" aria-hidden="true"></span>
             <span class="brand-title"><span class="text-text-light">Zebra</span><span class="gradient-text">Med</span></span>
         </a>
 
         <nav class="nav hidden md:flex" aria-label="Main navigation">
-            <a href="#problem" class="nav-link">Problem</a>
-            <a href="#offer" class="nav-link">Offer</a>
-            <a href="#platform" class="nav-link">Platform</a>
-            <a href="#team" class="nav-link">Team</a>
-            <a href="#traction" class="nav-link">Traction</a>
+            <a href="{{ home }}#problem" class="nav-link">Problem</a>
+            <a href="{{ home }}#offer" class="nav-link">Offer</a>
+            <a href="{{ home }}#platform" class="nav-link">Platform</a>
+            <a href="{{ home }}#team" class="nav-link">Team</a>
+            <a href="{{ home }}#traction" class="nav-link">Traction</a>
         </nav>
 
         <div class="header-actions">
@@ -27,11 +29,11 @@
 
     <nav id="mobile-menu" class="wrap md:hidden hidden" aria-label="Mobile navigation">
         <div class="mobile-nav">
-            <a href="#problem" class="nav-link">Problem</a>
-            <a href="#offer" class="nav-link">Offer</a>
-            <a href="#platform" class="nav-link">Platform</a>
-            <a href="#team" class="nav-link">Team</a>
-            <a href="#traction" class="nav-link">Traction</a>
+            <a href="{{ home }}#problem" class="nav-link">Problem</a>
+            <a href="{{ home }}#offer" class="nav-link">Offer</a>
+            <a href="{{ home }}#platform" class="nav-link">Platform</a>
+            <a href="{{ home }}#team" class="nav-link">Team</a>
+            <a href="{{ home }}#traction" class="nav-link">Traction</a>
         </div>
     </nav>
 </header>
