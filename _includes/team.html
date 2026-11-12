@@ -15,7 +15,7 @@
             <h3 class="person-name">{{ p.name }}{% if p.title %}, {{ p.title }}{% endif %}</h3>
             <p class="label">{{ p.role }}</p>
             <p class="person-bio">{{ p.bio }}</p>
-            {% if p.affiliations %}<p class="person-aff">{{ p.affiliations | join: " · " }}</p>{% endif %}
+            {% if p.affiliations %}<p class="person-aff">{% for a in p.affiliations %}<span class="nowrap">{{ a }}</span>{% unless forloop.last %} · {% endunless %}{% endfor %}</p>{% endif %}
             <p class="links">
                 {% if p.linkedin %}<a href="{{ p.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% endif %}
                 {% if p.page %}<a href="{{ p.page | relative_url }}">Profile</a>{% endif %}
