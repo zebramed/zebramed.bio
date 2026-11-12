@@ -30,9 +30,11 @@ const COL = { line: '#9fb0d0', live: '#64ffda', context: '#c3a6ff', result: '#a8
 
 // ---------- the storyboard ----------
 // Each input: appear, stay large while its content plays, dock, connect, pause. Models: the same, shorter.
-const BACKBONE   = { build: 2600, rest: 1200 };
+// Every step lasts at least as long as its line takes to read (about 250 ms a word, plus a second), and so does each
+// status line in XenoEx.
+const BACKBONE   = { build: 2600, rest: 4000 };
 const INPUT_STEP = { appear: 400, dock: 650, link: 600, stagger: 120, pulse: 650, rest: 2200 };
-const HOLD       = { imaged: 9000, tracked: 5200, sequenced: 5600, human: 4400 };
+const HOLD       = { imaged: 9000, tracked: 5200, sequenced: 5600, human: 5600 };
 // While each whole-organism (and the human) card is shown large: what is at work, what it does, and a
 // checklist that ticks as the card shows each read-out (ms after the card starts).
 const PRESENT = {
@@ -43,14 +45,14 @@ const PRESENT = {
   sequenced: { head: 'Whole-organism transcriptomics', sub: 'The gene programmes the perturbation changes',
                checks: [['reads', 1000], ['genes', 2600], ['programmes', 4000]] },
   human:     { head: 'Human pathobiology', sub: 'Human evidence on molecules of the same families', color: COL.human,
-               checks: [['clinical trials', 1000], ['concordance studies', 2200], ['existing datasets', 3400]] },
+               checks: [['clinical trials', 1200], ['concordance studies', 2800], ['existing datasets', 4400]] },
 };
-const PROPAGATE  = { wave: 2400, rest: 1400 };
+const PROPAGATE  = { wave: 2400, rest: 4200 };
 // other models: no zoom; they appear together, one after another, then all connect
-const MODEL_STEP = { appear: 350, stagger: 200, hold: 900, link: 600, linkStagger: 150, pulse: 550, rest: 1800 };
+const MODEL_STEP = { appear: 350, stagger: 200, hold: 1900, link: 600, linkStagger: 150, pulse: 550, rest: 4000 };
 // Reason: XenoEx predicts, validates where it is unsure, then is asked for targets. Times within each part.
-const PREDICT  = { card: 600, typeAt: 300, type: 1000, outAt: 1500, backAt: 2700, barsAt: 3600, rankAt: 4900, rank: 1200, end: 7600 };
-const VALIDATE = { reqAt: 1000, req: 1500, runAt: 2500, run: 2600, backAt: 5100, moaAt: 5400, moaStep: 380, updAt: 6600, upd: 900, rankAt: 7600, rank: 1100, end: 10000 };
+const PREDICT  = { card: 600, typeAt: 300, type: 1000, outAt: 1500, backAt: 2700, barsAt: 3600, rankAt: 6100, rank: 1200, end: 8800 };
+const VALIDATE = { reqAt: 2400, req: 1500, runAt: 3900, run: 2800, backAt: 6700, moaAt: 8300, moaStep: 380, updAt: 9600, upd: 900, rankAt: 11000, rank: 1100, end: 13000 };
 const DISCOVER = { switchD: 600, typeAt: 400, type: 900, walkAt: 1500, walkStep: 380, popAt: 3700, popStep: 450, listAt: 4300, listStep: 300, end: 8800 };
 const TL = {};
 
