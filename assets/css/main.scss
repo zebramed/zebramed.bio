@@ -533,7 +533,17 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 /* platform as one story, played like a film (platform.js adds .is-scrolly): the figure on the right, the
    text of the chapter that is playing on the left, the bar marks progress through each chapter and jumps to it */
 .pf-sticky[hidden] { display: none; }
+/* beside and short arrangements are wider than the page column: a text column, a gap and the figure, the figure
+   no taller than the screen leaves room for. The bar takes the same width so its edges line up with them.
+   Beside: room under the header for the bar, the step line and the controls; short: for the bar only */
+.platform-select.is-scrolly {
+    --pf-col: clamp(17rem, 22vw, 21rem); --pf-gap: clamp(2.5rem, 3.5vw, 3.5rem); --pf-fig: calc((100svh - 19.75rem) * 1.852);
+    --pf-w: min(calc(100vw - 4rem), 90rem, calc(var(--pf-col) + var(--pf-gap) + var(--pf-fig)));
+}
+.platform-select.pf-short { --pf-col: clamp(16rem, 24vw, 20rem); --pf-gap: clamp(2rem, 3vw, 3rem); --pf-fig: calc((100svh - 9.5rem) * 1.852); }
 .platform-select.is-scrolly .select-bar { margin-top: 3rem; padding: 0.25rem 0 0.75rem; background: var(--color-bg-deep); }
+.platform-select.is-scrolly:not(.pf-narrow) .select-bar,
+.platform-select.is-scrolly:not(.pf-narrow) .pf-story { position: relative; width: var(--pf-w); left: 50%; margin-left: calc(var(--pf-w) / -2); }
 .is-scrolly .select-bar button { position: relative; padding-top: 0.6rem; flex-direction: row; align-items: baseline; gap: 0.75rem; }
 /* progress through each chapter */
 .is-scrolly .select-bar button::after {
@@ -542,11 +552,7 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 }
 .is-scrolly .select-bar button.is-active { border-top-color: rgba(var(--color-line-rgb), 0.25); }
 .is-scrolly .select-name { font-size: 1.125rem; }
-.is-scrolly .pf-story {
-    --pf-w: min(calc(100vw - 4rem), 90rem);
-    display: grid; grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr); gap: 3.5rem; align-items: center;
-    position: relative; width: var(--pf-w); left: 50%; margin-left: calc(var(--pf-w) / -2);
-}
+.is-scrolly .pf-story { display: grid; grid-template-columns: var(--pf-col) minmax(0, 1fr); gap: var(--pf-gap); align-items: center; }
 .is-scrolly .rows { grid-column: 1; grid-row: 1; margin-top: 0; }
 /* the chapter texts share one place and crossfade */
 .platform-select.is-enhanced.is-scrolly [data-select-panel] {
@@ -559,22 +565,35 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .is-scrolly .row-text .row-title { font-size: 1.625rem; }
 .is-scrolly .row-text > p:not(.label) { font-size: 0.975rem; }
 .pf-player-buttons { display: inline-flex; }
-/* narrower than the two-column layout: one column, the figure first, then the chapter text */
-.pf-narrow.is-scrolly .pf-story { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; width: auto; left: 0; margin-left: 0; }
+/* short wide screens: the step line and controls beside the figure, the chapter text under them */
+.pf-short.is-scrolly .pf-story { grid-template-columns: minmax(0, 1fr); gap: 3rem; }
+.pf-short.is-scrolly .pf-sticky {
+    grid-column: 1; grid-row: 1; display: grid; align-items: center;
+    grid-template-columns: var(--pf-col) minmax(0, 1fr); grid-template-rows: 1fr auto auto 1fr; column-gap: var(--pf-gap);
+}
+.pf-short .pf-frame { grid-column: 2; grid-row: 1 / -1; }
+.pf-short .pf-narration { grid-column: 1; grid-row: 2; margin: 0; }
+.pf-short .pf-controls { grid-column: 1; grid-row: 3; margin-top: 1.25rem; }
+.pf-short.is-scrolly .rows { grid-column: 1; grid-row: 2; }
+/* narrower: one column, the figure first, then the chapter text. The wide figure no taller than leaves room for
+   the step line and controls under the header (the bar may scroll under it) */
+.pf-narrow.is-scrolly .pf-story { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
 .pf-narrow.is-scrolly .pf-sticky { grid-column: 1; grid-row: 1; }
 .pf-narrow.is-scrolly .rows { grid-column: 1; grid-row: 2; }
+.pf-narrow .pf-frame { max-width: calc((100svh - 16rem) * 1.852); }
 .pf-narrow .select-bar button { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
 .pf-narrow .select-name { font-size: clamp(0.875rem, 3.4vw, 1.125rem); }
 .pf-narrow .pf-controls { flex-wrap: wrap; justify-content: center; }
-.pf-narrow .pf-narration { min-height: 0; }
-/* the portrait figure, sized so that it, the step line and the controls fit the screen together */
+/* the portrait figure, sized so that it, the step line and the controls fit the screen together, but never
+   narrower than 17.5rem: on the smallest phones the controls are a short scroll away instead */
 .pf-compact .pf-stage { aspect-ratio: 400 / 600; }
-.pf-compact .pf-frame { max-width: calc((100svh - 18.5rem) * 0.667); }
+.pf-compact .pf-frame { max-width: max(17.5rem, calc((100svh - 18.5rem) * 0.667)); }
 /* small phones: the bar keeps Run / Translate / Reason only */
 @media (max-width: 559px) {
     .pf-narrow .select-name { display: none; }
     .pf-narrow .select-bar { margin-top: 2rem; }
     .pf-narrow.is-scrolly .pf-story { gap: 1.25rem; }
+    .pf-narrow .pf-n-text { font-size: 0.9375rem; line-height: 1.45; }
 }
 .pf-sticky { grid-column: 2; grid-row: 1; align-self: start; display: flex; flex-direction: column; justify-content: center; }
 .pf-frame { position: relative; width: 100%; margin-inline: auto; }
@@ -584,7 +603,8 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
 }
 .pf-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.pf-narration { width: 100%; max-width: 62ch; min-height: 4.4em; margin: 1rem auto 0; }
+.pf-narration { width: 100%; max-width: 62ch; min-height: 4.4em; margin: 1rem 0 0; }
+.pf-narrow .pf-narration { margin-inline: auto; }
 .pf-narration .label { display: block; }
 .pf-n-text { display: block; margin-top: 0.3rem; font-size: 1rem; line-height: 1.5; color: var(--color-text-light); }
 .pf-narration.is-fresh { animation: select-in 400ms ease; }

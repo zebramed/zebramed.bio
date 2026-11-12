@@ -14,8 +14,12 @@ const story = group.querySelector('[data-pf-story]');
 const bar = group.querySelector('[data-select-bar]');
 const narr = group.querySelector('[data-pf-narration]');
 const nStep = group.querySelector('[data-pf-step]'), nText = group.querySelector('[data-pf-text]');
-const wideQ = window.matchMedia('(min-width: 1024px) and (min-height: 620px)');   // the text beside the figure; below, under it
-const layoutQ = window.matchMedia('(min-width: 720px)');                          // the wide figure; below, the portrait one
+// Three arrangements: the chapter text beside the figure (wide and tall enough for the figure to stay legible);
+// on short wide screens, the step line and controls beside the figure and the chapter text under it; otherwise
+// one column. The wide figure from 900px, or from 720px in landscape; below, and on portrait tablets, the portrait one.
+const wideQ = window.matchMedia('(min-width: 1240px) and (min-height: 740px)');
+const shortQ = window.matchMedia('(min-width: 1024px) and (max-height: 739.98px)');
+const layoutQ = window.matchMedia('(min-width: 900px), (min-width: 720px) and (orientation: landscape)');
 const reduceQ = window.matchMedia('(prefers-reduced-motion: reduce)');
 const MEDIA = stage.dataset.media || '/assets/media/platform/';
 
@@ -1268,7 +1272,8 @@ function setOn(want) {
   if (want === on) return;
   on = want;
   group.classList.toggle('is-scrolly', on);
-  group.classList.toggle('pf-narrow', on && !wideQ.matches);
+  group.classList.toggle('pf-short', on && arrangement() === 'short');
+  group.classList.toggle('pf-narrow', on && arrangement() === 'stacked');
   group.classList.toggle('pf-compact', on && vertical());
   sticky.hidden = !on;
   if (on) {
@@ -1287,11 +1292,13 @@ function setOn(want) {
     if (S) S.insets.forEach(r => r.video && r.video.pause());
   }
 }
+const arrangement = () => (!layoutQ.matches ? 'stacked' : wideQ.matches ? 'beside' : shortQ.matches ? 'short' : 'stacked');
+let arranged = '';
 // The figure's layout follows the window; a change keeps the place in the story.
 function evaluate() {
   const kind = layoutQ.matches ? 'wide' : 'compact';
-  if (on && kind === L.kind && reduced === reduceQ.matches &&
-      group.classList.contains('pf-narrow') === !wideQ.matches) return;
+  if (on && kind === L.kind && reduced === reduceQ.matches && arranged === arrangement()) return;
+  arranged = arrangement();
   const keepT = on ? clockT : null;
   setOn(false);
   reduced = reduceQ.matches;
@@ -1299,7 +1306,7 @@ function evaluate() {
   setOn(true);
   if (keepT !== null) { clockT = keepT; render(clockT); markChapters(); }
 }
-[wideQ, layoutQ, reduceQ].forEach(q => q.addEventListener('change', evaluate));
+[wideQ, shortQ, layoutQ, reduceQ].forEach(q => q.addEventListener('change', evaluate));
 
 // after main.js has set up the bar (its DOMContentLoaded listener runs first) and the fonts are in
 const domReady = document.readyState === 'loading'
