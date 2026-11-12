@@ -13,6 +13,7 @@ const sticky = group.querySelector('[data-pf-sticky]');
 const story = group.querySelector('[data-pf-story]');
 const bar = group.querySelector('[data-select-bar]');
 const narr = group.querySelector('[data-pf-narration]');
+const chapterText = group.querySelector('.rows');
 const nStep = group.querySelector('[data-pf-step]'), nText = group.querySelector('[data-pf-text]');
 // Three arrangements: the chapter text beside the figure (wide and tall enough for the figure to stay legible);
 // on short wide screens, the step line and controls beside the figure and the chapter text under it; otherwise
@@ -1367,6 +1368,8 @@ function setOn(want) {
   group.classList.toggle('pf-narrow', on && arrangement() === 'stacked');
   group.classList.toggle('pf-compact', on && vertical());
   sticky.hidden = !on;
+  // the chapter text changes by itself while the film plays: not announced, as it is when a reader picks a part
+  chapterText.setAttribute('aria-live', on ? 'off' : 'polite');
   if (on) {
     if (!S && near) build();
     activeIdx = -1;

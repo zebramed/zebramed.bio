@@ -390,7 +390,7 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
     border: 1px solid rgba(var(--color-line-rgb), 0.16);
 }
 @media (min-width: 640px) { .plate { padding: 1.75rem; } }
-.plate-note { margin-top: 0.75rem; font-size: 0.8125rem; color: rgba(var(--color-text-light-rgb), 0.6); }
+.plate-note { margin-top: 0.75rem; font-size: 0.8125rem; color: rgba(var(--color-text-light-rgb), 0.6); text-wrap: balance; }
 .larva * { stroke-width: 0.55; }
 .ix .edge { stroke: var(--color-line); stroke-opacity: 0.45; stroke-width: 1.5; }
 .ix .edge-live { stroke: var(--color-accent-primary); stroke-width: 2.5; stroke-opacity: 0.95; }
