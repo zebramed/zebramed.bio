@@ -113,15 +113,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (sections.length > 0 && navLinks.length > 0) {
+        // A section is current while it crosses a thin band 40% down the screen, whatever its
+        // height (a share of the section's own area never fires once it is taller than the screen).
         const navObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (!entry.isIntersecting) return;
-                const id = entry.target.getAttribute('id');
+                const href = `#${entry.target.getAttribute('id')}`;
                 navLinks.forEach(link => {
-                    link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                    if (entry.isIntersecting) link.classList.toggle('active', link.getAttribute('href') === href);
+                    else if (link.getAttribute('href') === href) link.classList.remove('active');
                 });
             });
-        }, { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' });
+        }, { rootMargin: '-40% 0px -59% 0px' });
         sections.forEach(section => navObserver.observe(section));
     }
 });

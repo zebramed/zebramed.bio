@@ -23,7 +23,7 @@
     <div class="relative max-w-2xl mx-auto px-4 sm:px-6 min-h-screen flex flex-col justify-center py-16">
 
         <div class="text-center mb-10">
-            <a href="{{ '/' | relative_url }}" aria-label="ZebraMed - Back to homepage">
+            <a href="{{ '/' | relative_url }}" class="person-logo" aria-label="ZebraMed - Back to homepage">
                 <span class="logo-mask mx-auto mb-4" aria-hidden="true"></span>
             </a>
         </div>
@@ -35,7 +35,7 @@
             {%- assign member = site.data.team | where: "page", page.permalink | first %}
             <p class="mt-6 mx-auto text-text-medium leading-relaxed">{{ member.bio | default: page.bio }}</p>
 
-            <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div class="person-actions mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 {% if page.linkedin %}
                 <a href="{{ page.linkedin }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 border border-accent-primary text-accent-primary px-5 py-2.5 rounded-md text-sm font-medium hover:bg-accent-primary hover:text-bg-dark transition-colors">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -56,7 +56,7 @@
         {{ content }}
 
         <div class="mt-10 text-center">
-            <a href="{{ '/' | relative_url }}" class="text-sm text-text-medium hover:text-accent-primary transition-colors">&larr; Back to zebramed.bio</a>
+            <a href="{{ '/' | relative_url }}" class="person-back text-sm text-text-medium hover:text-accent-primary transition-colors">&larr; Back to zebramed.bio</a>
         </div>
 
         <div class="mt-8 text-center text-xs text-text-medium opacity-50">
