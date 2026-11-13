@@ -3,6 +3,9 @@
 # described at the top of its script in .github/scripts/. With an
 # ANTHROPIC_API_KEY or OPENAI_API_KEY secret, a language model also reviews
 # the changed copy (advisory; repository variable LLM_MODEL picks the model).
+# With a PREVIEW_DOMAIN variable and a SURGE_TOKEN secret, each pull request
+# from this repository also gets a Surge preview, linked in a comment with the
+# smoke test's screenshots.
 name: Checks
 
 on:
@@ -108,6 +111,79 @@ jobs:
           name: screenshots
           path: ${{ runner.temp }}/screenshots
           retention-days: 14
+
+  preview:
+    name: Preview
+    needs: [build, smoke]
+    # Pull requests from this repository only: forks get no secrets. Needs the
+    # PREVIEW_DOMAIN variable and a SURGE_TOKEN secret scoped to that domain.
+    if: >-
+      ${{ !cancelled() && needs.build.result == 'success' && github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository && vars.PREVIEW_DOMAIN != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: _site
+
+      - uses: actions/download-artifact@v8
+        continue-on-error: true  # absent if the smoke test stopped before its first page
+        with:
+          name: screenshots
+          path: _site/_screenshots
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      # A Surge preview is a revision of PREVIEW_DOMAIN with its own URL; the
+      # domain itself never changes, and Surge keeps the last 100 revisions.
+      - name: Publish a preview to Surge
+        id: surge
+        shell: bash
+        run: |
+          rm -f _site/CNAME
+          npx --yes surge@0.56.0 ./_site "$PREVIEW_DOMAIN" --preview -m "PR #$PR at ${SHA:0:7}" 2>&1 | tee "$RUNNER_TEMP/surge.log"
+          host=$(sed 's/\x1b\[[0-9;]*m//g' "$RUNNER_TEMP/surge.log" | grep -oE 'Preview available at [A-Za-z0-9.-]+' | awk '{print $4}' | tail -n1)
+          [[ "$host" =~ ^[A-Za-z0-9-]+--[A-Za-z0-9.-]+\.surge\.sh$ ]] || { echo "::error::No preview URL in the surge output"; exit 1; }
+          echo "url=https://$host" >> "$GITHUB_OUTPUT"
+        env:
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+          PREVIEW_DOMAIN: ${{ vars.PREVIEW_DOMAIN }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Link it from the pull request
+        shell: bash
+        run: |
+          python3 .github/scripts/preview_comment.py "$URL" _site/_screenshots > "$RUNNER_TEMP/comment.md"
+          echo "Preview: $URL" >> "$GITHUB_STEP_SUMMARY"
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- preview -->"))) | .id' | head -n1)
+          if [[ -n "$id" ]]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
+          else
+            gh api "repos/$REPO/issues/$PR/comments" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.surge.outputs.url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          SMOKE: ${{ needs.smoke.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   review:
     name: Copy review (language model, advisory)
