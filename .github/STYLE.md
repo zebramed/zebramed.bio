@@ -124,6 +124,7 @@ Use the tokens in section 1 of `assets/css/main.scss`. A new colour gets a token
 | `--color-flag` | #f5b85c, amber | Exclusions, thresholds, review markers |
 | `--color-heart` | #ff6b7d | The heartbeat in the hero loop and new targets in the platform film. Nothing else. |
 | `--color-line` | #9fb0d0 | Structure strokes, at low opacity |
+| `--color-stage` | #10153b | The platform film's stage: the halo behind its names |
 
 - Mint-to-green gradient text appears in three places: the ZebraMed wordmark, one phrase of the hero headline and the role line on personal pages. Nowhere else.
 - The platform film keeps its colour map (`COL`) in `assets/js/platform.js`. Its shared colours match the tokens. Its figure-only colours (#c3a6ff, #6cb6ff and the plate fill #12173c) stay inside the figures.
@@ -139,8 +140,8 @@ Use the tokens in section 1 of `assets/css/main.scss`. A new colour gets a token
 | `.vision` | The callout under a section title: white, one step below it, close to it |
 | `.h3`, `.h4` | Card and item headings, in white |
 | `.label` | Barlow capitals, tracked, in green |
-| `.lede` | The opening paragraph of a section, 58ch at most |
-| `p` | Body text, 62ch at most |
+| `.lede` | The opening paragraph of a section, 52ch at most |
+| `p` | Body text, 54ch at most (about 70 characters of Inter); the platform film keeps 62ch |
 
 - Display text, titles and callouts balance their lines (`text-wrap: balance`). Ledes avoid a lone last word (`text-wrap: pretty`).
 - Compounds and names stay whole across line breaks: wrap "whole-organism" in headings in `<span class="nowrap">`, and let affiliation lists break only between names.

@@ -50,6 +50,7 @@ Version:    3.0 (refactor/2026-10, restyle)
     --color-heart: #ff6b7d;               /* the heartbeat in the hero loop */
     --color-line: #9fb0d0;                /* structure strokes, used at low opacity */
     --color-line-rgb: 159, 176, 208;
+    --color-stage: #10153b;               /* the platform film's stage over the deep band: halos behind its names */
 
     --font-family-sans: 'Inter', system-ui, sans-serif;
     --font-family-display: 'Barlow', 'Inter', system-ui, sans-serif;
@@ -666,7 +667,7 @@ html[data-motion="playing"] .fig-wall.is-drawn .series { stroke-dashoffset: 0; }
 .pf-compact .pf-stage .t-label { font-size: 15px; }
 .pf-compact .pf-stage .t-note, .pf-compact .pf-stage .t-head { font-size: 13.5px; }
 /* a halo in the stage colour keeps names legible where lines pass */
-.pf-stage .t-halo { paint-order: stroke; stroke: #10153b; stroke-width: 4px; stroke-linejoin: round; }
+.pf-stage .t-halo { paint-order: stroke; stroke: var(--color-stage); stroke-width: 4px; stroke-linejoin: round; }
 .pf-controls {
     display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;
     margin: 0.75rem auto 0; font-size: 0.875rem; color: rgba(var(--color-text-light-rgb), 0.55);

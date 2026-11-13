@@ -8,7 +8,8 @@ module.exports = {
   ],
   // The scanner turns any matching word into a utility; "ring" appears in figure
   // comments and its utility draws a 3px blue box-shadow. Not used on purpose.
-  blocklist: ['ring'],
+  // The others are plain words in platform.js, problem.html and cta.html.
+  blocklist: ['ring', 'visible', '!visible', 'collapse', 'sticky', 'grow', 'outline', 'filter'],
   theme: {
     extend: {
       colors: {
