@@ -1,8 +1,8 @@
 # Checks every pull request into main: the production build, the rules in
 # .github/STYLE.md and a browser smoke test. What each step checks is
-# described at the top of its script in .github/scripts/. With an
-# ANTHROPIC_API_KEY or OPENAI_API_KEY secret, a language model also reviews
-# the changed copy (advisory; repository variable LLM_MODEL picks the model).
+# described at the top of its script in .github/scripts/. With the
+# ANTHROPIC_* federation variables set, Claude also reviews the changed copy
+# (advisory, signed in by workload identity federation; LLM_MODEL picks the model).
 # With a PREVIEW_DOMAIN variable and a SURGE_TOKEN secret, each pull request
 # from this repository also gets a Surge preview, linked in a comment with the
 # smoke test's screenshots.
@@ -187,10 +187,14 @@ jobs:
 
   review:
     name: Copy review (language model, advisory)
-    if: github.event_name == 'pull_request'
+    # Pull requests from this repository only: fork runs get no OIDC token.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     continue-on-error: true
+    permissions:
+      contents: read
+      id-token: write  # signs in to Anthropic by workload identity federation; no key is stored
     steps:
       - uses: actions/checkout@v7
         with:
@@ -200,6 +204,8 @@ jobs:
       - name: Review changed copy against STYLE.md
         run: python3 .github/scripts/llm_review.py HEAD^1
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_FEDERATION_RULE_ID: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
+          ANTHROPIC_ORGANIZATION_ID: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
+          ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
           LLM_MODEL: ${{ vars.LLM_MODEL }}

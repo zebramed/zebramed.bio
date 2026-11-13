@@ -2,7 +2,7 @@
 
 How zebramed.bio reads and looks. These rules cover everything a visitor can see or hear: copy, figure labels, narration, alt text and screen-reader descriptions, wherever they live (`_data/*.yml`, `_includes/`, `_layouts/`, the pages or `assets/js/`).
 
-Rules marked **(checked)** are mechanical, so CI checks them on every pull request (`.github/workflows/checks.yml`). A break fails the pull request, except for sentence case and the sentence patterns: those only raise warnings, because approved copy predates them. The rest need a reviewer. When the repository has an Anthropic or OpenAI key, a language model reads the changed copy against the rest too and leaves warnings on the lines; it never fails a pull request, and a reviewer decides.
+Rules marked **(checked)** are mechanical, so CI checks them on every pull request (`.github/workflows/checks.yml`). A break fails the pull request, except for sentence case and the sentence patterns: those only raise warnings, because approved copy predates them. The rest need a reviewer. A language model (Claude) also reads the changed copy of each pull request against the rest and leaves warnings on the lines; it never fails a pull request, and a reviewer decides.
 
 Quotations, publication titles and proper names (programmes, companies, laws) keep their own spelling and punctuation.
 

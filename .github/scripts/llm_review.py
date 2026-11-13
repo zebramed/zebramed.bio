@@ -4,14 +4,21 @@
 Usage: llm_review.py [BASE]    (default HEAD^1, the base side of a pull request's merge commit)
 
 Sends the lines a change adds to visible copy (_data/, _includes/, _layouts/,
-the pages and assets/js/), with STYLE.md, to Anthropic (ANTHROPIC_API_KEY) or
-OpenAI (OPENAI_API_KEY), and turns the reply into warnings on those lines. It
-covers the rules a pattern cannot judge: sentence patterns, voice, register,
-numbers without a source, names that may not be cleared. LLM_MODEL overrides
-the default model.
+the pages and assets/js/), with STYLE.md, to a language model, and turns the
+reply into warnings on those lines. It covers the rules a pattern cannot
+judge: sentence patterns, voice, register, numbers without a source, names
+that may not be cleared. LLM_MODEL overrides the default model.
+
+Credentials, first found wins:
+- In GitHub Actions, workload identity federation with Anthropic: the job's
+  OIDC token (needs id-token: write) is exchanged for a short-lived Anthropic
+  token, using ANTHROPIC_FEDERATION_RULE_ID, ANTHROPIC_ORGANIZATION_ID,
+  ANTHROPIC_SERVICE_ACCOUNT_ID and, if the rule covers several workspaces,
+  ANTHROPIC_WORKSPACE_ID. No secret is stored.
+- ANTHROPIC_API_KEY or OPENAI_API_KEY, for a run on your own machine.
 
 Never fails: a model can be wrong, so every finding is a prompt for the
-reviewer. Without a key (pull requests from forks get none) it skips.
+reviewer. Without credentials (pull requests from forks get none) it skips.
 """
 import json
 import os
@@ -20,6 +27,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -28,6 +36,9 @@ PATHS = [':(glob)_data/**', ':(glob)_includes/**', ':(glob)_layouts/**', ':(glob
 MAX_DIFF_CHARS = 120_000
 MAX_FINDINGS = 40
 DEFAULT_MODEL = {'anthropic': 'claude-sonnet-5-5', 'openai': 'gpt-6.1-sol'}
+ANTHROPIC = 'https://api.anthropic.com'
+ANTHROPIC_VERSION = '2026-10-21'
+WIF_VARS = ('ANTHROPIC_FEDERATION_RULE_ID', 'ANTHROPIC_ORGANIZATION_ID', 'ANTHROPIC_SERVICE_ACCOUNT_ID')
 
 INSTRUCTIONS = """You review copy changes to zebramed.bio, a public website, against its house style.
 The style guide is below, between <style> tags. The change follows in the user message, between
@@ -92,29 +103,46 @@ def changed_copy(base):
 
 # ---------- the model ----------
 
-def post(url, headers, body):
+def post(url, headers, body, tries=3):
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method='POST',
                                  headers={'content-type': 'application/json', **headers})
-    for attempt in range(3):
+    for attempt in range(tries):
         try:
             with urllib.request.urlopen(req, timeout=300) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:
-            if e.code in (429, 500, 502, 503, 529) and attempt < 2:
+            if e.code in (429, 500, 502, 503, 529) and attempt < tries - 1:
                 time.sleep(15 * (attempt + 1))
                 continue
             raise RuntimeError(f'HTTP {e.code}: {e.read()[:300].decode(errors="replace")}') from None
 
 
-def ask(provider, model, system, user):
+def federated_token():
+    """Exchange this job's GitHub OIDC token for a short-lived Anthropic token."""
+    url = os.environ['ACTIONS_ID_TOKEN_REQUEST_URL'] + '&audience=' + urllib.parse.quote(ANTHROPIC, safe='')
+    req = urllib.request.Request(url, headers={'authorization': f'Bearer {os.environ["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]}'})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        jwt = json.load(r)['value']
+    body = {'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer', 'assertion': jwt,
+            'federation_rule_id': os.environ['ANTHROPIC_FEDERATION_RULE_ID'],
+            'organization_id': os.environ['ANTHROPIC_ORGANIZATION_ID'],
+            'service_account_id': os.environ['ANTHROPIC_SERVICE_ACCOUNT_ID']}
+    if os.environ.get('ANTHROPIC_WORKSPACE_ID'):
+        body['workspace_id'] = os.environ['ANTHROPIC_WORKSPACE_ID']
+    # one try: GitHub's token is single-use, so a retry with it would be refused
+    token = post(f'{ANTHROPIC}/v1/oauth/token', {}, body, tries=1)['access_token']
+    if os.environ.get('GITHUB_ACTIONS'):
+        print(f'::add-mask::{token}')
+    return token
+
+
+def ask(provider, model, system, user, auth):
     if provider == 'anthropic':
-        data = post('https://api.anthropic.com/v1/messages',
-                    {'x-api-key': os.environ['ANTHROPIC_API_KEY'], 'anthropic-version': '2023-06-01'},
+        data = post(f'{ANTHROPIC}/v1/messages', {**auth, 'anthropic-version': ANTHROPIC_VERSION},
                     {'model': model, 'max_tokens': 16000, 'system': system,
                      'messages': [{'role': 'user', 'content': user}]})
         return ''.join(b.get('text', '') for b in data.get('content', []) if b.get('type') == 'text')
-    data = post('https://api.openai.com/v1/responses',
-                {'authorization': f'Bearer {os.environ["OPENAI_API_KEY"]}'},
+    data = post('https://api.openai.com/v1/responses', auth,
                 {'model': model, 'instructions': system, 'input': user, 'max_output_tokens': 16000})
     return ''.join(c.get('text', '') for item in data.get('output', []) if item.get('type') == 'message'
                    for c in item.get('content', []) if c.get('type') == 'output_text')
@@ -161,12 +189,16 @@ def note(msg, level='notice'):
 
 def main():
     base = sys.argv[1] if len(sys.argv) > 1 else 'HEAD^1'
-    if os.environ.get('ANTHROPIC_API_KEY'):
+    federated = all(os.environ.get(v) for v in WIF_VARS)
+    if federated and not os.environ.get('ACTIONS_ID_TOKEN_REQUEST_URL'):
+        note('Federation is configured but the job has no OIDC token: give it the id-token: write permission.', 'warning')
+        federated = False
+    if federated or os.environ.get('ANTHROPIC_API_KEY'):
         provider = 'anthropic'
     elif os.environ.get('OPENAI_API_KEY'):
         provider = 'openai'
     else:
-        note('No ANTHROPIC_API_KEY or OPENAI_API_KEY: skipped.')
+        note('No Anthropic federation or API key: skipped.')
         return
     model = os.environ.get('LLM_MODEL') or DEFAULT_MODEL[provider]
 
@@ -184,8 +216,20 @@ def main():
         note(f'The change is long: only its first {MAX_DIFF_CHARS:,} characters were reviewed.', 'warning')
 
     style = Path('.github/STYLE.md').read_text(encoding='utf-8')
+    if provider == 'openai':
+        auth = {'authorization': f'Bearer {os.environ["OPENAI_API_KEY"]}'}
+    elif federated:
+        try:
+            auth = {'authorization': f'Bearer {federated_token()}'}
+        except (RuntimeError, OSError, KeyError, json.JSONDecodeError) as e:
+            note(f'Anthropic refused the federated sign-in ({e}). The Claude Console shows why under '
+                 f'Workload identity, Authentication history; a pull request run presents the subject '
+                 f'repo:{os.environ.get("GITHUB_REPOSITORY", "<owner>/<repo>")}:pull_request.', 'warning')
+            return
+    else:
+        auth = {'x-api-key': os.environ['ANTHROPIC_API_KEY']}
     try:
-        reply = ask(provider, model, f'{INSTRUCTIONS}\n\n<style>\n{style}\n</style>', f'<diff>\n{diff}\n</diff>')
+        reply = ask(provider, model, f'{INSTRUCTIONS}\n\n<style>\n{style}\n</style>', f'<diff>\n{diff}\n</diff>', auth)
         findings = parse(reply)
     except (RuntimeError, ValueError, OSError, KeyError, json.JSONDecodeError) as e:
         note(f'{provider} ({model}) gave no usable review: {e}', 'warning')
