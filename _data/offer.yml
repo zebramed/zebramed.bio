@@ -1,0 +1,40 @@
+# What we offer: a callout line under the title, then one card per development
+# stage, each ending in the decisions it supports.
+title: What we offer
+callout: From target discovery to pre-GLP, grounded in causal systemic evidence.
+lede: >-
+  We map your proprietary data across our cross-species systemic atlas,
+  generating automated wet-lab ground truth only when XenoEx confidence
+  requires it.
+stages:
+  - stage: Discovery
+    title: Target identification and prioritisation
+    text: >-
+      XenoEx traverses disease pathways across multiple organs and molecular
+      layers to propose and rank novel targets. Every target is delivered with
+      an auditable mechanistic trace, giving discovery teams clear proof of
+      target rationale before committing chemistry.
+    benefits:
+      - Ranked hypotheses grounded in causal biology
+      - Complete mechanistic trail behind every target
+  - stage: Lead optimisation
+    title: Systemic efficacy and toxicity profiling
+    text: >-
+      Candidates are iteratively scored for systemic efficacy and multi-organ
+      safety by evaluating your in vitro data against our cross-species
+      systemic atlas. Every prediction is anchored in physical biology,
+      continuously updated through our automated biofoundry.
+    benefits:
+      - Multi-organ toxicity and efficacy profiling at the in vitro stage
+      - Early systemic profiling ahead of GLP studies
+  - stage: Preclinical development
+    title: Asset re-evaluation and go/no-go
+    text: >-
+      Stalled, shelved or ambiguous programmes are re-evaluated against our
+      cross-species systemic atlas, enriched with your existing in vitro,
+      organoid or animal data. XenoEx exposes alternative indications,
+      clarifies off-target liabilities and delivers definitive go/no-go
+      criteria ahead of GLP.
+    benefits:
+      - Repositioning and mechanistic audit of stalled assets
+      - Unified data for confident human translation

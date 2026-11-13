@@ -1,72 +1,89 @@
-<section id="solution">
-    <div class="text-center mb-12 reveal-on-scroll">
-        <h3 class="text-sm font-semibold tracking-widest text-accent-primary uppercase">Our Solution</h3>
-        <h4 class="mt-4 text-3xl md:text-4xl font-bold tracking-tight">Industrializing In Vivo Biology</h4>
-        <p class="mt-4 text-lg text-text-medium max-w-3xl mx-auto">
-            We are the first company to industrialize <b>in vivo</b> data generation. Our platform connects siloed knowledge, revealing the complete picture of systemic biology.
+<section id="platform" class="section band band-deep">
+  <div class="wrap">
+    <header class="section-head">
+        <h2 class="title">The platform</h2>
+        <p class="vision">A closed loop between multi-modal AI reasoning and human systemic biology.</p>
+        <p class="lede">
+            XenoEx reasons over our cross-species systemic atlas to predict how the human body will
+            respond to a candidate. When predictive confidence falls below the threshold, our automated
+            biofoundry runs targeted experiments to generate physical ground truth on demand.
         </p>
-    </div>
+    </header>
 
-    <div id="solution-animation-container" class="relative reveal-on-scroll">
-        <div class="w-full h-96 md:h-[500px] flex flex-col justify-center items-center p-4 mb-16">
-            <svg id="constellation-svg" class="w-full h-full" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <!-- Halo filters: create a soft glow while keeping a crisp core -->
-                    <filter id="haloPrimary" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
-                        <feMerge>
-                            <feMergeNode in="blur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                    <filter id="haloSecondary" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
-                        <feMerge>
-                            <feMergeNode in="blur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                </defs>
-                <g class="nodes">
-                    <circle class="dim-star" cx="50" cy="50" r="6"/>
-                    <circle class="lit-star svg-accent-primary-fill" filter="url(#haloPrimary)" cx="150" cy="150" r="6"/>
-                    <circle class="dim-star" cx="250" cy="50" r="6"/>
-                    <circle class="lit-star svg-accent-primary-fill" filter="url(#haloPrimary)" cx="350" cy="150" r="6"/>
-                    <circle class="dim-star" cx="200" cy="100" r="6"/>
-                    <circle class="new-star" filter="url(#haloSecondary)" cx="100" cy="100" r="5" fill="#a8ff78"/>
-                    <circle class="new-star" filter="url(#haloSecondary)" cx="300" cy="100" r="5" fill="#a8ff78"/>
-                    <circle class="new-star" filter="url(#haloSecondary)" cx="200" cy="20" r="5" fill="#a8ff78"/>
-                </g>
-                <g class="lines svg-accent-secondary-stroke" stroke-width="1">
-                    <line class="constellation-line" x1="50" y1="50" x2="100" y2="100" />
-                    <line class="constellation-line" x1="100" y1="100" x2="150" y2="150" />
-                    <line class="constellation-line" x1="50" y1="50" x2="200" y2="20" />
-                    <line class="constellation-line" x1="200" y1="20" x2="250" y2="50" />
-                    <line class="constellation-line" x1="250" y1="50" x2="300" y2="100" />
-                    <line class="constellation-line" x1="300" y1="100" x2="350" y2="150" />
-                    <line class="constellation-line" x1="150" y1="150" x2="200" y2="100" />
-                    <line class="constellation-line" x1="200" y1="100" x2="250" y2="50" />
-                </g>
-            </svg>
-        </div>
-        <p class="gradient-text text-center text-xl font-semibold -mt-8 mb-16 w-fit mx-auto">We connect biology's dim stars to reveal new constellations of insight.</p>
+    <div class="platform-select" data-select-group data-platform>
+    <div class="select-bar" role="group" aria-label="Parts of the platform" data-select-bar hidden>
+        <button type="button" data-select="biofoundry" aria-controls="pt-biofoundry"><span class="label">Run</span><span class="select-name">Biofoundry</span></button>
+        <button type="button" data-select="interactome" aria-controls="pt-interactome"><span class="label">Translate</span><span class="select-name">Systemic atlas</span></button>
+        <button type="button" data-select="xenoex" aria-controls="pt-xenoex"><span class="label">Reason</span><span class="select-name">XenoEx</span></button>
     </div>
+    <div class="pf-story" data-pf-story>
+    <div class="rows" aria-live="polite">
+        <article class="row" id="pt-biofoundry" data-select-panel="biofoundry">
+            <figure class="plate">
+                {% include figures/biofoundry.html %}
+            </figure>
+            <div class="row-text">
+                <p class="label">Run</p>
+                <h3 class="row-title">The automated biofoundry</h3>
+                <p>
+                    The transparent zebrafish larva is a whole-organism vertebrate model small enough for
+                    automated microfluidic screening. Sharing 82% of human disease-associated genes, it
+                    possesses functional organs, including an active liver, heart, nervous system and
+                    blood-brain barrier. Our biofoundry standardises high-throughput data generation, using
+                    FishEye computer vision to capture multi-organ morphology and behavioural phenotypes at
+                    scale. Larvae are used at stages not protected under EU Directive 2010/63/EU, and the
+                    pipeline is built as a New Approach Methodology in line with the FDA Modernization Act 2.0.
+                </p>
+            </div>
+        </article>
 
-    <div class="timeline relative">
-        <div class="timeline-item mb-16 reveal-on-scroll">
-            <div class="timeline-number gradient-text">01</div>
-            <h5 class="text-xl font-semibold">The Industrialized In Vivo Platform</h5>
-            <p class="mt-2 text-text-medium">A hybrid of proprietary hardware and off-the-shelf robotics, enabling standardized experiments at a scale and consistency competitors cannot match.</p>
-        </div>
-        <div class="timeline-item mb-16 reveal-on-scroll">
-            <div class="timeline-number gradient-text">02</div>
-            <h5 class="text-xl font-semibold">The Zebrafish Model at Scale</h5>
-            <p class="mt-2 text-text-medium">We unlock the power of a proven biological model (84% human gene homology) that was previously limited by technology, not biology. Systemic, scalable, and ethically sound.</p>
-        </div>
-        <div class="timeline-item reveal-on-scroll">
-            <div class="timeline-number gradient-text">03</div>
-            <h5 class="text-xl font-semibold">ZebrAI™: Our Intelligence Engine</h5>
-            <p class="mt-2 text-text-medium">Our AI engine that enriches data and aligns biological profiles with human clinical data, reaching over 80% translatability.</p>
-        </div>
+        <article class="row is-flipped" id="pt-interactome" data-select-panel="interactome">
+            <figure class="plate">
+                {% include figures/interactome.html %}
+                <figcaption class="plate-note">Organ states in teal, behaviour in green, transcripts in grey.</figcaption>
+            </figure>
+            <div class="row-text">
+                <p class="label">Translate</p>
+                <h3 class="row-title">The cross-species systemic atlas</h3>
+                <p>
+                    A proprietary multi-species knowledge graph mapping organs, physiological functions
+                    and molecular signalling pathways into a unified systemic network. Whole-body larval
+                    perturbation data is enriched with human pathobiology and aligned with clinical
+                    outcomes through genetic orthology and adverse outcome pathways. The atlas ingests
+                    client in vitro, organoid or rodent data, placing isolated bench readouts into
+                    whole-body context to improve translational accuracy.
+                </p>
+            </div>
+        </article>
+
+        <article class="row" id="pt-xenoex" data-select-panel="xenoex">
+            <figure class="plate">
+                {% include figures/xenoex.html %}
+            </figure>
+            <div class="row-text">
+                <p class="label">Reason</p>
+                <h3 class="row-title">XenoEx: interpretable reasoning</h3>
+                <p>
+                    XenoEx reasons over the atlas in auditable steps that research teams can inspect and
+                    redirect. It scores candidates for multi-organ toxicity and efficacy, re-evaluates
+                    stalled assets and ranks target hypotheses along complete mechanistic chains. When its
+                    confidence on a molecule falls under the threshold agreed with the client, XenoEx
+                    autonomously designs a targeted validation run and dispatches it to the biofoundry,
+                    updating the atlas once physical data returns.
+                </p>
+            </div>
+        </article>
     </div>
+    {% include figures/platform.html %}
+    </div>
+    </div>
+    <p class="basis">Priority patent application filed on ZebraChip microfluidic positioning and automated screening protocols.</p>
+
+    <div class="section-foot">
+        <a class="btn btn-solid" href="{{ site.data.links.pilot }}">
+            <span>Start a validation pilot</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+    </div>
+  </div>
 </section>

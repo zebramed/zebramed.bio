@@ -1,0 +1,211 @@
+# Checks every pull request into main: the production build, the rules in
+# .github/STYLE.md and a browser smoke test. What each step checks is
+# described at the top of its script in .github/scripts/. With the
+# ANTHROPIC_* federation variables set, Claude also reviews the changed copy
+# (advisory, signed in by workload identity federation; LLM_MODEL picks the model).
+# With a PREVIEW_DOMAIN variable and a SURGE_TOKEN secret, each pull request
+# from this repository also gets a Surge preview, linked in a comment with the
+# smoke test's screenshots.
+name: Checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and content
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tailwind CSS is up to date
+        run: |
+          npx tailwindcss -i ./assets/css/tailwind.src.css -o "$RUNNER_TEMP/tailwind.css" --minify
+          if ! cmp -s "$RUNNER_TEMP/tailwind.css" assets/css/tailwind.css; then
+            echo "::error file=assets/css/tailwind.css,title=Tailwind::Out of date: run npm run build:css and commit the result"
+            exit 1
+          fi
+
+      - name: Build (production)
+        id: build
+        if: ${{ !cancelled() }}
+        run: bundle exec jekyll build --strict_front_matter
+        env:
+          JEKYLL_ENV: production
+
+      - name: Confidentiality
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python3 .github/scripts/guard.py _site
+        env:
+          CONFIDENTIAL_TERMS: ${{ secrets.CONFIDENTIAL_TERMS }}
+
+      - name: Links and images
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python3 .github/scripts/links.py _site
+
+      - name: House writing rules
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python3 .github/scripts/house_rules.py _site assets/js/platform.js assets/js/motion.js assets/js/main.js
+
+      - name: Graphical rules (advisory)
+        if: ${{ !cancelled() }}
+        run: python3 .github/scripts/css_rules.py assets/css/main.scss
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        with:
+          name: site
+          path: _site
+          retention-days: 7
+
+  smoke:
+    name: Browser smoke test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: _site
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-package-lock --prefix "$RUNNER_TEMP/pw" playwright@1.65.0
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+
+      - name: Smoke test
+        run: node .github/scripts/smoke.cjs _site "$RUNNER_TEMP/screenshots"
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/pw/node_modules/playwright
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: screenshots
+          path: ${{ runner.temp }}/screenshots
+          retention-days: 14
+
+  preview:
+    name: Preview
+    needs: [build, smoke]
+    # Pull requests from this repository only: forks get no secrets. Needs the
+    # PREVIEW_DOMAIN variable and a SURGE_TOKEN secret scoped to that domain.
+    if: >-
+      ${{ !cancelled() && needs.build.result == 'success' && github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository && vars.PREVIEW_DOMAIN != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: _site
+
+      - uses: actions/download-artifact@v8
+        continue-on-error: true  # absent if the smoke test stopped before its first page
+        with:
+          name: screenshots
+          path: _site/_screenshots
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      # A Surge preview is a revision of PREVIEW_DOMAIN with its own URL; the
+      # domain itself never changes, and Surge keeps the last 100 revisions.
+      - name: Publish a preview to Surge
+        id: surge
+        shell: bash
+        run: |
+          rm -f _site/CNAME
+          npx --yes surge@0.56.0 ./_site "$PREVIEW_DOMAIN" --preview -m "PR #$PR at ${SHA:0:7}" 2>&1 | tee "$RUNNER_TEMP/surge.log"
+          host=$(sed 's/\x1b\[[0-9;]*m//g' "$RUNNER_TEMP/surge.log" | grep -oE 'Preview available at [A-Za-z0-9.-]+' | awk '{print $4}' | tail -n1)
+          [[ "$host" =~ ^[A-Za-z0-9-]+--[A-Za-z0-9.-]+\.surge\.sh$ ]] || { echo "::error::No preview URL in the surge output"; exit 1; }
+          echo "url=https://$host" >> "$GITHUB_OUTPUT"
+        env:
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+          PREVIEW_DOMAIN: ${{ vars.PREVIEW_DOMAIN }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Link it from the pull request
+        shell: bash
+        run: |
+          python3 .github/scripts/preview_comment.py "$URL" _site/_screenshots > "$RUNNER_TEMP/comment.md"
+          echo "Preview: $URL" >> "$GITHUB_STEP_SUMMARY"
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- preview -->"))) | .id' | head -n1)
+          if [[ -n "$id" ]]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
+          else
+            gh api "repos/$REPO/issues/$PR/comments" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.surge.outputs.url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          SMOKE: ${{ needs.smoke.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  review:
+    name: Copy review (language model, advisory)
+    # Pull requests from this repository only: fork runs get no OIDC token.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    permissions:
+      contents: read
+      id-token: write  # signs in to Anthropic by workload identity federation; no key is stored
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2  # the merge commit and its base, for the diff
+          persist-credentials: false
+
+      - name: Review changed copy against STYLE.md
+        run: python3 .github/scripts/llm_review.py HEAD^1
+        env:
+          ANTHROPIC_FEDERATION_RULE_ID: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
+          ANTHROPIC_ORGANIZATION_ID: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
+          ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}

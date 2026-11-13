@@ -1,0 +1,28 @@
+{% comment %}
+Platform figure 3: XenoEx. A decision trace, a confidence bar against a
+client-agreed threshold, and the two outcomes. Here confidence falls short,
+so the live outcome is the next run. Fictional.
+{% endcomment %}
+<svg class="plate-svg" viewBox="0 0 420 310" role="img"
+     aria-label="XenoEx, illustrated. Four steps of a decision trace, each a tool call and its result. A confidence bar stops short of the threshold, so XenoEx designs the next run instead of delivering a dossier. Fictional.">
+    <text class="f-head" x="20" y="22">decision trace</text>
+    {% for i in (0..3) %}{% assign y = i | times: 30 | plus: 48 %}{% assign w = i | times: 23 | modulo: 70 | plus: 70 %}
+    <rect class="live-f" x="20" y="{{ y | minus: 5 }}" width="10" height="10" rx="2"/>
+    <line class="hair-2 bar" x1="44" y1="{{ y }}" x2="{{ w | plus: 44 }}" y2="{{ y }}"/>
+    <line class="res bar" x1="{{ w | plus: 58 }}" y1="{{ y }}" x2="400" y2="{{ y }}"/>
+    {% endfor %}
+    <text class="f-label" x="44" y="168">tool</text>
+    <text class="f-label" x="400" y="168" text-anchor="end">result</text>
+
+    <text class="f-head" x="20" y="206">confidence</text>
+    <text class="f-label" x="306" y="206" text-anchor="middle">threshold</text>
+    <rect class="hair" x="20" y="218" width="380" height="10" rx="5"/>
+    <rect class="live-f" x="20" y="218" width="238" height="10" rx="5"/>
+    <line class="flag" x1="306" y1="212" x2="306" y2="234" stroke-width="2"/>
+
+    <text class="f-label" x="20" y="268">above: deliver a dossier</text>
+    <text class="f-label f-live" x="20" y="296">below: design the next run</text>
+    <path class="live" d="M232 291 H372 a8 8 0 0 0 8 -8 V268" marker-end="url(#xa)"/>
+    <defs><marker id="xa" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 z" class="live-f"/></marker></defs>
+    <text class="f-label f-live" x="388" y="258" text-anchor="end">to the biofoundry</text>
+</svg>

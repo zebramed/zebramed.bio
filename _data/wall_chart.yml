@@ -1,0 +1,40 @@
+# Figure 2: the systemic biology wall.
+# A schematic that tells the story, not a plot of the paper's numbers. The
+# narrative follows Jayatunga, Ayers, Bruens, Jayanth & Meier (Boston Consulting
+# Group), "How successful are AI-discovered drugs in clinical trials? A first
+# analysis and emerging lessons", Drug Discovery Today 29(6):104009, 2024
+# (doi:10.1016/j.drudis.2024.104009): AI-discovered molecules succeed 80-90% in
+# Phase I, well above the historic average, and ~40% in Phase II, the same as
+# ever. x runs from 0 (start of preclinical) to 1 (end of Phase II); y is asset
+# survival in %.
+status: schematic        # schematic | pending | sourced. "sourced" adds the numbered y axis; "pending" shows a badge in review builds
+y_label: Asset survival
+phases:
+  - label: Preclinical
+    sub: years 0 to 2
+    from: 0.0
+    to: 0.33
+  - label: Phase I
+    sub: years 2 to 5
+    from: 0.33
+    to: 0.66
+  - label: Phase II
+    sub: years 5 to 7
+    from: 0.66
+    to: 1.0
+wall:
+  from: 0.66
+  to: 1.0
+  label: The systemic biology wall
+series:
+  - name: Traditional pharma
+    style: base
+    points: "0,100 1,10"
+  - name: AI-designed candidates
+    style: live
+    points: "0,100 0.66,90 0.82,20 1,12"
+caption: >-
+  Asset survival from preclinical development to Phase II.
+source: >-
+  After Jayatunga et al., Boston Consulting Group,
+  <a href="https://doi.org/10.1016/j.drudis.2024.104009">Drug Discovery Today, 2024</a>.

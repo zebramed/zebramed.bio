@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZebraMed — Systemic backbone: animated figure prototype (not for publication)</title>
+<style>
+/* ---------------------------------------------------------------
+   MOCK ONLY. Self-contained, no third-party requests. docs/ is
+   excluded from the Jekyll build. Open straight from disk.
+   Palette as restyle/2026-10, plus one new colour for other models.
+---------------------------------------------------------------- */
+@font-face{font-family:Inter;font-weight:400;font-display:swap;src:url('../../assets/fonts/inter/Inter-Regular.woff2') format('woff2')}
+@font-face{font-family:Inter;font-weight:500;font-display:swap;src:url('../../assets/fonts/inter/Inter-Medium.woff2') format('woff2')}
+@font-face{font-family:Inter;font-weight:600;font-display:swap;src:url('../../assets/fonts/inter/Inter-SemiBold.woff2') format('woff2')}
+
+:root{
+  --bg:#0b1036; --plate:#12173c;
+  --text-light:#fff; --text-bright:#e6f1ff; --text-medium:#ccd6f6;
+  --line:#9fb0d0;
+  --live:#64ffda;      /* mint: whole-organism data, the live signal */
+  --context:#c3a6ff;   /* NEW, violet: other models */
+  --result:#a8ff78;    /* green: human output, lower risk */
+  --flag:#f5b85c;      /* amber: higher risk */
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text-bright);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6}
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+
+.bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.6rem 1.1rem;align-items:center;padding:.6rem 1.25rem;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08);font-size:.8rem;color:var(--text-medium)}
+.bar strong{color:var(--text-light);font-weight:600}
+.bar button{font:inherit;color:var(--text-medium);background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:6px;padding:.25rem .7rem;cursor:pointer}
+.bar button:hover{color:var(--text-light);border-color:var(--live)}
+.seg{display:inline-flex}
+.seg button{border-radius:0}
+.seg button:first-child{border-radius:6px 0 0 6px}
+.seg button:last-child{border-radius:0 6px 6px 0}
+.seg button+button{border-left:0}
+.bar button[aria-pressed="true"]{color:var(--bg);background:var(--live);border-color:var(--live)}
+.bar input[type=range]{accent-color:var(--live);width:min(240px,36vw)}
+.bar label{display:inline-flex;align-items:center;gap:.35rem;cursor:pointer}
+.bar input[type=checkbox]{accent-color:var(--live)}
+.time{font-variant-numeric:tabular-nums;min-width:3.4em;color:var(--text-light)}
+
+.kicker{font-size:.8rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--result);margin:3rem 0 0}
+h1{font-size:clamp(1.9rem,3.6vw,2.6rem);font-weight:600;letter-spacing:-.025em;line-height:1.12;color:var(--live);margin:.4rem 0 0}
+h2{font-size:1.5rem;font-weight:600;letter-spacing:-.015em;color:var(--text-light);margin:0}
+h3{font-size:.8rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--result);margin:1.75rem 0 .35rem}
+p,li{color:var(--text-medium);max-width:66ch}
+.lede{font-size:1.125rem}
+.muted{color:rgba(204,214,246,.6);font-size:.875rem}
+code{font-size:.85em;color:var(--text-light)}
+
+/* ---------- stage ---------- */
+.stage-wrap{margin:2.5rem auto 0;max-width:100%;transition:max-width .3s ease}
+.stage-wrap.phone{max-width:390px}
+.stage{position:relative;width:100%;border-radius:1rem;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01));border:1px solid rgba(159,176,208,.14);overflow:hidden}
+.scene{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .5s ease}
+.layer{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.layer.grid{display:none}
+canvas.layer{display:none}
+/* 2.5D: the same SVG layers, set at different depths */
+.mode-25d .stage{perspective:1700px;overflow:visible;background:none;border-color:transparent}
+.mode-25d .scene{transform:rotateX(var(--rx,15deg)) rotateY(var(--ry,-9deg)) scale(.93)}
+.mode-25d .layer.grid{display:block;transform:translateZ(-80px)}
+.mode-25d .layer.context{transform:translateZ(22px)}
+.mode-25d .layer.chrome{transform:translateZ(14px)}
+.mode-25d .layer.output{transform:translateZ(40px)}
+/* 3D: a canvas draws the graph; dock, titles and output stay SVG */
+.mode-3d canvas.layer{display:block;pointer-events:auto;cursor:grab}
+.mode-3d canvas.layer:active{cursor:grabbing}
+.mode-3d .layer.backbone,.mode-3d .layer.links,.mode-3d .layer.context,.mode-3d .layer.flow{display:none}
+/* Film: a directed camera on one canvas, the same frames the video export captures */
+.film-canvas{display:none;position:absolute;inset:0;width:100%;height:100%}
+.mode-film .scene{display:none}
+.mode-film .film-canvas{display:block}
+.mode-film .stage{border-color:transparent}
+.fmt{display:none}
+.mode-film .fmt{display:inline-flex}
+.exporting>*:not(.export-status){display:none}
+.export-status{font:500 1rem Inter,system-ui,sans-serif;color:var(--text-light);padding:2rem}
+.caption{margin:.9rem auto 0;font-size:.8125rem;color:rgba(204,214,246,.6);max-width:none;text-align:center}
+
+/* narration: one line that says what is happening */
+.narration{min-height:5.2em;margin:0 0 1rem;max-width:64ch}
+.n-step{display:block;font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--live);white-space:pre}
+.n-text{display:block;margin-top:.25rem;font-size:1.15rem;line-height:1.45;color:var(--text-light)}
+.narration.fresh{animation:nfade .5s ease}
+@keyframes nfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.mode-film .narration,.mode-film .nofilm{display:none}
+/* scroll to advance: the figure sticks while the page scrolls past it */
+.scroll-mode .scroller{height:1200vh}
+.scroll-mode .stage-wrap{position:sticky;top:3.6rem;max-width:min(100%,calc((100vh - 15rem) * 1.85))}
+html.scroll-mode body.mode-film .scroller{height:auto}
+html.scroll-mode body.mode-film .stage-wrap{position:static}
+@media (prefers-reduced-motion:reduce){.narration.fresh{animation:none}}
+
+/* svg text, as main.scss */
+svg text{font-family:Inter,system-ui,sans-serif}
+.t-head{fill:var(--text-medium);fill-opacity:.8;font-size:12.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase}
+.t-label{fill:var(--text-medium);font-size:14px}
+.t-strong{fill:var(--text-light);font-weight:500}
+.t-note{fill:var(--text-medium);fill-opacity:.78;font-size:12.5px}
+
+/* ---------- notes ---------- */
+.beats{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.beats button{font:inherit;font-size:.8rem;color:var(--text-medium);background:transparent;border:1px solid rgba(159,176,208,.3);border-radius:999px;padding:.25rem .8rem;cursor:pointer}
+.beats button:hover{border-color:var(--live);color:var(--text-light)}
+.beats b{color:var(--text-light);font-weight:500;font-variant-numeric:tabular-nums;margin-right:.35rem}
+.notes{display:grid;gap:2rem 4rem;margin:3rem 0 0;padding-top:2.5rem;border-top:1px solid rgba(159,176,208,.14)}
+@media(min-width:900px){.notes{grid-template-columns:1fr 1fr}}
+ul{padding-left:1.1rem;margin:.25rem 0}
+.sw{display:inline-block;width:.8em;height:.8em;border-radius:2px;vertical-align:-.05em;margin-right:.35em}
+table{border-collapse:collapse;width:100%;margin-top:1rem;font-size:.9rem}
+th,td{text-align:left;padding:.6rem .75rem;border-top:1px solid rgba(159,176,208,.18);color:var(--text-medium);vertical-align:top}
+th{color:var(--text-light);font-weight:600}
+</style>
+</head>
+<body class="mode-2d">
+
+<div class="bar">
+  <strong>Systemic backbone · prototype</strong>
+  <span class="seg" role="group" aria-label="Rendering">
+    <button type="button" data-mode="2d" aria-pressed="true">2D</button>
+    <button type="button" data-mode="25d" aria-pressed="false">2.5D</button>
+    <button type="button" data-mode="3d" aria-pressed="false">3D</button>
+    <button type="button" data-mode="film" aria-pressed="false">Film</button>
+  </span>
+  <span class="seg fmt" role="group" aria-label="Film format">
+    <button type="button" data-fmt="16x9" aria-pressed="true">16:9</button>
+    <button type="button" data-fmt="4x5" aria-pressed="false">4:5</button>
+  </span>
+  <span class="seg nofilm" role="group" aria-label="Advance">
+    <button type="button" data-adv="auto" aria-pressed="true">Auto</button>
+    <button type="button" data-adv="scroll" aria-pressed="false">Scroll</button>
+  </span>
+  <span class="seg nofilm" role="group" aria-label="Camera">
+    <button type="button" data-cam="off" aria-pressed="false">Camera off</button>
+    <button type="button" data-cam="subtle" aria-pressed="true">Subtle</button>
+  </span>
+  <button type="button" id="replay">Replay</button>
+  <button type="button" id="final">Final frame</button>
+  <input type="range" id="scrub" min="0" max="10600" step="10" value="0" aria-label="Timeline">
+  <span class="time" id="time">0.0 s</span>
+  <label><input type="checkbox" id="phone"> Phone width</label>
+</div>
+
+<main class="wrap">
+  <p class="kicker">Platform · how it works</p>
+  <h1>The Systemic Translation Graph, animated</h1>
+  <p class="lede">A systemic backbone, fed by whole-organism data, optionally joined by other models, and read out as human risk profiles that rank candidates. Four renderings of the same storyboard, switched in the bar above; the story either plays by itself (Auto) or follows the page as you scroll (Scroll), with or without a subtle camera. "Film" is the directed version, exportable to video. The clips need the page served over HTTP, not opened from disk.</p>
+
+  <div class="scroller" id="scroller">
+  <div class="stage-wrap" id="stage-wrap">
+    <div class="narration" id="narration" aria-live="polite"><span class="n-step" id="n-step"></span><span class="n-text" id="n-text"></span></div>
+    <div class="stage" id="stage" role="img"
+         aria-label="A systemic backbone: a network of organs (liver, brain, heart, kidney, gut, muscle) and the signals and functions linking them. Whole-organism data, imaged, tracked and sequenced, connects to organs, functions and molecular signals. Other models join in turn: cell cultures at the molecular level, organoids at liver and brain, an organ-on-chip coupling gut and liver. Data flows to a human risk profile for four candidates across liver, heart, brain and kidney, ranked safest first. Illustrative, with placeholder images and fictional values.">
+      <div class="scene" id="scene">
+        <svg class="layer grid" aria-hidden="true"></svg>
+        <svg class="layer backbone" aria-hidden="true"></svg>
+        <svg class="layer links" aria-hidden="true"></svg>
+        <svg class="layer context" aria-hidden="true"></svg>
+        <svg class="layer flow" aria-hidden="true"></svg>
+        <canvas class="layer c3d" id="c3d" aria-hidden="true"></canvas>
+        <svg class="layer chrome" aria-hidden="true"></svg>
+        <svg class="layer output" aria-hidden="true"></svg>
+      </div>
+      <canvas class="film-canvas" id="film" aria-hidden="true"></canvas>
+    </div>
+    <p class="caption">Illustrative. Clips from ZebraMed imaging and tracking; the heatmap is computed from simulated data; candidates and values are fictional.<span id="hint"></span></p>
+  </div>
+  </div>
+
+  <div class="beats" id="beats" aria-label="Storyboard beats"></div>
+
+  <section class="notes">
+    <div>
+      <h2>What it shows</h2>
+      <h3>Systemic backbone</h3>
+      <p>Organs and the systems linking them, with molecular signals and functions around each organ. It is labelled as the map, not as a species: the figure never says "zebrafish".</p>
+      <h3><span class="sw" style="background:var(--live)"></span>Whole organism</h3>
+      <p>One input among others: <strong>imaged</strong> (a lateral clip: raw, vessels, then segmentation) connects to organs, <strong>tracked</strong> (one well, a swim bout at half speed) to functions, <strong>sequenced</strong> (a clustered heatmap) to molecular signals.</p>
+      <h3><span class="sw" style="background:var(--context)"></span>Other models</h3>
+      <p>Each attaches where it can observe: <strong>cell cultures</strong> at molecular signals, <strong>organoids</strong> at single organs (liver, brain), an <strong>organ-on-chip</strong> coupling two organs (gut and liver). Each branch crosses the backbone to reach its place; its inset docks on the side.</p>
+      <h3><span class="sw" style="background:var(--result)"></span><span class="sw" style="background:var(--flag)"></span>Human risk profile</h3>
+      <p>Predicted human risk by organ for four candidates, then ranked by their highest organ risk, safest first.</p>
+    </div>
+    <div>
+      <h2>Comparing the three renderings</h2>
+      <table>
+        <thead><tr><th></th><th>2D</th><th>2.5D</th><th>3D</th></tr></thead>
+        <tbody>
+          <tr><th>Built with</th><td>SVG, animated by script</td><td>The same SVG layers, set at depths with CSS perspective; follows the pointer</td><td>Canvas with a small perspective projection; no library. Drag to rotate</td></tr>
+          <tr><th>Added weight</th><td>None</td><td>None</td><td>None here; three.js would add ~150 KB</td></tr>
+          <tr><th>Text</th><td>Crisp</td><td>Can soften while tilted</td><td>Crisp, redrawn each frame</td></tr>
+          <tr><th>Final frame</th><td>Fixed, good for decks</td><td>Fixed tilt</td><td>Depends on the angle</td></tr>
+          <tr><th>Known limit</th><td>Flattest</td><td>Lines between layers meet a few px off as the tilt changes</td><td>Labels can overlap when rotated; heavier on old phones</td></tr>
+        </tbody>
+      </table>
+      <h3>Experiment clips and heatmap</h3>
+      <ul>
+        <li><strong>Imaged:</strong> <code>phenotype1.mp4</code>, cropped 4:1 around the larva; raw, vessels, then brain and spinal cord into full segmentation, skipping the transitions. 9.6 s loop.</li>
+        <li><strong>Tracked:</strong> <code>behaviour2.mp4</code>, well E6 only, labels cropped out, colour reduced so it doesn't read as the violet; one bout with rest either side, at half speed. 8.8 s loop.</li>
+        <li><strong>Sequenced:</strong> 36 genes × 12 samples of simulated dose-response data (vehicle, low, mid, high), z-scored and ordered by hierarchical clustering; the bar above marks dose.</li>
+      </ul>
+      <p class="muted">Cuts are in <code>docs/preview/media/make_clips.py</code>; edit the windows there and run it again. Swap the heatmap for a real one when there is a dataset to show.</p>
+      <h3>Film and video</h3>
+      <p>"Film" runs the same story on a directed camera: in close on the backbone, over to each input as it arrives, along each model's branch, back for the whole system, then along the data to the risk profile. The story slows where there is something to read. 16:9 ends on the whole picture; 4:5 ends on the ranking.</p>
+      <p class="muted">Export: <code>python3 docs/preview/film/export.py</code> renders every frame in headless Chromium and writes MP4, WebM and a poster for both formats to <code>docs/preview/film/</code>.</p>
+      <h3>Open points</h3>
+      <ul>
+        <li>The violet for other models is new to the palette.</li>
+        <li>Six organs shown; immune system, skin or blood vessels could be added.</li>
+        <li>Ranking by worst organ is one choice; a weighted score is another.</li>
+      </ul>
+    </div>
+  </section>
+  <div style="height:5rem"></div>
+</main>
+
+<script>
+(() => {
+'use strict';
+
+// Experiment clips, cut from assets/videos by docs/preview/media/make_clips.py (paths relative to this file).
+const CLIPS = {
+  lateral:   { src: 'media/imaged' },   // lateral view, 4:1
+  behaviour: { src: 'media/tracked' },  // one well, 1:1
+};
+
+const NS = 'http://www.w3.org/2000/svg';
+const COL = { line: '#9fb0d0', live: '#64ffda', context: '#c3a6ff', result: '#a8ff78', flag: '#f5b85c',
+              medium: '#ccd6f6', light: '#ffffff', plate: '#12173c', bg: '#0b1036', heatLo: '#3346b8' };
+
+// ---------- the storyboard ----------
+// Every step: appear, stay large while its content plays, dock, connect, then a pause to take in
+// the new link before the next one. Optional models follow the same pattern, a little shorter.
+const BACKBONE   = { build: 2600, rest: 1200 };
+const INPUT_STEP = { appear: 400, dock: 650, link: 600, stagger: 120, pulse: 650, rest: 2200 };
+// how long each whole-organism input stays large: imaged until its full segmentation
+// has shown (from 7.8 s into the clip), sequenced long enough to see its rows cluster
+const HOLD       = { imaged: 9000, tracked: 4000, sequenced: 5600 };
+const MODEL_STEP = { appear: 350, hold: 1700, dock: 500, branch: 500, pop: 300, attach: 450, stagger: 100, pulse: 550, rest: 1400 };
+const OUTPUT     = { card: 600, flow: 1500, bars: 1100, pause: 900, rank: 1200, hold: 3200 };
+const RANK = { dur: OUTPUT.rank };
+const TL = {};
+
+// ---------- the graph (unit square; z is depth for the 3D view) ----------
+const ORGANS = [
+  { id: 'liver',  label: 'liver',  x: .50, y: .50, z: 0 },
+  { id: 'brain',  label: 'brain',  x: .27, y: .17, z: .3 },
+  { id: 'heart',  label: 'heart',  x: .74, y: .19, z: -.25 },
+  { id: 'kidney', label: 'kidney', x: .86, y: .63, z: .2 },
+  { id: 'gut',    label: 'gut',    x: .33, y: .85, z: -.3 },
+  { id: 'muscle', label: 'muscle', x: .11, y: .55, z: .15 },
+];
+// molecular signals around each organ, by angle (deg, y down); the label sits below, so no 60–120
+const SIGNALS = { liver: [-140, -60, 15], brain: [-150, -40], heart: [-130, -20],
+                  kidney: [-30, 150], gut: [-150, 170], muscle: [-110, 170] };
+// functions: what the organism does, not what it is made of
+const FUNCS = [
+  { id: 'activity',   label: 'activity',   x: .10, y: .25, z: .35,  links: ['brain', 'muscle'] },
+  { id: 'rate',       label: 'heart rate', x: .93, y: .34, z: -.15, links: ['heart'] },
+  { id: 'flow',       label: 'blood flow', x: .90, y: .48, z: .05,  links: ['heart', 'kidney'] },
+  { id: 'metabolism', label: 'metabolism', x: .64, y: .74, z: -.1,  links: ['liver', 'gut'] },
+];
+const ORGAN_EDGES = [['liver', 'heart'], ['liver', 'brain'], ['liver', 'gut'], ['liver', 'kidney'], ['gut', 'brain'], ['brain', 'muscle']];
+const SIGNAL_LINKS = [];
+
+// each input links to the n nodes of its pool that face it (at most one per organ), so links end on the near side;
+// 'keep' nodes are linked regardless (imaged shows the heart beating, so that one link crosses the backbone)
+const INPUTS = [
+  { id: 'imaged',    kind: 'lateral',   title: 'Whole organism · imaged',    caption: 'imaged',    pool: ['liver', 'gut', 'brain', 'flow'], keep: ['heart'], n: 3 },
+  { id: 'tracked',   kind: 'behaviour', title: 'Whole organism · tracked',   caption: 'tracked',   pool: ['activity', 'muscle', 'rate'], n: 2 },
+  { id: 'sequenced', kind: 'heatmap',   title: 'Whole organism · sequenced', caption: 'sequenced',
+    pool: ['liver', 'brain', 'heart', 'gut', 'kidney'].flatMap(o => SIGNALS[o].map((_, i) => `${o}-${i}`)), n: 3 },
+];
+const MODELS = [
+  { id: 'cells',     kind: 'dish',     title: 'Cell cultures', caption: 'cell cultures',
+    hub: [.58, .27], ctx: [[.47, .36, 'liver-0'], [.66, .44, 'liver-2'], [.62, .06, 'heart-0']] },
+  { id: 'organoids', kind: 'organoid', title: 'Organoids',     caption: 'organoids',
+    hub: [.03, .38], ctx: [[.38, .60, 'liver'], [.42, .22, 'brain']] },
+  { id: 'chip',      kind: 'chip',     title: 'Organ-on-chip', caption: 'organ-on-chip',
+    hub: [.55, .96], ctx: [[.44, .92, 'gut'], [.45, .66, 'liver']], couple: true },
+];
+const OUT_ORGANS = ['liver', 'heart', 'brain', 'kidney'];
+const CANDIDATES = [
+  { name: 'ZM-104', risk: [.18, .10, .14, .08] },
+  { name: 'ZM-087', risk: [.78, .22, .12, .34] },
+  { name: 'ZM-131', risk: [.30, .56, .20, .16] },
+  { name: 'ZM-062', risk: [.16, .14, .62, .22] },
+];
+
+// lay the steps end to end; each step's times are relative to its start T
+(function timeline() {
+  let t = BACKBONE.build + BACKBONE.rest;
+  TL.inputs = INPUTS.map(inp => {
+    const s = INPUT_STEP, T = t, st = { appear: s.appear, dockAt: s.appear + HOLD[inp.id], dock: s.dock };
+    st.linkAt = st.dockAt + s.dock;
+    st.pulseAt = st.linkAt + s.link * .75;
+    st.end = st.linkAt + s.link + (inp.n - 1) * s.stagger + s.pulse;   // connected
+    st.next = st.end + s.rest;                                                        // after the pause
+    inp.step = st; t += st.next;
+    return T;
+  });
+  TL.models = MODELS.map(m => {
+    const s = MODEL_STEP, T = t, st = { appear: s.appear, dockAt: s.appear + s.hold, dock: s.dock };
+    st.branchAt = st.dockAt + s.dock;
+    st.popAt = st.branchAt + s.branch;
+    st.attachAt = st.popAt + s.pop;
+    st.pulseAt = st.attachAt + s.attach * .7;
+    st.end = st.attachAt + s.attach + (m.ctx.length - 1) * s.stagger + s.pulse;
+    st.next = st.end + s.rest;
+    m.step = st; t += st.next;
+    return T;
+  });
+  TL.flow = t + OUTPUT.card;
+  TL.bars = TL.flow + OUTPUT.flow;
+  TL.rank = TL.bars + OUTPUT.bars + OUTPUT.pause;
+  TL.end = TL.rank + OUTPUT.rank + OUTPUT.hold;
+})();
+const BEATS = [
+  [0, 'Backbone'], [TL.inputs[0], 'Imaged'], [TL.inputs[1], 'Tracked'], [TL.inputs[2], 'Sequenced'],
+  [TL.models[0], 'Other models'], [TL.flow, 'To human risk'], [TL.rank, 'Ranked'], [TL.end, 'Final frame'],
+];
+// what the page says at each step
+const NARRATION = [
+  [0,            '1 · Systemic backbone', 'A map of the body as one system: organs, and the functions and molecular signals that connect them.'],
+  [TL.inputs[0], '2 · Whole organism, imaged', 'A living organism is imaged whole: organs, vessels and nerves seen together, in context.'],
+  [TL.inputs[1], '3 · Whole organism, tracked', 'The same organism\'s behaviour is measured: how it moves, rests and responds.'],
+  [TL.inputs[2], '4 · Whole organism, sequenced', 'Its gene activity is read out, clustered, and mapped onto the molecular signals of the backbone.'],
+  [TL.models[0], '5 · Other models, optional', 'Cell cultures, organoids or organs-on-chip can plug in where they fit. They add detail; the backbone works without them.'],
+  [TL.flow,      '6 · Human risk profile', 'The backbone translates everything into human terms: predicted risk, organ by organ, for each candidate.'],
+  [TL.rank,      '7 · Ranked', 'Candidates come out ranked, safest first.'],
+];
+
+// ---------- layouts ----------
+function wideLayout() {
+  return {
+    kind: 'wide', w: 1000, h: 540,
+    bb: { x: 300, y: 92, w: 376, h: 376 }, bbTitle: { x: 488, y: 40 },
+    heads: { whole: { x: 24, y: 46 }, models: { x: 24, y: 292 } },
+    slots: {
+      imaged: { x: 24, y: 66, w: 152, h: 38 }, tracked: { x: 24, y: 118, w: 42, h: 42 }, sequenced: { x: 24, y: 174, w: 58, h: 42 },
+      cells: { x: 24, y: 308, w: 42, h: 42 }, organoids: { x: 24, y: 364, w: 42, h: 42 }, chip: { x: 24, y: 420, w: 42, h: 42 },
+    },
+    present: { cx: 410, cy: 252, maxW: 620, maxH: 330, maxS: 12 },
+    out: { x: 714, y: 84, w: 266, h: 392 },
+  };
+}
+function tallLayout() {
+  return {
+    kind: 'tall', w: 400, h: 1010,
+    bb: { x: 34, y: 186, w: 332, h: 332 }, bbTitle: { x: 200, y: 146 },
+    heads: { whole: { x: 16, y: 24 }, models: { x: 16, y: 566 } },
+    slots: {
+      imaged: { x: 16, y: 41, w: 160, h: 40 }, tracked: { x: 190, y: 36, w: 50, h: 50 }, sequenced: { x: 254, y: 36, w: 70, h: 50 },
+      cells: { x: 16, y: 578, w: 50, h: 50 }, organoids: { x: 146, y: 578, w: 50, h: 50 }, chip: { x: 276, y: 578, w: 50, h: 50 },
+    },
+    present: { cx: 200, cy: 352, maxW: 330, maxH: 260, maxS: 12 },
+    out: { x: 16, y: 690, w: 368, h: 300 },
+  };
+}
+
+// ---------- helpers ----------
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, u) => a + (b - a) * u;
+const E = { out: u => 1 - Math.pow(1 - u, 3), inOut: u => (u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2) };
+const prog = (t, s, d, e = E.out) => e(clamp((t - s) / d));
+function rng(seed) { return () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296; }
+function el(tag, attrs, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function txt(parent, x, y, s, cls, attrs = {}) { const n = el('text', Object.assign({ x, y, class: cls }, attrs), parent); n.textContent = s; return n; }
+function bez(P, u) {
+  const v = 1 - u, a = v * v * v, b = 3 * v * v * u, c = 3 * v * u * u, d = u * u * u;
+  return { x: a * P[0].x + b * P[1].x + c * P[2].x + d * P[3].x, y: a * P[0].y + b * P[1].y + c * P[2].y + d * P[3].y };
+}
+function mix(h1, h2, u) {
+  const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const a = p(h1), b = p(h2);
+  return '#' + a.map((v, i) => Math.round(lerp(v, b[i], u)).toString(16).padStart(2, '0')).join('');
+}
+
+// ---------- DOM ----------
+const stageWrap = document.getElementById('stage-wrap');
+const stage = document.getElementById('stage');
+const scene = document.getElementById('scene');
+const canvas = document.getElementById('c3d');
+const LAYERS = ['grid', 'backbone', 'links', 'context', 'flow', 'chrome', 'output'];
+const layer = {};
+LAYERS.forEach(n => { layer[n] = scene.querySelector('svg.layer.' + n); });
+
+let L = null, S = null, mode = '2d';
+
+// ---------- build ----------
+function build() {
+  L = stageWrap.clientWidth < 640 ? tallLayout() : wideLayout();
+  applyStageShape();
+  LAYERS.forEach(n => { layer[n].innerHTML = ''; layer[n].setAttribute('viewBox', `0 0 ${L.w} ${L.h}`); });
+  S = { nodes: [], edges: [], links: [], pulses: [], insets: [], fades: [], branches: [], flows: [], rows: [], N: new Map() };
+  const U = (x, y) => ({ x: L.bb.x + x * L.bb.w, y: L.bb.y + y * L.bb.h });
+  S.U = U;
+
+  // nodes
+  const add = n => { n.p = U(n.x, n.y); S.N.set(n.id, n); S.nodes.push(n); return n; };
+  ORGANS.forEach(o => add(Object.assign({ kind: 'organ' }, o)));
+  ORGANS.forEach(o => {
+    const r = o.id === 'liver' ? .095 : .085;
+    SIGNALS[o.id].forEach((deg, i) => {
+      const a = deg * Math.PI / 180;
+      add({ id: `${o.id}-${i}`, kind: 'signal', x: o.x + Math.cos(a) * r, y: o.y + Math.sin(a) * r, z: o.z + (i % 2 ? .12 : -.12) });
+    });
+  });
+  FUNCS.forEach(f => add(Object.assign({ kind: 'func' }, f)));
+  S.nodes.forEach(n => {
+    const d = Math.hypot(n.x - .5, n.y - .5);
+    n.t0 = n.kind === 'organ' ? 100 + d * 2000 : n.kind === 'signal' ? 450 + d * 2000 : 1500;
+    n.d = 420;
+  });
+
+  // backbone edges
+  const N = id => S.N.get(id);
+  const edge = (a, b, w, alpha, color = COL.line) => S.edges.push({ a: N(a), b: N(b), w, alpha, color, layer: 'backbone' });
+  ORGAN_EDGES.forEach(([a, b]) => edge(a, b, 1.7, .5));
+  ORGANS.forEach(o => SIGNALS[o.id].forEach((_, i) => edge(o.id, `${o.id}-${i}`, 1.1, .42)));
+  SIGNAL_LINKS.forEach(([a, b]) => {
+    let best = null;
+    SIGNALS[a].forEach((_, i) => SIGNALS[b].forEach((__, j) => {
+      const p = N(`${a}-${i}`), q = N(`${b}-${j}`), d = Math.hypot(p.x - q.x, p.y - q.y);
+      if (!best || d < best.d) best = { d, p: p.id, q: q.id };
+    }));
+    edge(best.p, best.q, 1, .28);
+  });
+  FUNCS.forEach(f => f.links.forEach(l => edge(f.id, l, 1.1, .42)));
+  S.edges.forEach(e => { e.t0 = Math.max(e.a.t0, e.b.t0) + 60; e.d = 560; });
+
+  buildChrome();
+
+  // whole-organism inputs; depth is how far into the backbone a node sits, seen from the inputs
+  const depth = n => L.kind === 'wide' ? n.x : n.y;
+  const pickTargets = inp => {
+    const keep = (inp.keep || []).map(N);
+    const best = new Map();
+    inp.pool.forEach(id => { const n = N(id), g = id.split('-')[0]; if (!best.has(g) || depth(n) < depth(best.get(g))) best.set(g, n); });
+    return [...best.values()].sort((a, b) => depth(a) - depth(b)).slice(0, inp.n - keep.length).concat(keep);
+  };
+  INPUTS.forEach((inp, i) => {
+    const T = TL.inputs[i];
+    const ins = makeInset(inp, T, 'whole');
+    const st = inp.step, s = INPUT_STEP;
+    pickTargets(inp).forEach((node, j) => {
+      S.links.push({ src: inp.id, T, from: ins.port, to: node, t0: T + st.linkAt + j * s.stagger, d: s.link, color: COL.live,
+                     alpha: .85, rest: .28, dimAt: T + st.next, flowFrom: T + st.end, flowTo: T + st.next, j, dash: false, w: 1.4 });
+      S.pulses.push({ node, t0: T + st.pulseAt + j * s.stagger, d: s.pulse, color: COL.live });
+    });
+  });
+
+  // other models: optional, so drawn quieter than the whole-organism links (thin, dashed, faint)
+  MODELS.forEach((m, i) => {
+    const T = TL.models[i];
+    const ins = makeInset(m, T, 'model');
+    const st = m.step, s = MODEL_STEP;
+    const hub = add({ id: m.id + '-hub', kind: 'hub', x: m.hub[0], y: m.hub[1], z: -.55 });
+    hub.t0 = T + st.branchAt + s.branch - 80; hub.d = 300;
+    S.branches.push({ src: m.id, from: ins.port, hub, t0: T + st.branchAt, d: s.branch });
+    const ctx = m.ctx.map((c, j) => {
+      const n = add({ id: `${m.id}-c${j}`, kind: 'ctx', x: c[0], y: c[1], z: -.38 });
+      n.t0 = T + st.popAt + j * 80; n.d = 300;
+      S.edges.push({ a: hub, b: n, w: 1, alpha: .5, color: COL.context, layer: 'context', dash: true, t0: n.t0 - 40, d: 300 });
+      S.edges.push({ a: n, b: N(c[2]), w: 1, alpha: .42, color: COL.context, layer: 'context', dash: true,
+                     t0: T + st.attachAt + j * s.stagger, d: s.attach });
+      S.pulses.push({ node: N(c[2]), t0: T + st.pulseAt + j * s.stagger, d: s.pulse, color: COL.context, alpha: .45 });
+      return n;
+    });
+    if (m.couple) S.edges.push({ a: ctx[0], b: ctx[1], w: 1, alpha: .5, color: COL.context, layer: 'context', dash: true,
+                                 t0: T + st.attachAt + 160, d: s.attach });
+  });
+
+  buildOutput();
+  buildFlows();
+  buildGraphSVG();
+  buildGrid();
+}
+
+function buildChrome() {
+  const g = layer.chrome;
+  const defs = el('defs', {}, g);
+  const pat = el('pattern', { id: 'hatch', width: 5, height: 5, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs);
+  el('line', { x1: 0, y1: 0, x2: 0, y2: 5, stroke: COL.line, 'stroke-opacity': .16, 'stroke-width': 1 }, pat);
+
+  // backbone title, on a pill so links can pass under it
+  const tg = el('g', {}, g);
+  const tw = 196;
+  el('rect', { x: L.bbTitle.x - tw / 2, y: L.bbTitle.y - 18, width: tw, height: 42, rx: 8, fill: COL.bg, 'fill-opacity': .82 }, tg);
+  txt(tg, L.bbTitle.x, L.bbTitle.y, 'Systemic backbone', 't-head', { 'text-anchor': 'middle', style: 'fill:#fff;fill-opacity:1' });
+  txt(tg, L.bbTitle.x, L.bbTitle.y + 18, 'how organs and systems interact', 't-note', { 'text-anchor': 'middle' });
+  S.fades.push({ el: tg, t0: 0, d: 500 });
+
+  const hw = txt(g, L.heads.whole.x, L.heads.whole.y, 'Whole organism', 't-head', { style: 'fill:#64ffda' });
+  const hm = txt(g, L.heads.models.x, L.heads.models.y, 'Other models · optional', 't-head', { style: 'fill:#c3a6ff;fill-opacity:.75' });
+  S.fades.push({ el: hw, t0: TL.inputs[0], d: 300 }, { el: hm, t0: TL.models[0], d: 300 });
+
+  S.backdrop = el('rect', { x: L.bb.x - 24, y: L.bb.y - 24, width: L.bb.w + 48, height: L.bb.h + 48, rx: 14, fill: COL.bg, opacity: 0 }, g);
+  S.insetLayer = el('g', {}, g);
+}
+
+function makeInset(def, T, group) {
+  const sl = L.slots[def.id];
+  const P = L.present;
+  // whole-organism inputs are shown large; optional models more modestly
+  const s = Math.min(group === 'model' ? 4 : P.maxS, P.maxW / sl.w, P.maxH / sl.h);
+  const present = { x: P.cx - sl.w * s / 2, y: P.cy - sl.h * s / 2, s };
+  const dock = { x: sl.x, y: sl.y, s: 1 };
+
+  // caption next to (wide) or below (tall) the docked inset
+  const capPos = L.kind === 'wide' ? { x: sl.x + sl.w + 10, y: sl.y + sl.h / 2 + 5 } : { x: sl.x, y: sl.y + sl.h + 18 };
+  const cap = txt(layer.chrome, capPos.x, capPos.y, def.caption, 't-label', { opacity: 0 });
+  const capW = cap.getComputedTextLength ? cap.getComputedTextLength() : def.caption.length * 7.5;
+  let port;
+  if (L.kind === 'wide') port = { x: capPos.x + capW + 8, y: sl.y + sl.h / 2 };
+  else port = group === 'whole' ? { x: sl.x + sl.w / 2, y: sl.y + sl.h + 26 } : { x: sl.x + sl.w / 2, y: sl.y - 6 };
+
+  const g = el('g', { opacity: 0 }, S.insetLayer);
+  const heat = drawInset(g, def.kind, sl.w, sl.h, group);
+  const pc = txt(g, sl.w / 2, sl.h + 20 / s, def.title, 't-label t-strong', { 'text-anchor': 'middle', style: `font-size:${15 / s}px` });
+  const rec = { g, pc, cap, present, dock, T, port, group, step: def.step, heat, video: g.querySelector('video'), shown: false };
+  S.insets.push(rec);
+  return rec;
+}
+
+function makeVideo(clip, inline) {
+  const v = document.createElement('video');
+  v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+  v.poster = clip.src + '.jpg';
+  if (inline) v.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;border-radius:4px';
+  ['webm', 'mp4'].forEach(ext => {
+    const s = document.createElement('source');
+    s.src = `${clip.src}.${ext}`; s.type = `video/${ext}`; v.appendChild(s);
+  });
+  // No autoplay attribute: browsers pause muted autoplaying video they judge hidden, and can't judge
+  // inside SVG. The page starts the figure's clips when their card shows; the film's when they load.
+  if (!reduce && !inline) v.addEventListener('canplay', () => { if (v.paused) v.play().catch(() => {}); });
+  return v;
+}
+
+// A clustered heatmap computed from simulated dose-response data (illustrative, not a result):
+// 12 samples (vehicle, low, mid, high; 3 each) x 36 genes in four programmes, z-scored per gene,
+// rows and columns ordered by average-linkage hierarchical clustering.
+function hclust(vecs) {
+  const n = vecs.length, D = vecs.map(a => vecs.map(b => Math.hypot(...a.map((v, k) => v - b[k]))));
+  let nodes = vecs.map((_, i) => ({ leaves: [i], h: 0 }));
+  while (nodes.length > 1) {
+    let best = null;
+    for (let a = 0; a < nodes.length; a++) for (let b = a + 1; b < nodes.length; b++) {
+      let s = 0;
+      nodes[a].leaves.forEach(i => nodes[b].leaves.forEach(j => { s += D[i][j]; }));
+      const d = s / (nodes[a].leaves.length * nodes[b].leaves.length);
+      if (!best || d < best.d) best = { a, b, d };
+    }
+    const A = nodes[best.a], B = nodes[best.b];
+    nodes = nodes.filter((_, k) => k !== best.a && k !== best.b);
+    nodes.push({ leaves: A.leaves.concat(B.leaves), h: best.d, l: A, r: B });
+  }
+  return n ? nodes[0] : null;
+}
+const HEAT = (() => {
+  const R = rng(20261029), gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += R(); return (u - 3) * 1.41; };
+  const dose = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3];
+  const programmes = [
+    { n: 12, f: d => d * .9 },              // rises with dose
+    { n: 10, f: d => -d * .8 },             // falls with dose
+    { n: 6,  f: d => (d === 3 ? 2.4 : 0) }, // high dose only
+    { n: 8,  f: () => 0 },                  // unchanged
+  ];
+  const raw = [];
+  programmes.forEach(p => { for (let i = 0; i < p.n; i++) { const gain = .6 + R() * .8; raw.push(dose.map(d => p.f(d) * gain + gauss() * .35)); } });
+  const z = raw.map(r => {
+    const m = r.reduce((a, b) => a + b) / r.length;
+    const sd = Math.sqrt(r.reduce((a, b) => a + (b - m) ** 2, 0) / r.length) || 1;
+    return r.map(v => (v - m) / sd);
+  });
+  return { z, dose, rowTree: hclust(z), colTree: hclust(dose.map((_, j) => z.map(r => r[j]))) };
+})();
+function heatColour(v) {
+  return v >= 0 ? mix('#161c4a', COL.live, Math.min(1, v) * .92) : mix('#161c4a', '#4466ee', Math.min(1, -v));
+}
+function dendro(node, leafPos, hPos, vertical, out) {
+  if (!node.l) return { p: leafPos(node.leaves[0]), q: hPos(0) };
+  const a = dendro(node.l, leafPos, hPos, vertical, out), b = dendro(node.r, leafPos, hPos, vertical, out), q = hPos(node.h);
+  const f = x => x.toFixed(2);
+  out.push(vertical ? `M${f(a.p)} ${f(a.q)}V${f(q)}H${f(b.p)}V${f(b.q)}` : `M${f(a.q)} ${f(a.p)}H${f(q)}V${f(b.p)}H${f(b.q)}`);
+  return { p: (a.p + b.p) / 2, q };
+}
+function drawHeatmap(g, w, h) {
+  const { z, dose, rowTree, colTree } = HEAT;
+  const rOrder = rowTree.leaves, cOrder = colTree.leaves;
+  const left = w * .18, top = h * .2, bar = h * .06, gap = h * .025;
+  const x0 = left, y0 = top + bar + gap, gw = w - 2 - x0, gh = h - 2 - y0;
+  const cw = gw / cOrder.length, rh = gh / rOrder.length;
+  el('rect', { x: 0, y: 0, width: w, height: h, rx: 4, fill: '#10153f' }, g);
+  // rows start in the order the genes were measured, then settle into their clusters (animateHeat)
+  const R = rng(4242), measured = rOrder.slice();
+  for (let i = measured.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [measured[i], measured[j]] = [measured[j], measured[i]]; }
+  const cells = el('g', { 'shape-rendering': 'crispEdges' }, g);
+  const rows = rOrder.map((ri, r) => {
+    const rg = el('g', { transform: `translate(0,${(y0 + r * rh).toFixed(2)})` }, cells);
+    const rects = cOrder.map((ci, c) => el('rect', {
+      x: (x0 + c * cw).toFixed(2), y: 0, width: (cw + .12).toFixed(2), height: (rh + .12).toFixed(2), fill: heatColour(z[ri][ci] / 2) }, rg));
+    return { g: rg, ri, final: r, raw: measured.indexOf(ri), rects };
+  });
+  // dose of each sample: vehicle grey, then mint by dose
+  cOrder.forEach((ci, c) => el('rect', { x: x0 + c * cw + cw * .08, y: top, width: cw * .84, height: bar,
+    fill: dose[ci] ? COL.live : COL.line, 'fill-opacity': [.45, .35, .65, 1][dose[ci]] }, g));
+  const sw = Math.max(.3, w / 240);
+  const dg = el('g', { fill: 'none', stroke: COL.line, 'stroke-opacity': .8, 'stroke-width': sw }, g);
+  const cp = [], rp = [];
+  dendro(colTree, i => x0 + (cOrder.indexOf(i) + .5) * cw, hh => top - gap - (hh / colTree.h) * (top - gap - h * .04), true, cp);
+  dendro(rowTree, i => y0 + (rOrder.indexOf(i) + .5) * rh, hh => left - gap - (hh / rowTree.h) * (left - gap - w * .025), false, rp);
+  el('path', { d: cp.join('') + rp.join('') }, dg);
+  return { rows, y0, rh, cOrder, z, dendro: dg, state: 'final' };
+}
+// While the card is large: columns fill in, rows move from measured order into their clusters,
+// the trees appear, then the values breathe a little. Docked, it rests in its final state.
+function animateHeat(H, ms, live) {
+  if (!live) {
+    if (H.state === 'final') return;
+    H.rows.forEach(r => {
+      r.g.setAttribute('transform', `translate(0,${(H.y0 + r.final * H.rh).toFixed(2)})`);
+      r.rects.forEach((rect, c) => { rect.setAttribute('opacity', 1); rect.setAttribute('fill', heatColour(H.z[r.ri][H.cOrder[c]] / 2)); });
+    });
+    H.dendro.setAttribute('opacity', 1);
+    H.state = 'final';
+    return;
+  }
+  H.state = 'live';
+  const sortU = prog(ms, 1700, 1700, E.inOut), breathe = prog(ms, 3600, 900), ts = ms / 1000;
+  H.rows.forEach(r => {
+    r.g.setAttribute('transform', `translate(0,${(H.y0 + lerp(r.raw, r.final, sortU) * H.rh).toFixed(2)})`);
+    r.rects.forEach((rect, c) => {
+      rect.setAttribute('opacity', prog(ms, 350 + c * 80, 380).toFixed(3));
+      if (breathe > 0) {
+        const v = H.z[r.ri][H.cOrder[c]] + breathe * .28 * Math.sin(ts * 1.9 + r.ri * .9 + c * 1.7);
+        rect.setAttribute('fill', heatColour(v / 2));
+      }
+    });
+  });
+  H.dendro.setAttribute('opacity', prog(ms, 3000, 700).toFixed(3));
+}
+
+function drawInset(g, kind, w, h, group) {
+  const tone = group === 'model' ? COL.context : COL.line;
+  el('rect', { x: 0, y: 0, width: w, height: h, rx: 4, fill: '#151b4a', stroke: tone, 'stroke-opacity': .55, 'stroke-width': 1 }, g);
+  const clip = CLIPS[kind];
+  if (clip) {
+    el('image', { href: clip.src + '.jpg', x: 0, y: 0, width: w, height: h, preserveAspectRatio: 'xMidYMid slice' }, g);
+    const fo = el('foreignObject', { x: 0, y: 0, width: w, height: h }, g);
+    fo.appendChild(makeVideo(clip, true));
+    el('rect', { x: .25, y: .25, width: w - .5, height: h - .5, rx: 4, fill: 'none', stroke: tone, 'stroke-opacity': .55, 'stroke-width': .5 }, g);
+    return;
+  }
+  const R = rng(kind.length * 977);
+  if (kind === 'heatmap') {
+    return drawHeatmap(g, w, h);
+  } else if (kind === 'dish') {
+    const cx = w / 2, cy = h / 2, r = w * .38;
+    el('circle', { cx, cy, r, fill: 'none', stroke: COL.context, 'stroke-opacity': .85, 'stroke-width': 1 }, g);
+    el('circle', { cx, cy, r: r * .88, fill: 'none', stroke: COL.context, 'stroke-opacity': .35, 'stroke-width': .6 }, g);
+    for (let i = 0; i < 18; i++) {
+      const a = R() * Math.PI * 2, d = Math.sqrt(R()) * r * .78;
+      el('ellipse', { cx: cx + Math.cos(a) * d, cy: cy + Math.sin(a) * d, rx: w * .035, ry: w * .025, fill: COL.context, 'fill-opacity': .7,
+                      transform: `rotate(${(R() * 180).toFixed(0)} ${cx + Math.cos(a) * d} ${cy + Math.sin(a) * d})` }, g);
+    }
+  } else if (kind === 'organoid') {
+    const cx = w / 2, cy = h / 2, r0 = w * .32;
+    let d = '';
+    for (let i = 0; i <= 64; i++) {
+      const a = i / 64 * Math.PI * 2, r = r0 * (1 + .09 * Math.sin(a * 6) + .05 * Math.sin(a * 11 + 1));
+      d += (i ? 'L' : 'M') + (cx + Math.cos(a) * r).toFixed(2) + ' ' + (cy + Math.sin(a) * r).toFixed(2);
+    }
+    el('path', { d: d + 'Z', fill: COL.context, 'fill-opacity': .14, stroke: COL.context, 'stroke-width': 1 }, g);
+    el('ellipse', { cx: cx + w * .03, cy: cy - h * .02, rx: r0 * .42, ry: r0 * .3, fill: 'none', stroke: COL.context, 'stroke-opacity': .7, 'stroke-width': .7 }, g);
+    for (let i = 0; i < 12; i++) {
+      const a = i / 12 * Math.PI * 2;
+      el('circle', { cx: cx + Math.cos(a) * r0 * .78, cy: cy + Math.sin(a) * r0 * .78, r: w * .025, fill: COL.context, 'fill-opacity': .65 }, g);
+    }
+  } else if (kind === 'chip') {
+    const x0 = w * .1, y0 = h * .26, cw = w * .8, ch = h * .48;
+    el('rect', { x: x0, y: y0, width: cw, height: ch, rx: h * .08, fill: 'none', stroke: COL.context, 'stroke-width': 1 }, g);
+    el('line', { x1: x0 + cw * .12, y1: y0 + ch * .3, x2: x0 + cw * .88, y2: y0 + ch * .3, stroke: COL.context, 'stroke-width': 1.6, 'stroke-opacity': .7 }, g);
+    el('line', { x1: x0 + cw * .12, y1: y0 + ch * .7, x2: x0 + cw * .88, y2: y0 + ch * .7, stroke: COL.context, 'stroke-width': 1.6, 'stroke-opacity': .7 }, g);
+    el('line', { x1: x0 + cw * .12, y1: y0 + ch * .5, x2: x0 + cw * .88, y2: y0 + ch * .5, stroke: COL.context, 'stroke-width': .6, 'stroke-dasharray': '1.5 1.5' }, g);
+    [[.12, .3], [.88, .3], [.12, .7], [.88, .7]].forEach(([u, v]) =>
+      el('circle', { cx: x0 + cw * u, cy: y0 + ch * v, r: h * .05, fill: COL.plate, stroke: COL.context, 'stroke-width': .8 }, g));
+  }
+}
+
+function buildOutput() {
+  const O = L.out, g = layer.output;
+  const card = el('g', { opacity: 0 }, g);
+  S.card = card;
+  el('rect', { x: O.x, y: O.y, width: O.w, height: O.h, rx: 12, fill: COL.plate, stroke: COL.line, 'stroke-opacity': .22 }, card);
+  txt(card, O.x + 16, O.y + 30, 'Human risk profile', 't-label t-strong', { style: 'font-size:15px' });
+  txt(card, O.x + 16, O.y + 49, 'candidates, safest first', 't-note');
+  const colX0 = O.x + 92, cw = (O.w - 92 - 12) / 4;
+  S.col = j => colX0 + cw * (j + .5);
+  OUT_ORGANS.forEach((o, j) => txt(card, S.col(j), O.y + 80, o, 't-note', { 'text-anchor': 'middle' }));
+  const rowTop = O.y + 92, pitch = Math.min(56, (O.h - 130) / 4);
+  const order = CANDIDATES.map((c, i) => i).sort((a, b) => Math.max(...CANDIDATES[a].risk) - Math.max(...CANDIDATES[b].risk));
+  CANDIDATES.forEach((c, i) => {
+    const rg = el('g', { transform: `translate(0,${rowTop + pitch * i})` }, card);
+    const hl = el('rect', { x: O.x + 6, y: 2, width: O.w - 12, height: pitch - 4, rx: 6, fill: COL.result, opacity: 0 }, rg);
+    el('line', { x1: O.x + 12, y1: 0, x2: O.x + O.w - 12, y2: 0, stroke: COL.line, 'stroke-opacity': .14 }, rg);
+    const rank = txt(rg, O.x + 16, pitch / 2 + 5, String(order.indexOf(i) + 1), 't-note', { opacity: 0, style: 'fill:#fff;fill-opacity:1;font-weight:500' });
+    txt(rg, O.x + 32, pitch / 2 + 5, c.name, 't-label t-strong');
+    const bars = c.risk.map((v, j) => {
+      const x = colX0 + cw * j + 5, bw = cw - 10;
+      el('rect', { x, y: pitch / 2 - 3, width: bw, height: 6, rx: 3, fill: COL.line, 'fill-opacity': .14 }, rg);
+      return { el: el('rect', { x, y: pitch / 2 - 3, width: 0, height: 6, rx: 3, fill: v >= .5 ? COL.flag : COL.result }, rg), w: bw * v };
+    });
+    S.rows.push({ g: rg, hl, rank, bars, from: rowTop + pitch * i, to: rowTop + pitch * order.indexOf(i), first: order.indexOf(i) === 0, i });
+  });
+  // legend
+  const ly = O.y + O.h - 18;
+  el('rect', { x: O.x + 16, y: ly - 8, width: 14, height: 6, rx: 3, fill: COL.result }, card);
+  txt(card, O.x + 36, ly, 'lower risk', 't-note');
+  el('rect', { x: O.x + 120, y: ly - 8, width: 14, height: 6, rx: 3, fill: COL.flag }, card);
+  txt(card, O.x + 140, ly, 'higher risk', 't-note');
+}
+
+function flowEnd(j) {
+  const O = L.out;
+  return L.kind === 'wide' ? { x: O.x - 2, y: O.y + 112 + j * 52 } : { x: S.col(j), y: O.y - 2 };
+}
+function flowCurve(a, b) {
+  return L.kind === 'wide'
+    ? [a, { x: a.x + 120, y: a.y }, { x: b.x - 70, y: b.y }, b]
+    : [a, { x: a.x, y: a.y + 110 }, { x: b.x, y: b.y - 90 }, b];
+}
+function buildFlows() {
+  OUT_ORGANS.forEach((id, j) => {
+    const src = S.N.get(id), t0 = TL.flow + j * 140;
+    const P = flowCurve(src.p, flowEnd(j));
+    const path = el('path', { d: `M${P[0].x} ${P[0].y} C${P[1].x} ${P[1].y} ${P[2].x} ${P[2].y} ${P[3].x} ${P[3].y}`,
+                              fill: 'none', stroke: COL.result, 'stroke-width': 1.2, 'stroke-opacity': .3 }, layer.flow);
+    const len = path.getTotalLength();
+    path.setAttribute('stroke-dasharray', len); path.setAttribute('stroke-dashoffset', len);
+    const dots = Array.from({ length: 6 }, () => el('circle', { r: 2.6, fill: COL.result, opacity: 0 }, layer.flow));
+    S.flows.push({ src, j, t0, path, len, dots });
+  });
+}
+
+function buildGraphSVG() {
+  const lay = { backbone: layer.backbone, context: layer.context };
+  S.edges.forEach(e => {
+    e.el = el('line', { x1: e.a.p.x, y1: e.a.p.y, x2: e.a.p.x, y2: e.a.p.y, stroke: e.color, 'stroke-width': e.w,
+                        'stroke-opacity': e.alpha, opacity: 0, 'stroke-dasharray': e.dash ? '3 3' : 'none' }, lay[e.layer]);
+  });
+  S.links.forEach(k => {
+    const C = linkCurve(k.from, k.to.p);
+    k.el = el('path', { d: `M${C[0].x} ${C[0].y} C${C[1].x} ${C[1].y} ${C[2].x} ${C[2].y} ${C[3].x} ${C[3].y}`, fill: 'none',
+                        stroke: k.color, 'stroke-width': k.w, 'stroke-linecap': 'round', opacity: 0 }, layer.links);
+    k.len = k.el.getTotalLength();
+    k.el.setAttribute('stroke-dasharray', k.len); k.el.setAttribute('stroke-dashoffset', k.len);
+    k.dot = el('circle', { r: 2.6, fill: k.color, opacity: 0 }, layer.links);
+  });
+  S.branches.forEach(b => {
+    const h = b.hub.p, f = b.from;
+    const d = L.kind === 'wide'
+      ? `M${f.x} ${f.y} C${f.x + 90} ${f.y} ${h.x - 80} ${h.y} ${h.x} ${h.y}`
+      : `M${f.x} ${f.y} C${f.x} ${f.y - 90} ${h.x} ${h.y + 80} ${h.x} ${h.y}`;
+    b.el = el('path', { d, fill: 'none', stroke: COL.context, 'stroke-width': 1.1, 'stroke-opacity': .55 }, layer.context);
+    b.len = b.el.getTotalLength();
+    b.el.setAttribute('stroke-dasharray', b.len); b.el.setAttribute('stroke-dashoffset', b.len);
+  });
+  S.pulses.forEach(p => {
+    p.r0 = p.node.kind === 'organ' ? 12 : p.node.kind === 'func' ? 9 : 5;
+    p.el = el('circle', { cx: p.node.p.x, cy: p.node.p.y, r: p.r0, fill: 'none', stroke: p.color, 'stroke-width': p.alpha ? 1.1 : 1.6, opacity: 0 },
+              p.color === COL.context ? layer.context : layer.links);
+  });
+  S.nodes.forEach(n => {
+    const parent = n.kind === 'hub' || n.kind === 'ctx' ? layer.context : layer.backbone;
+    const g = el('g', { opacity: 0 }, parent);
+    if (n.kind === 'organ') {
+      el('circle', { r: 11, fill: COL.plate, stroke: COL.line, 'stroke-opacity': .9, 'stroke-width': 1.7 }, g);
+      el('circle', { r: 3.2, fill: COL.line, 'fill-opacity': .8 }, g);
+      txt(g, 0, 28, n.label, 't-label t-strong', { 'text-anchor': 'middle' });
+    } else if (n.kind === 'signal') {
+      el('circle', { r: 3.4, fill: COL.medium }, g);
+    } else if (n.kind === 'func') {
+      el('path', { d: 'M0 -8 L8 0 L0 8 L-8 0 Z', fill: COL.plate, stroke: COL.line, 'stroke-opacity': .9, 'stroke-width': 1.5 }, g);
+      txt(g, 0, 25, n.label, 't-note', { 'text-anchor': 'middle' });
+    } else if (n.kind === 'hub') {
+      el('circle', { r: 4.5, fill: COL.plate, stroke: COL.context, 'stroke-opacity': .7, 'stroke-width': 1.2, 'stroke-dasharray': '2 2' }, g);
+    } else {
+      el('circle', { r: 3.4, fill: COL.plate, stroke: COL.context, 'stroke-opacity': .75, 'stroke-width': 1.2 }, g);
+    }
+    n.el = g;
+  });
+}
+
+function buildGrid() {
+  const g = layer.grid, b = L.bb, n = 16;
+  for (let i = 0; i <= n; i++) for (let j = 0; j <= n; j++) {
+    const x = b.x - 40 + (b.w + 80) * i / n, y = b.y - 40 + (b.h + 80) * j / n;
+    const d = Math.hypot(i / n - .5, j / n - .5);
+    el('circle', { cx: x, cy: y, r: 1.2, fill: COL.live, opacity: Math.max(0, .32 - d * .5) }, g);
+  }
+}
+
+// ---------- frame: shared parts (chrome, output) ----------
+function frameChrome(t) {
+  S.fades.forEach(f => f.el.setAttribute('opacity', prog(t, f.t0, f.d)));
+  let dim = 0;
+  S.insets.forEach(r => {
+    const st = r.step, ua = prog(t, r.T, st.appear), ud = prog(t, r.T + st.dockAt, st.dock, E.inOut);
+    const x = lerp(r.present.x, r.dock.x, ud), y = lerp(r.present.y, r.dock.y, ud), s = lerp(r.present.s, r.dock.s, ud);
+    // optional models settle quieter than the whole-organism inputs
+    r.g.setAttribute('opacity', ua * (r.group === 'model' ? lerp(1, .7, ud) : 1));
+    r.g.setAttribute('transform', `translate(${x},${y}) scale(${s})`);
+    r.pc.setAttribute('opacity', 1 - ud);
+    r.cap.setAttribute('opacity', prog(t, r.T + st.dockAt + 250, 250) * (r.group === 'model' ? .75 : 1));
+    dim = Math.max(dim, ua * (1 - ud));
+    const live = ua > 0 && ud < 1;
+    r.presenting = live;
+    if (r.heat) animateHeat(r.heat, t - r.T, live);
+    if (r.video) {
+      const on = ua > 0;
+      if (advance === 'scroll' && live) {
+        // scrolling drives the clip while its card is large, so the scroll reveals its content
+        if (!r.video.paused) r.video.pause();
+        const ct = clamp((t - r.T) / 1000, 0, (r.video.duration || 10) - .05);
+        if (r.video.readyState >= 1 && Math.abs(r.video.currentTime - ct) > .034) r.video.currentTime = ct;
+      } else {
+        // a clip starts from its beginning each time its card appears, then loops
+        if (on && !r.shown) { try { r.video.currentTime = 0; } catch (e) { /* not loaded yet */ } }
+        if (on && r.video.paused && !reduce) r.video.play().catch(() => {});
+      }
+      r.shown = on;
+    }
+  });
+  S.backdrop.setAttribute('opacity', (.78 * dim).toFixed(3));
+}
+function frameOutput(t) {
+  S.card.setAttribute('opacity', prog(t, TL.flow - 400, 500));
+  const ur = prog(t, TL.rank, RANK.dur, E.inOut);
+  S.rows.forEach(r => {
+    r.g.setAttribute('transform', `translate(0,${lerp(r.from, r.to, ur)})`);
+    r.rank.setAttribute('opacity', prog(t, TL.rank + RANK.dur - 200, 300));
+    r.hl.setAttribute('opacity', r.first ? .08 * prog(t, TL.rank + RANK.dur, 300) : 0);
+    r.bars.forEach((b, j) => b.el.setAttribute('width', b.w * prog(t, TL.bars + r.i * 90 + j * 50, 550)));
+  });
+}
+function particles(t, f, P, draw) {
+  f.dots.forEach((_, k) => {
+    const u = (t - (f.t0 + k * 120)) / 850;
+    if (u <= 0 || u >= 1) { draw(k, null); return; }
+    draw(k, bez(P, E.inOut(u)), Math.sin(Math.PI * u));
+  });
+}
+// whole-organism links leave their card together and fan out near the backbone
+function linkCurve(a, b) {
+  return L.kind === 'wide'
+    ? [a, { x: lerp(a.x, b.x, .45), y: a.y }, { x: lerp(a.x, b.x, .55), y: b.y }, b]
+    : [a, { x: a.x, y: lerp(a.y, b.y, .45) }, { x: b.x, y: lerp(a.y, b.y, .55) }, b];
+}
+// bright while their step is on screen, then they step back
+const linkAlpha = (t, k) => lerp(k.alpha, k.rest, prog(t, k.dimAt, 800));
+// during the pause after connecting, a dot travels along each new link
+function linkFlow(t, k) {
+  if (t <= k.flowFrom || t >= k.flowTo) return null;
+  const win = prog(t, k.flowFrom, 400) * (1 - prog(t, k.flowTo - 500, 500));
+  const u = (((t - k.flowFrom) / 1700) + k.j * .17) % 1;
+  return { u, a: Math.sin(Math.PI * u) * .9 * win };
+}
+
+// ---------- frame: 2D / 2.5D graph ----------
+function frameSVG(t) {
+  S.nodes.forEach(n => {
+    const u = prog(t, n.t0, n.d);
+    n.el.setAttribute('opacity', u);
+    n.el.setAttribute('transform', `translate(${n.p.x},${n.p.y}) scale(${(.55 + .45 * u).toFixed(3)})`);
+  });
+  S.edges.forEach(e => {
+    const u = prog(t, e.t0, e.d);
+    e.el.setAttribute('opacity', u > 0 ? 1 : 0);
+    e.el.setAttribute('x2', lerp(e.a.p.x, e.b.p.x, u));
+    e.el.setAttribute('y2', lerp(e.a.p.y, e.b.p.y, u));
+  });
+  S.links.forEach(k => {
+    const u = prog(t, k.t0, k.d);
+    k.el.setAttribute('opacity', u > 0 ? linkAlpha(t, k) : 0);
+    k.el.setAttribute('stroke-dashoffset', k.len * (1 - u));
+    const f = linkFlow(t, k);
+    if (f) {
+      const p = k.el.getPointAtLength(f.u * k.len);
+      k.dot.setAttribute('cx', p.x); k.dot.setAttribute('cy', p.y); k.dot.setAttribute('opacity', f.a.toFixed(3));
+    } else k.dot.setAttribute('opacity', 0);
+  });
+  S.branches.forEach(b => b.el.setAttribute('stroke-dashoffset', b.len * (1 - prog(t, b.t0, b.d, E.inOut))));
+  S.pulses.forEach(p => {
+    const u = clamp((t - p.t0) / p.d);
+    p.el.setAttribute('opacity', u > 0 && u < 1 ? (1 - u) * (p.alpha || .9) : 0);
+    p.el.setAttribute('r', p.r0 + 16 * E.out(u));
+  });
+  S.flows.forEach(f => {
+    f.path.setAttribute('stroke-dashoffset', f.len * (1 - prog(t, f.t0, 600)));
+    const P = flowCurve(f.src.p, flowEnd(f.j));
+    particles(t, f, P, (k, q, a) => {
+      const d = f.dots[k];
+      if (!q) { d.setAttribute('opacity', 0); return; }
+      d.setAttribute('cx', q.x); d.setAttribute('cy', q.y); d.setAttribute('opacity', a);
+    });
+  });
+}
+
+// ---------- frame: 3D ----------
+const view = { yaw: 0, pitch: 0 };
+function camera(t) {
+  const u = prog(t, 0, TL.end, E.inOut);
+  return { yaw: lerp(-.62, -.22, u) + view.yaw, pitch: lerp(.6, .3, u) + view.pitch };
+}
+function project(x, y, z, cam) {
+  const cx = L.bb.x + L.bb.w / 2, cy = L.bb.y + L.bb.h / 2;
+  const X = (x - .5) * L.bb.w, Y = (y - .5) * L.bb.h, Z = z * L.bb.w * .55;
+  const ca = Math.cos(cam.yaw), sa = Math.sin(cam.yaw), cb = Math.cos(cam.pitch), sb = Math.sin(cam.pitch);
+  const X1 = X * ca + Z * sa, Z1 = -X * sa + Z * ca;
+  const Y1 = Y * cb - Z1 * sb, Z2 = Y * sb + Z1 * cb;
+  const s = 900 / (900 + Z2);
+  return { x: cx + X1 * s, y: cy + Y1 * s, s, z: Z2 };
+}
+const fog = z => clamp(.62 - z / 520, .28, 1);
+
+function draw3D(t) {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const cw = stage.clientWidth, ch = stage.clientHeight;
+  const W = Math.round(cw * dpr), H = Math.round(ch * dpr);
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+  const g = canvas.getContext('2d');
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.clearRect(0, 0, W, H);
+  const vb = camRect(t), k = (cw / vb.w) * dpr;
+  g.setTransform(k, 0, 0, k, -vb.x * k, -vb.y * k);
+  const cam = camera(t);
+  const memo = new Map();
+  const P = n => { let p = memo.get(n); if (!p) { p = project(n.x, n.y, n.z, cam); memo.set(n, p); } return p; };
+  g.lineCap = 'round';
+
+  // floor: a dot grid under the backbone
+  g.fillStyle = COL.live;
+  for (let i = 0; i <= 12; i++) for (let j = 0; j <= 12; j++) {
+    const x = -.1 + 1.2 * i / 12, z = -.6 + 1.2 * j / 12;
+    const q = project(x, 1.02, z, cam), d = Math.hypot(i / 12 - .5, j / 12 - .5);
+    g.globalAlpha = Math.max(0, .3 - d * .5) * fog(q.z);
+    g.beginPath(); g.arc(q.x, q.y, 1.3 * q.s, 0, 6.283); g.fill();
+  }
+
+  // edges, far first
+  const edges = S.edges.map(e => ({ e, u: prog(t, e.t0, e.d) })).filter(o => o.u > 0)
+    .map(o => Object.assign(o, { a: P(o.e.a), b: P(o.e.b) })).sort((m, n) => (n.a.z + n.b.z) - (m.a.z + m.b.z));
+  edges.forEach(({ e, u, a, b }) => {
+    g.globalAlpha = e.alpha * fog((a.z + b.z) / 2);
+    g.strokeStyle = e.color; g.lineWidth = e.w * (a.s + b.s) / 2;
+    g.setLineDash(e.dash ? [3, 3] : []);
+    g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(lerp(a.x, b.x, u), lerp(a.y, b.y, u)); g.stroke();
+  });
+  g.setLineDash([]);
+
+  // whole-organism links (screen-space from the dock)
+  S.links.forEach(l => {
+    const u = prog(t, l.t0, l.d); if (u <= 0) return;
+    const C = linkCurve(l.from, P(l.to));
+    g.globalAlpha = linkAlpha(t, l); g.strokeStyle = l.color; g.lineWidth = l.w;
+    g.beginPath(); g.moveTo(C[0].x, C[0].y);
+    for (let i = 1; i <= 40; i++) { const q = bez(C, u * i / 40); g.lineTo(q.x, q.y); }
+    g.stroke();
+    const f = linkFlow(t, l);
+    if (f) { const q = bez(C, f.u); g.globalAlpha = f.a; g.fillStyle = l.color; g.beginPath(); g.arc(q.x, q.y, 2.6, 0, 6.283); g.fill(); }
+  });
+  g.setLineDash([]);
+
+  // model branches
+  S.branches.forEach(br => {
+    const u = prog(t, br.t0, br.d, E.inOut); if (u <= 0) return;
+    const h = P(br.hub), f = br.from;
+    const C = L.kind === 'wide' ? [f, { x: f.x + 90, y: f.y }, { x: h.x - 80, y: h.y }, h] : [f, { x: f.x, y: f.y - 90 }, { x: h.x, y: h.y + 80 }, h];
+    g.globalAlpha = .55; g.strokeStyle = COL.context; g.lineWidth = 1.1;
+    g.beginPath(); g.moveTo(f.x, f.y);
+    for (let i = 1; i <= 40; i++) { const q = bez(C, u * i / 40); g.lineTo(q.x, q.y); }
+    g.stroke();
+  });
+
+  // nodes, far first
+  S.nodes.map(n => ({ n, u: prog(t, n.t0, n.d), p: P(n) })).filter(o => o.u > 0).sort((a, b) => b.p.z - a.p.z)
+    .forEach(({ n, u, p }) => {
+      const s = p.s * (.55 + .45 * u);
+      g.globalAlpha = u * fog(p.z);
+      if (n.kind === 'organ') {
+        g.fillStyle = COL.plate; g.strokeStyle = COL.line; g.lineWidth = 1.7 * s;
+        g.beginPath(); g.arc(p.x, p.y, 11 * s, 0, 6.283); g.fill(); g.stroke();
+        g.fillStyle = COL.line; g.beginPath(); g.arc(p.x, p.y, 3.2 * s, 0, 6.283); g.fill();
+      } else if (n.kind === 'signal') {
+        g.fillStyle = COL.medium; g.beginPath(); g.arc(p.x, p.y, 3.4 * s, 0, 6.283); g.fill();
+      } else if (n.kind === 'func') {
+        g.fillStyle = COL.plate; g.strokeStyle = COL.line; g.lineWidth = 1.5 * s;
+        g.beginPath(); g.moveTo(p.x, p.y - 8 * s); g.lineTo(p.x + 8 * s, p.y); g.lineTo(p.x, p.y + 8 * s); g.lineTo(p.x - 8 * s, p.y); g.closePath(); g.fill(); g.stroke();
+      } else if (n.kind === 'hub') {
+        g.fillStyle = COL.plate; g.strokeStyle = COL.context; g.lineWidth = 1.2 * s; g.globalAlpha *= .7;
+        g.setLineDash([2 * s, 2 * s]); g.beginPath(); g.arc(p.x, p.y, 4.5 * s, 0, 6.283); g.fill(); g.stroke(); g.setLineDash([]);
+      } else {
+        g.fillStyle = COL.plate; g.strokeStyle = COL.context; g.lineWidth = 1.2 * s; g.globalAlpha *= .75;
+        g.beginPath(); g.arc(p.x, p.y, 3.4 * s, 0, 6.283); g.fill(); g.stroke();
+      }
+    });
+
+  // pulses
+  S.pulses.forEach(pl => {
+    const u = clamp((t - pl.t0) / pl.d); if (u <= 0 || u >= 1) return;
+    const p = P(pl.node);
+    g.globalAlpha = (1 - u) * (pl.alpha || .9); g.strokeStyle = pl.color; g.lineWidth = pl.alpha ? 1.1 : 1.6;
+    g.beginPath(); g.arc(p.x, p.y, (pl.r0 || 8) * p.s + 16 * E.out(u), 0, 6.283); g.stroke();
+  });
+
+  // labels
+  g.textAlign = 'center';
+  S.nodes.forEach(n => {
+    if (n.kind !== 'organ' && n.kind !== 'func') return;
+    const u = prog(t, n.t0, n.d); if (u <= 0) return;
+    const p = P(n);
+    g.globalAlpha = u * Math.max(.55, fog(p.z));
+    g.font = n.kind === 'organ' ? '500 14px Inter, system-ui, sans-serif' : '400 12.5px Inter, system-ui, sans-serif';
+    g.fillStyle = n.kind === 'organ' ? COL.light : COL.medium;
+    g.fillText(n.label, p.x, p.y + (n.kind === 'organ' ? 28 : 25) * p.s);
+  });
+
+  // flows to the output
+  S.flows.forEach(f => {
+    const a = P(f.src), C = flowCurve(a, flowEnd(f.j));
+    const u = prog(t, f.t0, 600);
+    if (u > 0) {
+      g.globalAlpha = .3; g.strokeStyle = COL.result; g.lineWidth = 1.2;
+      g.beginPath(); g.moveTo(a.x, a.y);
+      for (let i = 1; i <= 40; i++) { const q = bez(C, u * i / 40); g.lineTo(q.x, q.y); }
+      g.stroke();
+    }
+    g.fillStyle = COL.result;
+    particles(t, f, C, (k, q, al) => { if (!q) return; g.globalAlpha = al; g.beginPath(); g.arc(q.x, q.y, 2.6, 0, 6.283); g.fill(); });
+  });
+  g.globalAlpha = 1;
+}
+
+// =================== Film: a directed camera, exportable to video ===================
+// Film time runs on its own clock: the remap places each story beat at a fixed film time,
+// slowing the story where there is something to read and holding it while the camera moves.
+const FILM = {
+  end: 15500,
+  get remap() {
+    return [[0, 0], [2200, TL.inputs[0]], [6400, TL.models[0]], [10600, TL.flow - 100], [11600, TL.flow - 50], [14200, TL.end], [15500, TL.end]];
+  },
+};
+function storyAt(ft) {
+  const R = FILM.remap;
+  for (let i = 1; i < R.length; i++) if (ft <= R[i][0]) return lerp(R[i - 1][1], R[i][1], (ft - R[i - 1][0]) / (R[i][0] - R[i - 1][0]));
+  return R[R.length - 1][1];
+}
+function filmAtStory(st) {
+  const R = FILM.remap;
+  for (let i = 1; i < R.length; i++) if (st <= R[i][1] && R[i][1] > R[i - 1][1]) return lerp(R[i - 1][0], R[i][0], (st - R[i - 1][1]) / (R[i][1] - R[i - 1][1]));
+  return FILM.end;
+}
+
+// World units: the backbone is B wide, centred on the origin, y down, z away from the camera.
+// T scales text, NS nodes, CS the inset cards, OS the risk-profile card.
+// Camera keys: [film ms, target x, y, z, distance, yaw, pitch]
+const SIZES = { imaged: [208, 52], tracked: [72, 72], sequenced: [100, 72], cells: [72, 72], organoids: [72, 72], chip: [72, 72] };
+const FILM_FORMATS = {
+  '16x9': {
+    W: 1920, H: 1080, fov: 40, B: 400, T: 1.6, NS: 1.3, CS: 1.15, OS: 1.2, floorY: 250,
+    title: [0, -262], heads: { whole: [-660, -232], models: [-291, 236] },
+    cards: { imaged: { left: -660, top: -205 }, tracked: { left: -660, top: -88 }, sequenced: { left: -660, top: 40 },
+             cells: { x: -250, top: 252 }, organoids: { x: -60, top: 252 }, chip: { x: 130, top: 252 } },
+    present: { whole: [150, 0, -280], model: [0, -130, -280] }, anchorWhole: 'right',
+    out: { x: 480, y: 0, w: 266, h: 392, entry: 'left' },
+    keys: [
+      [0, 0, 0, 0, 620, -.42, .30], [2200, -40, -20, 0, 1150, -.25, .20],
+      [2700, -370, -50, 0, 850, .30, .12], [6200, -350, -30, 0, 800, .36, .10],
+      [6800, -60, 70, 0, 1000, .08, .14], [10400, -20, 80, 0, 960, -.12, .12],
+      [11400, -10, 50, 0, 1300, -.28, .20], [12800, 420, 10, 0, 900, -.30, .10],
+      [14200, -20, 65, 0, 1080, -.06, .06], [15500, -20, 65, 0, 1100, -.05, .06],
+    ],
+  },
+  '4x5': {
+    W: 1080, H: 1350, fov: 40, B: 470, T: 2.4, NS: 1.6, CS: 1.35, OS: 2.0, PT: .72, floorY: 300,
+    title: [0, -296], heads: { whole: [-272, -490], models: [-298, 290] },
+    cards: { imaged: { x: -146, y: -420 }, tracked: { x: 58, y: -420 }, sequenced: { x: 204, y: -420 },
+             cells: { x: -250, y: 365 }, organoids: { x: 0, y: 365 }, chip: { x: 250, y: 365 } },
+    present: { whole: { from: [0, -170, -360] }, model: { from: [0, 170, -360] } }, anchorWhole: 'bottom',
+    out: { x: 0, y: 790, w: 368, h: 300, entry: 'top' },
+    keys: [
+      [0, 0, 0, 0, 700, -.40, .30], [2200, 0, -150, 0, 1500, -.20, .20],
+      [2700, 0, -230, 0, 1150, .12, .10], [6200, 0, -210, 0, 1100, -.10, .10],
+      [6800, 0, 160, 0, 1350, -.12, .14], [10400, 0, 170, 0, 1300, .10, .12],
+      [11400, 0, 260, 0, 2300, -.15, .18], [12800, 0, 740, 0, 1400, .06, .08],
+      [14200, 0, 735, 0, 1500, -.03, .06], [15500, 0, 735, 0, 1525, -.02, .06],
+    ],
+  },
+};
+let filmFmt = '16x9';
+const ORDER = CANDIDATES.map((c, i) => i).sort((a, b) => Math.max(...CANDIDATES[a].risk) - Math.max(...CANDIDATES[b].risk));
+
+const v3 = { sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+             cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+             norm: a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; } };
+function filmCam(ft, keys) {
+  let i = 1;
+  while (i < keys.length - 1 && ft > keys[i][0]) i++;
+  const a = keys[i - 1], b = keys[i], u = E.inOut(clamp((ft - a[0]) / (b[0] - a[0])));
+  const v = j => lerp(a[j], b[j], u);
+  return { t: [v(1), v(2), v(3)], d: v(4), yaw: v(5), pitch: v(6) };
+}
+function makeView(cam, W, H, fov) {
+  const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch), cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw);
+  const pos = [cam.t[0] + cam.d * sy * cp, cam.t[1] - cam.d * sp, cam.t[2] - cam.d * cy * cp];
+  const f = v3.norm(v3.sub(cam.t, pos)), r = v3.norm(v3.cross(f, [0, -1, 0])), dn = v3.cross(f, r);
+  const F = (H / 2) / Math.tan(fov * Math.PI / 360);
+  return {
+    proj(p) {
+      const q = v3.sub(p, pos), z = v3.dot(q, f);
+      if (z < 20) return null;
+      return { x: W / 2 + F * v3.dot(q, r) / z, y: H / 2 + F * v3.dot(q, dn) / z, s: F / z, z };
+    },
+  };
+}
+
+// inset artwork for the film: clips as video elements, drawings rasterised once from the SVG versions
+const filmImages = {};
+async function prepareFilm() {
+  const jobs = [...INPUTS.map(d => [d, 'whole']), ...MODELS.map(d => [d, 'model'])].map(async ([d, grp]) => {
+    const clip = CLIPS[d.kind];
+    if (clip) {
+      const v = makeVideo(clip, false);
+      await new Promise(res => {
+        if (v.readyState >= 2) return res();
+        v.addEventListener('loadeddata', res, { once: true });
+        v.addEventListener('error', res, { once: true });
+        setTimeout(res, 8000);
+      });
+      filmImages[d.id] = v;
+      return;
+    }
+    const [w, h] = SIZES[d.id], img = new Image();
+    const svg = document.createElementNS(NS, 'svg');
+    Object.entries({ xmlns: NS, viewBox: `0 0 ${w} ${h}`, width: w * 12, height: h * 12, 'font-family': 'sans-serif' }).forEach(([k, v]) => svg.setAttribute(k, v));
+    drawInset(svg, d.kind, w, h, grp);
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+    try { await img.decode(); filmImages[d.id] = img; } catch (e) { console.warn('inset image failed', d.id); }
+  });
+  await Promise.all(jobs);
+}
+
+function renderFilm(g, W, H, ft) {
+  const fm = FILM_FORMATS[filmFmt], st = storyAt(ft), cam = filmCam(ft, fm.keys), V = makeView(cam, W, H, fm.fov);
+  const R = cam.d * .5, px = H / fm.H;
+  const att = w => clamp(1 - Math.max(0, Math.hypot(w[0] - cam.t[0], w[1] - cam.t[1], w[2] - cam.t[2]) - R) / (R * .9), .3, 1);
+  const font = (wgt, size) => `${wgt} ${size.toFixed(1)}px Inter, system-ui, sans-serif`;
+  const glow = (c, b) => { g.shadowColor = c; g.shadowBlur = b * px; };
+  const noGlow = () => { g.shadowBlur = 0; };
+  const curve = (C, u) => { g.beginPath(); g.moveTo(C[0].x, C[0].y); for (let i = 1; i <= 40; i++) { const q = bez(C, u * i / 40); g.lineTo(q.x, q.y); } g.stroke(); };
+
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalAlpha = 1; noGlow(); g.setLineDash([]);
+  g.fillStyle = COL.bg; g.fillRect(0, 0, W, H);
+  const lit = g.createRadialGradient(W * .5, H * .42, 0, W * .5, H * .42, Math.max(W, H) * .7);
+  lit.addColorStop(0, 'rgba(100,255,218,0.055)'); lit.addColorStop(1, 'rgba(100,255,218,0)');
+  g.fillStyle = lit; g.fillRect(0, 0, W, H);
+  g.lineCap = 'round'; g.lineJoin = 'round';
+
+  const W3 = n => [(n.x - .5) * fm.B, (n.y - .5) * fm.B, n.z * fm.B * .55];
+  const memo = new Map();
+  const P = n => {
+    if (!memo.has(n)) { const w = W3(n), p = V.proj(w); if (p) p.a = att(w); memo.set(n, p); }
+    return memo.get(n);
+  };
+
+  // floor
+  g.fillStyle = COL.live;
+  const fl = prog(st, 0, 900);
+  for (let X = -700; X <= 700; X += 70) for (let Z = -350; Z <= 350; Z += 70) {
+    const w = [X, fm.floorY, Z], p = V.proj(w); if (!p) continue;
+    g.globalAlpha = Math.max(0, .24 - Math.hypot(X / 700, Z / 350) * .17) * att(w) * fl;
+    g.beginPath(); g.arc(p.x, p.y, 1.7 * p.s, 0, 6.283); g.fill();
+  }
+
+  // edges, far first
+  S.edges.map(e => ({ e, u: prog(st, e.t0, e.d), a: P(e.a), b: P(e.b) })).filter(o => o.u > 0 && o.a && o.b)
+    .sort((m, n) => (n.a.z + n.b.z) - (m.a.z + m.b.z))
+    .forEach(({ e, u, a, b }) => {
+      const s = (a.s + b.s) / 2;
+      g.globalAlpha = e.alpha * Math.min(a.a, b.a);
+      g.strokeStyle = e.color; g.lineWidth = e.w * fm.NS * s * .9;
+      g.setLineDash(e.dash ? [3 * fm.NS * s, 3.5 * fm.NS * s] : []);
+      g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(lerp(a.x, b.x, u), lerp(a.y, b.y, u)); g.stroke();
+    });
+  g.setLineDash([]);
+
+  // inset cards: where they are now (they fly in, then settle)
+  const cards = {};
+  [...INPUTS.map((d, i) => [d, 'whole', TL.inputs[i]]), ...MODELS.map((d, i) => [d, 'model', TL.models[i]])].forEach(([d, grp, T]) => {
+    const c = fm.cards[d.id], w = SIZES[d.id][0] * fm.CS, h = SIZES[d.id][1] * fm.CS;
+    const cx = c.x != null ? c.x : c.left + w / 2, cy = c.y != null ? c.y : c.top + h / 2;
+    const ua = prog(st, T, d.step.appear), ud = prog(st, T + d.step.dockAt, d.step.dock, E.inOut);
+    if (ua <= 0) return;
+    const o = fm.present[grp], sc = lerp(1.6, 1, ud);
+    const from = Array.isArray(o) ? [cx + o[0], cy + o[1], o[2]] : o.from;
+    const p = V.proj([lerp(from[0], cx, ud), lerp(from[1], cy, ud), lerp(from[2], 0, ud)]);
+    if (!p) return;
+    const sw = w * sc * p.s, sh = h * sc * p.s;
+    cards[d.id] = { d, grp, T, ua, ud, s: p.s, x: p.x - sw / 2, y: p.y - sh / 2, w: sw, h: sh, a: att([cx, cy, 0]) };
+  });
+  const anchor = c => c.grp === 'model' ? { x: c.x + c.w / 2, y: c.y - 8 * c.s }
+    : fm.anchorWhole === 'right' ? { x: c.x + c.w + 10 * c.s, y: c.y + c.h / 2 }
+    : { x: c.x + c.w / 2, y: c.y + c.h + 24 * fm.T * c.s };
+
+  // whole-organism links
+  S.links.forEach(l => {
+    const u = prog(st, l.t0, l.d), c = cards[l.src], b = P(l.to);
+    if (u <= 0 || !c || !b) return;
+    const a = anchor(c);
+    g.globalAlpha = .62 * Math.max(b.a, .5); g.strokeStyle = COL.live; g.lineWidth = 1.4 * fm.NS * b.s;
+    g.setLineDash([4 * b.s * fm.NS, 5 * b.s * fm.NS]); glow(COL.live, 6);
+    g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(lerp(a.x, b.x, u), lerp(a.y, b.y, u)); g.stroke();
+  });
+  g.setLineDash([]); noGlow();
+
+  // model branches
+  S.branches.forEach(br => {
+    const u = prog(st, br.t0, br.d, E.inOut), c = cards[br.src], h = P(br.hub);
+    if (u <= 0 || !c || !h) return;
+    const a = anchor(c);
+    g.globalAlpha = .92; g.strokeStyle = COL.context; g.lineWidth = 2 * fm.NS * h.s; glow(COL.context, 8);
+    curve([a, { x: a.x, y: a.y - 140 * h.s }, { x: h.x, y: h.y + 120 * h.s }, h], u);
+  });
+  noGlow();
+
+  // nodes, far first
+  S.nodes.map(n => ({ n, u: prog(st, n.t0, n.d), p: P(n) })).filter(o => o.u > 0 && o.p).sort((a, b) => b.p.z - a.p.z)
+    .forEach(({ n, u, p }) => {
+      const s = p.s * fm.NS * (.55 + .45 * u);
+      g.globalAlpha = u * p.a;
+      if (n.kind === 'organ') {
+        g.fillStyle = COL.plate; g.strokeStyle = COL.line; g.lineWidth = 1.7 * s;
+        g.beginPath(); g.arc(p.x, p.y, 11 * s, 0, 6.283); g.fill(); g.stroke();
+        g.fillStyle = COL.line; g.beginPath(); g.arc(p.x, p.y, 3.2 * s, 0, 6.283); g.fill();
+      } else if (n.kind === 'signal') {
+        g.fillStyle = COL.medium; g.beginPath(); g.arc(p.x, p.y, 3.4 * s, 0, 6.283); g.fill();
+      } else if (n.kind === 'func') {
+        g.fillStyle = COL.plate; g.strokeStyle = COL.line; g.lineWidth = 1.5 * s;
+        g.beginPath(); g.moveTo(p.x, p.y - 8 * s); g.lineTo(p.x + 8 * s, p.y); g.lineTo(p.x, p.y + 8 * s); g.lineTo(p.x - 8 * s, p.y); g.closePath(); g.fill(); g.stroke();
+      } else if (n.kind === 'hub') {
+        g.fillStyle = COL.plate; g.strokeStyle = COL.context; g.lineWidth = 2 * s;
+        g.beginPath(); g.arc(p.x, p.y, 6.5 * s, 0, 6.283); g.fill(); g.stroke();
+      } else {
+        g.fillStyle = COL.context; g.beginPath(); g.arc(p.x, p.y, 4.6 * s, 0, 6.283); g.fill();
+      }
+    });
+
+  // pulses where data lands
+  S.pulses.forEach(pl => {
+    const u = clamp((st - pl.t0) / pl.d), p = P(pl.node);
+    if (u <= 0 || u >= 1 || !p) return;
+    const r0 = pl.node.kind === 'organ' ? 12 : pl.node.kind === 'func' ? 9 : 5;
+    g.globalAlpha = (1 - u) * .95; g.strokeStyle = pl.color; g.lineWidth = 1.8 * fm.NS * p.s; glow(pl.color, 10);
+    g.beginPath(); g.arc(p.x, p.y, (r0 + 18 * E.out(u)) * fm.NS * p.s, 0, 6.283); g.stroke();
+  });
+  noGlow();
+
+  // labels
+  g.textAlign = 'center';
+  S.nodes.forEach(n => {
+    if (n.kind !== 'organ' && n.kind !== 'func') return;
+    const u = prog(st, n.t0, n.d), p = P(n);
+    if (u <= 0 || !p) return;
+    const organ = n.kind === 'organ';
+    g.globalAlpha = u * Math.max(.45, p.a);
+    g.font = font(organ ? 500 : 400, (organ ? 14 : 12.5) * fm.T * p.s);
+    g.fillStyle = organ ? COL.light : COL.medium;
+    g.fillText(n.label, p.x, p.y + ((organ ? 11 : 8) * fm.NS + (organ ? 15 : 13.5) * fm.T) * p.s);
+  });
+
+  // titles
+  const bill = (w, text, size, wgt, color, alpha, align = 'center', spacing = 0) => {
+    const p = V.proj([w[0], w[1], 0]); if (!p || alpha <= 0) return;
+    g.globalAlpha = alpha * Math.max(.5, att([w[0], w[1], 0])); g.fillStyle = color; g.textAlign = align;
+    g.font = font(wgt, size * fm.T * p.s);
+    if ('letterSpacing' in g) g.letterSpacing = (spacing * size * fm.T * p.s).toFixed(1) + 'px';
+    g.fillText(text, p.x, p.y);
+    if ('letterSpacing' in g) g.letterSpacing = '0px';
+  };
+  const tA = prog(st, 900, 600);
+  bill(fm.title, 'SYSTEMIC BACKBONE', 13, 600, COL.light, tA, 'center', .14);
+  bill([fm.title[0], fm.title[1] + 18 * fm.T], 'how organs and systems interact', 12.5, 400, COL.medium, tA * .85);
+  bill(fm.heads.whole, 'WHOLE ORGANISM', 12.5, 500, COL.live, prog(st, TL.inputs[0], 300), 'left', .12);
+  bill(fm.heads.models, 'OTHER MODELS', 12.5, 500, COL.context, prog(st, TL.models[0], 300), 'left', .12);
+
+  // data flow to the risk profile, behind the cards
+  const O = fm.out, oc = V.proj([O.x, O.y, 0]);
+  let card = null;
+  if (oc) {
+    const os = oc.s * fm.OS, ow = O.w * os, oh = O.h * os;
+    card = { x: oc.x - ow / 2, y: oc.y - oh / 2, s: os };
+    const col = j => 92 + ((O.w - 104) / 4) * (j + .5);
+    const entry = j => O.entry === 'left' ? { x: card.x - 2, y: card.y + (112 + j * 52) * os } : { x: card.x + col(j) * os, y: card.y - 2 };
+    S.flows.forEach(f => {
+      const a = P(f.src); if (!a) return;
+      const b = entry(f.j);
+      const C = O.entry === 'left'
+        ? [a, { x: a.x + 160 * a.s, y: a.y }, { x: b.x - 90 * os, y: b.y }, b]
+        : [a, { x: a.x, y: a.y + 170 * a.s }, { x: b.x, y: b.y - 120 * os }, b];
+      const u = prog(st, f.t0, 600);
+      if (u > 0) { g.globalAlpha = .35; g.strokeStyle = COL.result; g.lineWidth = 1.4 * fm.NS * a.s; curve(C, u); }
+      g.fillStyle = COL.result; glow(COL.result, 10);
+      particles(st, f, C, (k, q, al) => { if (!q) return; g.globalAlpha = al; g.beginPath(); g.arc(q.x, q.y, 3 * fm.NS * a.s, 0, 6.283); g.fill(); });
+      noGlow();
+    });
+  }
+
+  // inset cards on top; one flying in gets a dark backdrop so it reads over the graph
+  Object.values(cards).sort((a, b) => (1 - a.ud) - (1 - b.ud)).forEach(c => {
+    const pt = c.ua * (1 - c.ud);
+    if (pt > 0) {
+      const pad = 26 * fm.T * c.s;
+      g.globalAlpha = .88 * pt; g.fillStyle = COL.bg; glow(COL.bg, 40);
+      g.beginPath(); g.roundRect(c.x - pad, c.y - pad * 1.9, c.w + pad * 2, c.h + pad * 2.9, 14 * c.s); g.fill();
+      noGlow();
+    }
+    const vis = c.ua * Math.max(c.a, 1 - c.ud);
+    g.globalAlpha = vis;
+    const media = filmImages[c.d.id];
+    if (media && media.tagName === 'VIDEO') {
+      const r = 5 * c.s;
+      g.save(); g.beginPath(); g.roundRect(c.x, c.y, c.w, c.h, r); g.clip();
+      g.fillStyle = '#151b4a'; g.fillRect(c.x, c.y, c.w, c.h);
+      if (media.readyState >= 2) g.drawImage(media, c.x, c.y, c.w, c.h);
+      g.restore();
+      g.globalAlpha = vis * .55; g.strokeStyle = COL.line; g.lineWidth = Math.max(1, c.s * .8);
+      g.beginPath(); g.roundRect(c.x, c.y, c.w, c.h, r); g.stroke();
+    } else if (media) g.drawImage(media, c.x, c.y, c.w, c.h);
+    g.textAlign = 'center';
+    g.globalAlpha = prog(st, c.T + c.d.step.dockAt + 250, 250) * Math.max(.5, c.a);
+    g.font = font(400, 14 * fm.T * c.s); g.fillStyle = COL.medium;
+    g.fillText(c.d.caption, c.x + c.w / 2, c.y + c.h + 16 * fm.T * c.s);
+    if (pt > 0) {
+      let size = 13.5 * fm.T * c.s * (fm.PT || 1);
+      g.font = font(500, size);
+      const tw = g.measureText(c.d.title).width;
+      if (tw > W * .86) { size *= W * .86 / tw; g.font = font(500, size); }
+      const tx = clamp(c.x + c.w / 2, W * .07 + Math.min(tw, W * .86) / 2, W * .93 - Math.min(tw, W * .86) / 2);
+      g.globalAlpha = pt; g.fillStyle = COL.light;
+      g.fillText(c.d.title, tx, c.y - 12 * fm.T * c.s);
+    }
+  });
+
+  // the human risk profile
+  if (card) drawRiskCard(g, card.x, card.y, card.s, O.w, O.h, st, prog(st, TL.flow - 400, 500) * Math.max(.55, att([O.x, O.y, 0])));
+
+  // vignette
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1;
+  const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .42, W / 2, H / 2, Math.hypot(W, H) * .55);
+  vg.addColorStop(0, 'rgba(4,7,28,0)'); vg.addColorStop(1, 'rgba(4,7,28,0.6)');
+  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+}
+
+function drawRiskCard(g, x0, y0, s, w, h, st, alpha) {
+  if (alpha <= 0) return;
+  const font = (wgt, size) => `${wgt} ${size}px Inter, system-ui, sans-serif`;
+  g.save();
+  g.setTransform(s, 0, 0, s, x0, y0);
+  g.globalAlpha = alpha;
+  g.fillStyle = COL.plate; g.strokeStyle = 'rgba(159,176,208,0.25)'; g.lineWidth = 1;
+  g.beginPath(); g.roundRect(0, 0, w, h, 12); g.fill(); g.stroke();
+  g.textAlign = 'left';
+  g.fillStyle = COL.light; g.font = font(500, 15); g.fillText('Human risk profile', 16, 30);
+  g.fillStyle = 'rgba(204,214,246,0.8)'; g.font = font(400, 12.5); g.fillText('candidates, safest first', 16, 49);
+  const colX0 = 92, cw = (w - 104) / 4, col = j => colX0 + cw * (j + .5);
+  g.textAlign = 'center';
+  OUT_ORGANS.forEach((o, j) => g.fillText(o, col(j), 80));
+  const rowTop = 92, pitch = Math.min(56, (h - 130) / 4), ur = prog(st, TL.rank, 750, E.inOut);
+  CANDIDATES.forEach((c, i) => {
+    const pos = ORDER.indexOf(i), y = rowTop + pitch * lerp(i, pos, ur);
+    if (pos === 0) { g.globalAlpha = alpha * .08 * prog(st, TL.rank + 700, 300); g.fillStyle = COL.result; g.beginPath(); g.roundRect(6, y + 2, w - 12, pitch - 4, 6); g.fill(); }
+    g.globalAlpha = alpha;
+    g.strokeStyle = 'rgba(159,176,208,0.14)'; g.beginPath(); g.moveTo(12, y); g.lineTo(w - 12, y); g.stroke();
+    g.textAlign = 'left';
+    g.globalAlpha = alpha * prog(st, TL.rank + 550, 300); g.fillStyle = COL.light; g.font = font(500, 12.5); g.fillText(String(pos + 1), 16, y + pitch / 2 + 5);
+    g.globalAlpha = alpha; g.font = font(500, 14); g.fillText(c.name, 32, y + pitch / 2 + 5);
+    c.risk.forEach((v, j) => {
+      const bx = colX0 + cw * j + 5, bw = cw - 10;
+      g.fillStyle = 'rgba(159,176,208,0.14)'; g.beginPath(); g.roundRect(bx, y + pitch / 2 - 3, bw, 6, 3); g.fill();
+      const fw = bw * v * prog(st, TL.bars + i * 90 + j * 50, 550);
+      if (fw > .5) { g.fillStyle = v >= .5 ? COL.flag : COL.result; g.beginPath(); g.roundRect(bx, y + pitch / 2 - 3, fw, 6, 3); g.fill(); }
+    });
+  });
+  const ly = h - 18;
+  g.globalAlpha = alpha; g.textAlign = 'left'; g.font = font(400, 12.5);
+  g.fillStyle = COL.result; g.beginPath(); g.roundRect(16, ly - 8, 14, 6, 3); g.fill();
+  g.fillStyle = 'rgba(204,214,246,0.8)'; g.fillText('lower risk', 36, ly);
+  g.fillStyle = COL.flag; g.beginPath(); g.roundRect(120, ly - 8, 14, 6, 3); g.fill();
+  g.fillStyle = 'rgba(204,214,246,0.8)'; g.fillText('higher risk', 140, ly);
+  g.restore();
+}
+
+const filmCanvas = document.getElementById('film');
+function drawFilmLive(ft) {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = Math.round(stage.clientWidth * dpr), H = Math.round(stage.clientHeight * dpr);
+  if (!W || !H) return;
+  if (filmCanvas.width !== W || filmCanvas.height !== H) { filmCanvas.width = W; filmCanvas.height = H; }
+  renderFilm(filmCanvas.getContext('2d'), W, H, ft);
+}
+
+// Export mode (used by docs/preview/film/export.py): ?export=16x9&fps=30, or &times=3600,8300 for stills
+async function runExport(fmtKey, fps, times) {
+  filmFmt = FILM_FORMATS[fmtKey] ? fmtKey : '16x9';
+  const fm = FILM_FORMATS[filmFmt];
+  document.body.className = 'exporting';
+  const status = document.createElement('p');
+  status.className = 'export-status'; document.body.prepend(status);
+  const cv = document.createElement('canvas');
+  cv.width = fm.W; cv.height = fm.H;
+  const g = cv.getContext('2d');
+  const at = times && times.length ? times : Array.from({ length: Math.round(FILM.end / 1000 * fps) + 1 }, (_, i) => i * 1000 / fps);
+  const n = at.length;
+  // clips are paused and set to the exact time of each frame, counted from when their card appears
+  const clips = INPUTS.map((d, k) => ({ v: filmImages[d.id], t0: filmAtStory(TL.inputs[k]) }))
+    .filter(c => c.v && c.v.tagName === 'VIDEO' && c.v.readyState >= 1);
+  clips.forEach(c => c.v.pause());
+  const seekTo = (v, t) => (Math.abs(v.currentTime - t) < 1e-3 ? Promise.resolve() : new Promise(res => {
+    const done = () => { clearTimeout(timer); res(); };
+    const timer = setTimeout(done, 3000);
+    v.addEventListener('seeked', done, { once: true });
+    v.currentTime = t;
+  }));
+  try {
+    for (let i = 0; i < n; i++) {
+      const ft = Math.min(FILM.end, at[i]);
+      await Promise.all(clips.map(c => seekTo(c.v, (Math.max(0, ft - c.t0) / 1000) % (c.v.duration || 1))));
+      renderFilm(g, fm.W, fm.H, ft);
+      const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+      const res = await fetch(`/frame?i=${i}`, { method: 'POST', body: blob });
+      if (!res.ok) throw new Error(`frame ${i}: HTTP ${res.status}`);
+      if (i % 15 === 0) status.textContent = `${filmFmt}: frame ${i + 1} of ${n}`;
+    }
+    await fetch(`/done?n=${n}`, { method: 'POST' });
+    status.textContent = 'Done.';
+  } catch (err) {
+    await fetch('/fail', { method: 'POST', body: String(err && err.stack || err) });
+  }
+}
+
+// ---------- playback ----------
+let tNow = 0, playing = false, startAt = 0, lastVB = '';
+let advance = 'auto';                       // 'auto' plays by itself; 'scroll' follows the page scroll
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let camMode = reduce ? 'off' : 'subtle';    // 'subtle' frames each step a little closer (2D, 2.5D, 3D)
+const scrub = document.getElementById('scrub'), timeEl = document.getElementById('time');
+const scroller = document.getElementById('scroller');
+const endOf = () => (mode === 'film' ? FILM.end : TL.end);
+function applyStageShape() {
+  if (mode === 'film') {
+    const fm = FILM_FORMATS[filmFmt];
+    stage.style.aspectRatio = `${fm.W} / ${fm.H}`;
+    stageWrap.style.maxWidth = filmFmt === '4x5' ? '560px' : '';
+  } else if (L) {
+    stage.style.aspectRatio = `${L.w} / ${L.h}`;
+    stageWrap.style.maxWidth = '';
+  }
+  lastVB = '';
+}
+
+// camera: a gentle zoom toward where the new thing happens, back to the whole picture at the end
+function camRect(t) {
+  const F = { x: 0, y: 0, w: L.w, h: L.h };
+  if (camMode === 'off' || L.kind !== 'wide') return F;
+  const w = L.w * .82, h = L.h * .82;
+  const IN = { x: 0, y: 22, w, h }, MOD = { x: 0, y: L.h - h - 8, w, h }, OUT = { x: L.w - w, y: 45, w, h };
+  const keys = [[0, F], [TL.inputs[0] - 300, F], [TL.inputs[0] + 400, IN], [TL.models[0] - 300, IN], [TL.models[0] + 300, MOD],
+                [TL.flow - 300, MOD], [TL.flow + 400, OUT], [TL.rank + RANK.dur + 700, OUT], [TL.end - 700, F], [TL.end, F]];
+  let i = 1;
+  while (i < keys.length - 1 && t > keys[i][0]) i++;
+  const [ta, A] = keys[i - 1], [tb, B] = keys[i], u = E.inOut(clamp((t - ta) / (tb - ta || 1)));
+  return { x: lerp(A.x, B.x, u), y: lerp(A.y, B.y, u), w: lerp(A.w, B.w, u), h: lerp(A.h, B.h, u) };
+}
+
+// the line of text above the figure that says what is happening
+const narr = document.getElementById('narration'), nStep = document.getElementById('n-step'), nText = document.getElementById('n-text');
+let narrIdx = -1;
+function narrate(t) {
+  let i = 0;
+  NARRATION.forEach((n, k) => { if (t >= n[0]) i = k; });
+  const key = i + (advance === 'scroll' ? 's' : 'a');
+  if (key === narrIdx) return;
+  narrIdx = key;
+  nStep.textContent = NARRATION[i][1] + (advance === 'scroll' && i === 0 ? '  \u00b7  scroll to advance \u2193' : '');
+  nText.textContent = NARRATION[i][2];
+  narr.classList.remove('fresh'); void narr.offsetWidth; narr.classList.add('fresh');
+}
+
+function render(t) {
+  if (!S) return;
+  if (mode === 'film') drawFilmLive(t);
+  else {
+    const vb = camRect(t), vbs = `${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}`;
+    if (vbs !== lastVB) { LAYERS.forEach(n => layer[n].setAttribute('viewBox', vbs)); lastVB = vbs; }
+    frameChrome(t); frameOutput(t);
+    if (mode === '3d') draw3D(t); else frameSVG(t);
+    narrate(t);
+  }
+  scrub.max = endOf(); scrub.value = t; timeEl.textContent = (t / 1000).toFixed(1) + ' s';
+}
+function loop(now) {
+  if (!playing) return;
+  tNow = Math.min(endOf(), now - startAt);
+  render(tNow);
+  if (tNow >= endOf()) { playing = false; return; }
+  requestAnimationFrame(loop);
+}
+function play(from = 0) { startAt = performance.now() - from; playing = true; requestAnimationFrame(loop); }
+function seek(t) { playing = false; tNow = t; render(t); }
+
+// ---------- scroll to advance ----------
+// Each step gets scroll distance in line with its length, compressed so short steps aren't skipped.
+const scrollSegments = () => {
+  const b = [0, ...TL.inputs, ...TL.models, TL.flow - OUTPUT.card, TL.end];
+  return b.slice(0, -1).map((a, i) => [a, b[i + 1], Math.pow((b[i + 1] - a) / 1000, .8)]);
+};
+const stickyTop = () => parseFloat(getComputedStyle(stageWrap).top) || 0;
+function scrollSpan() { return Math.max(1, scroller.offsetHeight - stageWrap.offsetHeight); }
+function timeAtScroll() {
+  const p = clamp((stickyTop() - scroller.getBoundingClientRect().top) / scrollSpan());
+  const segs = scrollSegments(), total = segs.reduce((a, s) => a + s[2], 0);
+  let acc = 0;
+  for (const [a, b, w] of segs) { const f = w / total; if (p <= acc + f) return lerp(a, b, (p - acc) / f); acc += f; }
+  return TL.end;
+}
+function scrollToTime(t, smooth = true) {
+  const segs = scrollSegments(), total = segs.reduce((a, s) => a + s[2], 0);
+  let acc = 0, p = 1;
+  for (const [a, b, w] of segs) { const f = w / total; if (t <= b) { p = acc + f * clamp((t - a) / (b - a)); break; } acc += f; }
+  const top = scroller.getBoundingClientRect().top + window.scrollY - stickyTop() + p * scrollSpan();
+  window.scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
+}
+let scrollTarget = 0, following = false;
+function follow() {
+  const d = scrollTarget - tNow;
+  tNow = Math.abs(d) < 4 ? scrollTarget : tNow + d * .16;
+  render(tNow);
+  if (tNow !== scrollTarget) requestAnimationFrame(follow); else following = false;
+}
+window.addEventListener('scroll', () => {
+  if (advance !== 'scroll' || mode === 'film') return;
+  scrollTarget = timeAtScroll();
+  if (!following) { following = true; requestAnimationFrame(follow); }
+}, { passive: true });
+function setAdvance(a) {
+  advance = a;
+  document.documentElement.classList.toggle('scroll-mode', a === 'scroll');
+  document.querySelectorAll('[data-adv]').forEach(o => o.setAttribute('aria-pressed', String(o.dataset.adv === a)));
+  if (a === 'scroll' && mode !== 'film') {
+    playing = false;
+    requestAnimationFrame(() => { scrollToTime(0, false); tNow = scrollTarget = timeAtScroll(); render(tNow); });
+  } else render(tNow);
+}
+
+if (reduce) document.getElementById('hint').textContent = ' Reduced motion is on: showing the final frame; use Replay to play.';
+
+const scrollMode = () => advance === 'scroll' && mode !== 'film';
+document.getElementById('replay').addEventListener('click', () => (scrollMode() ? scrollToTime(0) : play(0)));
+document.getElementById('final').addEventListener('click', () => (scrollMode() ? scrollToTime(TL.end) : seek(endOf())));
+scrub.addEventListener('input', () => (scrollMode() ? scrollToTime(+scrub.value, false) : seek(+scrub.value)));
+document.getElementById('phone').addEventListener('change', e => stageWrap.classList.toggle('phone', e.target.checked));
+document.querySelectorAll('[data-adv]').forEach(b => b.addEventListener('click', () => setAdvance(b.dataset.adv)));
+document.querySelectorAll('[data-cam]').forEach(b => {
+  b.setAttribute('aria-pressed', String(b.dataset.cam === camMode));
+  b.addEventListener('click', () => {
+    camMode = b.dataset.cam;
+    document.querySelectorAll('[data-cam]').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+    render(tNow);
+  });
+});
+document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
+  const prev = mode;
+  mode = b.dataset.mode;
+  if (prev === 'film' && mode !== 'film') tNow = storyAt(tNow);
+  if (prev !== 'film' && mode === 'film') tNow = filmAtStory(tNow);
+  if (playing) startAt = performance.now() - tNow;
+  document.body.className = 'mode-' + mode;
+  document.querySelectorAll('[data-mode]').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+  view.yaw = 0; view.pitch = 0;
+  if (mode !== '3d') { const c = canvas.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height); }
+  applyStageShape();
+  render(tNow);
+}));
+document.querySelectorAll('[data-fmt]').forEach(b => b.addEventListener('click', () => {
+  filmFmt = b.dataset.fmt;
+  document.querySelectorAll('[data-fmt]').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+  applyStageShape();
+  render(tNow);
+}));
+
+// storyboard beats
+const beats = document.getElementById('beats');
+BEATS.forEach(([t, name]) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.innerHTML = `<b>${(t / 1000).toFixed(1)}</b>${name}`;
+  b.addEventListener('click', () => {
+    const at = t === TL.end ? t : t + 900;
+    if (mode === 'film') seek(t === TL.end ? FILM.end : filmAtStory(at));
+    else if (scrollMode()) scrollToTime(at);
+    else seek(at);
+  });
+  beats.appendChild(b);
+});
+
+// clips: start them when their card is on screen, and keep them going (browsers may pause muted video)
+setInterval(() => {
+  if (!S || reduce || mode === 'film') return;
+  S.insets.forEach(r => { if (r.video && r.shown && r.video.paused && !(advance === 'scroll' && r.presenting)) r.video.play().catch(() => {}); });
+}, 700);
+
+// 2.5D: follow the pointer; 3D: drag to rotate
+stage.addEventListener('pointermove', e => {
+  if (mode !== '25d') return;
+  const r = stage.getBoundingClientRect(), dx = (e.clientX - r.left) / r.width - .5, dy = (e.clientY - r.top) / r.height - .5;
+  scene.style.setProperty('--ry', (-9 + dx * 10).toFixed(2) + 'deg');
+  scene.style.setProperty('--rx', (15 - dy * 8).toFixed(2) + 'deg');
+});
+let drag = null;
+canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw: view.yaw, pitch: view.pitch }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e => {
+  if (!drag) return;
+  view.yaw = drag.yaw + (e.clientX - drag.x) / 180;
+  view.pitch = clamp(drag.pitch + (e.clientY - drag.y) / 240, -.5, .7);
+  if (!playing) render(tNow);
+});
+canvas.addEventListener('pointerup', () => { drag = null; });
+
+// layout follows the container width
+let lastKind = null;
+new ResizeObserver(() => {
+  const kind = stageWrap.clientWidth < 640 ? 'tall' : 'wide';
+  if (kind !== lastKind) { lastKind = kind; build(); }
+  render(tNow);
+}).observe(stageWrap);
+
+document.fonts.ready.then(async () => {
+  build(); lastKind = L.kind;
+  await Promise.all(['400', '500', '600'].map(w => document.fonts.load(`${w} 16px Inter`)));
+  const params = new URLSearchParams(location.search);
+  if (params.has('export')) {
+    await prepareFilm();
+    const times = (params.get('times') || '').split(',').filter(Boolean).map(Number);
+    runExport(params.get('export'), +(params.get('fps') || 30), times);
+    return;
+  }
+  prepareFilm();   // only the export needs to wait for it
+  if (params.get('cam')) document.querySelector(`[data-cam="${params.get('cam')}"]`)?.click();
+  if (params.get('mode')) document.querySelector(`[data-mode="${params.get('mode')}"]`)?.click();
+  if (params.get('advance') === 'scroll') setAdvance('scroll');
+  else if (params.has('t')) seek(+params.get('t'));
+  else if (reduce) seek(TL.end);
+  else play(0);
+});
+})();
+</script>
+</body>
+</html>

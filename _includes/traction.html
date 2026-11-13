@@ -1,38 +1,59 @@
-<section id="traction">
-    <div class="text-center mb-16 reveal-on-scroll">
-        <h3 class="text-sm font-semibold tracking-widest text-accent-primary uppercase">Traction & Validation</h3>
-        <h4 class="mt-4 text-3xl md:text-4xl font-bold tracking-tight">Validated by the Industry</h4>
-        <p class="mt-4 max-w-2xl mx-auto text-lg text-text-medium">Our groundbreaking approach is gaining significant traction with key players across the ecosystem.</p>
-    </div>
+{% assign tr = site.data.traction %}
+{% assign prod = false %}{% if jekyll.environment == "production" %}{% assign prod = true %}{% endif %}
+{% assign parts = "" | split: "" %}
+{% for f in tr.features %}{% unless prod and f.pending %}{% assign parts = parts | push: f.lede %}{% endunless %}{% endfor %}
+{% assign parts = parts | push: "public programmes" %}
+{% capture lede %}{% for x in parts %}{% if forloop.last and forloop.length > 1 %}{% assign i = forloop.index0 | minus: 1 %}{% if parts[i] contains " and " %}, and {% else %} and {% endif %}{% elsif forloop.index > 1 %}, {% endif %}{{ x }}{% endfor %}{% endcapture %}
+{% assign shown = 0 %}{% for m in tr.measures %}{% unless prod and m.pending %}{% assign shown = shown | plus: 1 %}{% endunless %}{% endfor %}
+<section id="traction" class="section band">
+  <div class="wrap">
+    <header class="section-head">
+        <h2 class="title">Traction</h2>
+        <p class="lede">{{ lede | slice: 0 | upcase }}{{ lede | slice: 1, 500 }}.</p>
+    </header>
 
-    <div class="reveal-on-scroll">
-        <h5 class="text-lg font-semibold text-center text-text-light mb-4">Trusted by Leading Partners & Programs</h5>
-        <div class="relative w-full overflow-hidden h-24 md:h-32 carousel-container card-bg py-4">
-            <div class="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-bg-dark z-10 pointer-events-none"></div>
-            <div class="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-bg-dark z-10 pointer-events-none"></div>
-            
-            <div class="carousel-track h-full">
-                <div class="carousel-slide">
-                    <img src="{{ '/assets/images/wilco_logo.svg' | relative_url }}" alt="Wilco" title="Wilco" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/iledefrance_logo.svg' | relative_url }}" alt="Région Île-de-France" title="Région Île-de-France" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/nvidia_logo.svg' | relative_url }}" alt="NVIDIA Inception" title="NVIDIA Inception" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/logo_ilab.webp' | relative_url }}" alt="i-Lab" title="i-Lab Innovation Prize" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/france2030_logo.svg' | relative_url }}" alt="France 2030" title="France 2030" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/spartners_logo.jpg' | relative_url }}" alt="Spartners" title="Spartners" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/genopole_logo.svg' | relative_url }}" alt="Genopole" title="Genopole" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/medicen_logo.png' | relative_url }}" alt="Medicen" title="Medicen" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/datacraft_logo.jpg' | relative_url }}" alt="Datacraft Awards" title="Datacraft Awards" loading="lazy" class="partner-logo">
-                    <img src="{{ '/assets/images/bpifrance_logo.svg' | relative_url }}" alt="BPI France" title="BPI France" loading="lazy" class="partner-logo">
-                </div>
+    <div class="duo features">
+        {% for f in tr.features %}
+        {% if prod and f.pending %}{% continue %}{% endif %}
+        <article class="feature">
+            <p class="label">{{ f.kicker }}</p>
+            <h3 class="h3">{{ f.title }}</h3>
+            <p>{{ f.text }}</p>
+            {% if f.pending %}<p class="mt-2 pending-inline">Pending: {{ f.pending }}.</p>{% endif %}
+            {% if f.logos %}
+            <div class="feature-logos">
+                {% for l in f.logos %}
+                {% if l.file %}<span class="partner-tile"><img src="{{ '/assets/images/' | append: l.file | relative_url }}" alt="{{ l.name }}" title="{{ l.name }}" loading="lazy" class="partner-logo"></span>
+                {% else %}<span class="partner-tile is-text">{{ l.name }}</span>{% endif %}
+                {% endfor %}
             </div>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+
+    {% if shown > 0 %}
+    <div class="numerals is-quiet" style="--cols: {{ shown }}">
+        {% for m in tr.measures %}
+        {% if prod and m.pending %}{% continue %}{% endif %}
+        <div class="numeral">
+            <p class="numeral-value{% if m.value contains '[' or m.pending %} is-placeholder{% endif %}">{{ m.value }}</p>
+            <p class="numeral-label">{{ m.label }}</p>
+            {% if m.pending %}<p class="numeral-label pending-inline">Pending: {{ m.pending }}.</p>{% endif %}
         </div>
+        {% endfor %}
     </div>
+    {% endif %}
 
-    <div class="text-center mt-20 relative z-20 reveal-on-scroll" style="transition-delay: 150ms;">
-        <p class="text-lg font-semibold text-text-light mb-2">And Strong Commercial Interest</p>
-        <span id="loi-counter" class="text-6xl font-bold gradient-text">0</span>
-        <p class="mt-1 text-lg font-semibold text-text-light">Letters of Intent</p>
-        <p class="mt-1 text-sm text-text-medium">from AI-Biotech & Pharma leaders</p>
+    {% if site.data.highlights and site.data.highlights.size > 0 %}
+    <div class="news">
+        <p class="label">News</p>
+        <ul class="news-list">
+            {% for item in site.data.highlights %}
+            <li><span class="news-date">{{ item.date }}</span><span class="news-text">{{ item.text }}</span></li>
+            {% endfor %}
+        </ul>
     </div>
-
+    {% endif %}
+  </div>
 </section>

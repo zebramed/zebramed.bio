@@ -1,26 +1,24 @@
-<header class="site-header sticky top-0 z-50 bg-bg-dark/80 backdrop-blur-md border-b border-transparent transition-all duration-300" id="site-header" role="banner">
-    <div class="flex justify-between items-center py-4">
-        <div class="flex items-center gap-3">
+{%- comment -%} Off the home page, section links go back to it. {%- endcomment -%}
+{%- assign home = '' -%}{%- unless page.url == '/' -%}{%- assign home = '/' | relative_url -%}{%- endunless -%}
+<header class="site-header" id="site-header" role="banner">
+    <div class="wrap header-bar">
+        <a href="{{ home }}#" class="brand" aria-label="ZebraMed, back to top">
             <span class="logo-mask" aria-hidden="true"></span>
-            <a href="#" class="brand-title text-2xl font-bold tracking-tighter" aria-label="ZebraMed - Back to top">
-                <span class="brand-med">Zebra</span><span class="brand-zebra gradient-text">Med</span>
-            </a>
-        </div>
-        
-        <!-- Desktop Navigation -->
-        <nav class="hidden md:flex items-center gap-6" aria-label="Main navigation">
-            <a href="#problem" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Problem</a>
-            <a href="#solution" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Solution</a>
-            <a href="#traction" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Traction</a>
-            <a href="#team" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors">Team</a>
+            <span class="brand-title"><span class="text-text-light">Zebra</span><span class="gradient-text">Med</span></span>
+        </a>
+
+        <nav class="nav" aria-label="Main navigation">
+            <a href="{{ home }}#problem" class="nav-link">Problem</a>
+            <a href="{{ home }}#offer" class="nav-link">Offer</a>
+            <a href="{{ home }}#platform" class="nav-link">Platform</a>
+            <a href="{{ home }}#team" class="nav-link">Team</a>
+            <a href="{{ home }}#traction" class="nav-link">Traction</a>
         </nav>
 
-        <div class="flex items-center gap-3">
-            <a href="{{ site.intranet_url }}" class="hidden sm:inline text-accent-primary text-sm font-medium hover:underline opacity-70 hover:opacity-100 transition-opacity" aria-label="Access intranet portal">Intranet</a>
-            <a href="mailto:{{ site.email }}" class="border border-accent-primary text-accent-primary px-4 py-2 rounded-md text-sm font-medium hover:bg-accent-primary hover:text-bg-dark transition-colors" aria-label="Send us an email">Contact Us</a>
-            
-            <!-- Mobile Menu Button -->
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-text-medium hover:text-accent-primary transition-colors" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-menu">
+        <div class="header-actions">
+            <a href="mailto:{{ site.email }}" class="btn btn-solid btn-sm" aria-label="Email ZebraMed">Contact us</a>
+
+            <button id="mobile-menu-btn" class="menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-menu">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path class="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     <path class="close-icon hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -28,15 +26,14 @@
             </button>
         </div>
     </div>
-    
-    <!-- Mobile Navigation -->
-    <nav id="mobile-menu" class="md:hidden hidden pb-4" aria-label="Mobile navigation">
-        <div class="flex flex-col gap-3">
-            <a href="#problem" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Problem</a>
-            <a href="#solution" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Solution</a>
-            <a href="#traction" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Traction</a>
-            <a href="#team" class="nav-link text-sm text-text-medium hover:text-accent-primary transition-colors py-2">Team</a>
-            <a href="{{ site.intranet_url }}" class="sm:hidden text-accent-primary text-sm font-medium hover:underline opacity-70 hover:opacity-100 transition-opacity py-2" aria-label="Access intranet portal">Intranet</a>
+
+    <nav id="mobile-menu" class="wrap hidden" aria-label="Mobile navigation">
+        <div class="mobile-nav">
+            <a href="{{ home }}#problem" class="nav-link">Problem</a>
+            <a href="{{ home }}#offer" class="nav-link">Offer</a>
+            <a href="{{ home }}#platform" class="nav-link">Platform</a>
+            <a href="{{ home }}#team" class="nav-link">Team</a>
+            <a href="{{ home }}#traction" class="nav-link">Traction</a>
         </div>
     </nav>
 </header>

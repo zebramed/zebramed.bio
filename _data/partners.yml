@@ -1,0 +1,32 @@
+# Ecosystem logos for the Traction carousel. Items with `logo` render the
+# image; items without render as text. Confirm each is a current, public
+# relationship before publication (the September audit found several of the
+# existing logos unsupported by the business plan).
+- name: i-Lab innovation prize
+  logo: logo_ilab.webp
+- name: Bpifrance
+  logo: bpifrance_logo.svg
+- name: France 2030
+  logo: france2030_logo.svg
+- name: Genopole
+  logo: genopole_logo.svg
+- name: NVIDIA Inception
+  logo: nvidia_logo.svg
+- name: HEC Paris Challenge+
+  logo: hec_challenge_logo.png
+- name: DayOne, Basel
+  logo: dayone_logo.svg
+- name: Creative Destruction Lab
+  logo: cdl_logo.svg
+- name: Future4Care
+  logo: future4care_logo.svg
+- name: Wilco
+  logo: wilco_logo.svg
+- name: Medicen Paris Region
+  logo: medicen_logo.png
+- name: Région Île-de-France
+  logo: iledefrance_logo.svg
+- name: Spartners
+  logo: spartners_logo.jpg
+- name: Datacraft
+  logo: datacraft_logo.jpg

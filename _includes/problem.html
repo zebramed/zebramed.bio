@@ -1,68 +1,66 @@
-<section id="problem">
-    <div class="text-center mb-16 reveal-on-scroll">
-        <h3 class="text-sm font-semibold tracking-widest text-accent-primary uppercase">Pharma's $200 billion paradox</h3>
-        <h4 class="mt-4 text-3xl md:text-4xl font-bold tracking-tight">Why AI Predictions Fail in Humans</h4>
-        <p class="mt-4 max-w-2xl mx-auto text-lg text-text-medium">The AI revolution was meant to fix pharma's 90% failure rate. Instead, it's hitting the same wall: a fundamental lack of predictive, systemic data. This is the 'Systemic Data Gap'.</p>
-    </div>
+<section id="problem" class="section band">
+  <div class="wrap">
+    <header class="section-head">
+        <h2 class="title">The systemic biology wall</h2>
+        <p class="lede">
+            Most clinical failures come down to efficacy or safety. Both depend on how a living body
+            responds to a drug, yet standard preclinical models, from cell screens to purely
+            computational AI, never see one. Candidates designed in silico clear Phase I, then hit
+            the same Phase II failure rates the industry has faced for decades.
+        </p>
+        <p class="lede">
+            ZebraMed introduces the missing systemic layer: physical whole-organism data translated
+            into auditable human insight.
+        </p>
+    </header>
 
-    <div class="pb-4 -mx-4 px-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 w-full">
-            <div class="card-bg p-8 flex-1 reveal-on-scroll">
-               <!-- Icon: Disconnected data silos / fragmented circles -->
-               <svg class="h-12 w-12 mb-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="7" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="2"/>
-                    <circle cx="36" cy="12" r="7" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="2"/>
-                    <circle cx="24" cy="36" r="7" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="2"/>
-                    <!-- Broken/dashed connection lines -->
-                    <path d="M18 15L30 15" class="svg-accent-secondary-stroke" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/>
-                    <path d="M15 18L20 30" class="svg-accent-secondary-stroke" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/>
-                    <path d="M33 18L28 30" class="svg-accent-secondary-stroke" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/>
-                </svg>
-                <h5 class="text-xl font-semibold text-text-light">Siloed Biology</h5>
-                <p class="mt-2 text-text-medium">Cellular assays, pre-clinical models, and human clinical data exist in separate worlds.</p>
-            </div>
-            <div class="card-bg p-8 flex-1 reveal-on-scroll" style="transition-delay: 150ms;">
-                <!-- Icon: Scalability with low quality - many small items, declining graph -->
-                <svg class="h-12 w-12 mb-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Grid of small dots representing scale -->
-                    <circle cx="8" cy="8" r="3" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="1.5"/>
-                    <circle cx="18" cy="8" r="3" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="1.5"/>
-                    <circle cx="28" cy="8" r="3" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="1.5"/>
-                    <circle cx="38" cy="8" r="3" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="1.5"/>
-                    <circle cx="8" cy="18" r="3" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="1.5"/>
-                    <circle cx="18" cy="18" r="3" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="1.5"/>
-                    <circle cx="28" cy="18" r="3" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="1.5"/>
-                    <circle cx="38" cy="18" r="3" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="1.5"/>
-                    <!-- Downward arrow showing poor translation -->
-                    <path d="M24 28L24 42" class="svg-accent-secondary-stroke" stroke-width="2.5" stroke-linecap="round"/>
-                    <path d="M18 36L24 42L30 36" class="svg-accent-secondary-stroke" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <!-- X mark for failure -->
-                    <path d="M38 32L44 38M44 32L38 38" class="svg-accent-secondary-stroke" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <h5 class="text-xl font-semibold text-text-light">Scalability Desert</h5>
-                <p class="mt-2 text-text-medium">Current high-throughput methods (in vitro) are scalable but simplistic, with less than 40% translatability.</p>
-            </div>
-            <div class="card-bg p-8 flex-1 reveal-on-scroll" style="transition-delay: 300ms;">
-                <!-- Icon: Single organ vs missing connected system -->
-                <svg class="h-12 w-12 mb-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Central organ/cell visible -->
-                    <circle cx="24" cy="24" r="10" class="svg-accent-primary-fill-10 svg-accent-primary-stroke" stroke-width="2"/>
-                    <circle cx="24" cy="24" r="4" class="svg-accent-primary-stroke" stroke-width="2"/>
-                    <!-- Ghost/missing connected organs -->
-                    <circle cx="8" cy="16" r="5" class="svg-accent-secondary-stroke" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.5"/>
-                    <circle cx="40" cy="16" r="5" class="svg-accent-secondary-stroke" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.5"/>
-                    <circle cx="8" cy="36" r="5" class="svg-accent-secondary-stroke" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.5"/>
-                    <circle cx="40" cy="36" r="5" class="svg-accent-secondary-stroke" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.5"/>
-                    <!-- Missing connection lines -->
-                    <path d="M14 20L12 18" class="svg-accent-secondary-stroke" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.5"/>
-                    <path d="M34 20L36 18" class="svg-accent-secondary-stroke" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.5"/>
-                    <path d="M14 30L12 34" class="svg-accent-secondary-stroke" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.5"/>
-                    <path d="M34 30L36 34" class="svg-accent-secondary-stroke" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.5"/>
-                </svg>
-                <h5 class="text-xl font-semibold text-text-light">Reductionist Models</h5>
-                <p class="mt-2 text-text-medium">All today's available methods miss the multi-organ, systemic effects that cause drugs to fail in humans.</p>
+    <div class="problem-split">
+        <div class="problem-main">
+            {% include figures/wall.html %}
+            <div class="numerals problem-numerals">
+                {% for m in site.data.problem.metrics %}
+                <div class="numeral">
+                    <p class="numeral-value"{% if m.count %} data-count="{{ m.count }}" data-suffix="{{ m.suffix }}"{% endif %}>{{ m.value }}</p>
+                    <p class="numeral-label">{{ m.label }}</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
+        <div class="quotes">
+            {% for q in site.data.quotes %}
+            <figure class="quote">
+                <blockquote><p>&ldquo;{{ q.text }}&rdquo;</p></blockquote>
+                <figcaption><span class="quote-name">{{ q.name }}</span>, {{ q.role }}{% if q.source %}, {{ q.source }}{% endif %}</figcaption>
+            </figure>
+            {% endfor %}
+        </div>
     </div>
-    <p class="gradient-text text-center text-xl font-semibold mt-8 mb-16 w-fit mx-auto">Bridging these translational gaps is the critical barrier to predictive drug discovery.</p>
+
+    <div class="trio causes">
+        <div class="cause">
+            <h3 class="h4">Cells have no body</h3>
+            <p>
+                Cell cultures in a dish cannot metabolise a compound through a liver, clear it through
+                kidneys or test a blood-brain barrier. They cannot model a seizure or a vascular
+                collapse. Single-tissue assays miss the systemic liabilities that only emerge when
+                organs interact.
+            </p>
+        </div>
+        <div class="cause">
+            <h3 class="h4">Standard models are slow and not scalable</h3>
+            <p>
+                Rodent studies capture systemic effects, after 18 to 24 months and grams of
+                synthesised compound. Organoids need months to mature and still model one tissue.
+            </p>
+        </div>
+        <div class="cause">
+            <h3 class="h4">A black box cannot be audited</h3>
+            <p>
+                Most in silico models are black boxes. If a candidate fails or hits an off-target, nobody
+                can trace the mechanism or the decision path. Pharma teams and regulators need
+                auditable evidence.
+            </p>
+        </div>
+    </div>
+  </div>
 </section>

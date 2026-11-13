@@ -1,0 +1,26 @@
+# Impact row. Values render literally. A measure with `pending:` is not
+# cleared: review builds show it with the reason in amber, production builds
+# (JEKYLL_ENV=production) leave it out. Delete the `pending:` line to publish.
+# `count` drives the count-up only when it is a number.
+#
+# Sources: the 2x and -50% figures are the business plan's USP statement
+# (zebramed-bp, bp/04-market/03-unique-selling-proposition-usp-core.md:11):
+# "a 50% absolute reduction in preclinical timeline duration and capital
+# expenditures and a 2x higher translatability towards humans in comparison to
+# other in vitro technologies". Note the plan states translatability elsewhere
+# as "55% higher" (executive summary) and "50% to 60% closer" (same file, :19).
+statement: "What a whole-organism loop changes for a programme"
+basis: "Projected against a conventional rodent programme and standard in vitro models."
+measures:
+  - value: "70%"
+    count: ""
+    label: human liver-toxicity (DILI) prediction performance
+  - value: "10×"
+    count: ""
+    label: the throughput of manual processing
+  - value: "2×"
+    count: ""
+    label: "human translational value compared to standard in vitro models"
+  - value: "−50%"
+    count: ""
+    label: "preclinical spend before the first mammalian cohort"

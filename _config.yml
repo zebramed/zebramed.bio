@@ -1,7 +1,7 @@
 # Site settings
 title: ZebraMed
-description: "The Ground Truth Engine for AI-Driven Drug Discovery"
-tagline: "Generating systemic, in vivo data at industrial scale for predictive AI-driven drug discovery"
+description: "Drug discovery AI, grounded in whole-organism biology"
+tagline: "ZebraMed builds the cross-species systemic atlas, a knowledge graph of systemic biology, and XenoEx, an interpretable multi-agent AI that reasons over it"
 email: info@zebramed.bio
 url: "https://zebramed.bio"
 baseurl: ""
@@ -9,14 +9,34 @@ intranet_url: "https://portal.zebramed.bio"
 
 # SEO & Social
 author: ZebraMed
-twitter:
-  card: summary_large_image
+# No `twitter:` block: without a username jekyll-seo-tag would emit an empty
+# twitter:site "@" and a creator "@ZebraMed" taken from `author`. The large
+# card is its default whenever a page has an image.
 social:
   name: ZebraMed
   links:
     - https://www.linkedin.com/company/zebramed
 logo: /assets/images/zebramed_logo.svg
 locale: en_US
+
+# Share preview for every page (LinkedIn, X, Slack). A page can override it
+# with its own `image:` in front matter.
+defaults:
+  - scope:
+      path: ""
+    values:
+      image:
+        path: /assets/images/og-card.png
+        width: 1200
+        height: 630
+        alt: "ZebraMed: drug discovery AI, grounded in whole-organism biology"
+
+# Review versus production. Data items marked `pending:` (impact and traction
+# measures, traction features, board members, the whitepaper button) show in
+# amber when JEKYLL_ENV is anything but "production", so `jekyll serve` is the
+# review build. GitHub Pages builds with JEKYLL_ENV=production and leaves them
+# out. To preview the public site locally:
+#   JEKYLL_ENV=production bundle exec jekyll serve
 
 # Build settings
 markdown: kramdown
@@ -25,6 +45,34 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-sitemap
+
+# Files and folders kept out of the published site.
+# NOTE: defining `exclude` REPLACES Jekyll's built-in list, so the
+# defaults are repeated here. docs/ holds internal working documents
+# (e.g. the narrative audit, which cites confidential material) — those
+# files have no front matter, so without this they are copied verbatim
+# into _site and served from zebramed.bio.
+exclude:
+  - docs/
+  - README.md
+  - package.json
+  - package-lock.json
+  - tailwind.config.js
+  - assets/css/tailwind.src.css
+  # unused since the 2026-10 rebuild; kept in git, not published
+  - assets/videos/
+  - assets/images/medicen_logo.xcf
+  # Jekyll defaults, restored:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
 
 # Sass settings
 sass:

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZebraMed design compare</title>
+<style>
+  :root { --bg: #0d1130; --bar: #141a40; --line: #2a3166; --text: #e6e9f5; --muted: #9aa3c7; --accent: #64ffda; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
+  body { display: flex; flex-direction: column; }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.25rem; padding: .55rem 1rem; background: var(--bar); border-bottom: 1px solid var(--line); }
+  header strong { font-size: 14px; margin-right: .25rem; }
+  label { display: inline-flex; align-items: center; gap: .4rem; color: var(--muted); }
+  select, input[type=text], button {
+    font: inherit; color: var(--text); background: #0f1438; border: 1px solid var(--line);
+    border-radius: 6px; padding: .3rem .55rem;
+  }
+  input[type=text] { width: 14rem; }
+  button { cursor: pointer; }
+  button:hover, select:hover { border-color: var(--accent); }
+  .spacer { flex: 1; }
+  .hint { color: var(--muted); font-size: 12px; }
+  main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); min-height: 0; }
+  .pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg); }
+  .pane-head { display: flex; align-items: center; gap: .75rem; padding: .4rem .75rem; border-bottom: 1px solid var(--line); min-width: 0; }
+  .pane-head .name { font-weight: 600; white-space: nowrap; }
+  .pane-head .ref { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+  .pane-head a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  .stage { position: relative; flex: 1; overflow: hidden; min-height: 0; }
+  .stage iframe { position: absolute; top: 0; border: 0; transform-origin: 0 0; background: #fff; }
+  .scale { color: var(--muted); white-space: nowrap; }
+</style>
+</head>
+<body>
+<header>
+  <strong>Design compare</strong>
+  <label>Device
+    <select id="device">
+      <option value="1440">Desktop 1440</option>
+      <option value="1280">Laptop 1280</option>
+      <option value="1024">Small laptop 1024</option>
+      <option value="820">Tablet 820</option>
+      <option value="390">Phone 390</option>
+    </select>
+  </label>
+  <label><input type="checkbox" id="sync" checked> Sync scroll</label>
+  <label>Jump to
+    <select id="jump">
+      <option value="#top">Top</option>
+      <option value="#problem">Problem</option>
+      <option value="#platform">Platform</option>
+      <option value="#impact">Impact</option>
+      <option value="#team">Team</option>
+      <option value="#traction">Traction</option>
+      <option value="#contact">Closing</option>
+    </select>
+  </label>
+  <label>Page <input type="text" id="path" value="/" spellcheck="false"></label>
+  <button id="go">Open</button>
+  <button id="reload">Reload both</button>
+  <span class="spacer"></span>
+  <span class="hint">Panes are scaled to fit; each "open" link shows that side at full size.</span>
+</header>
+<main>
+  <section class="pane" data-side="left">
+    <div class="pane-head"><span class="name"></span><span class="ref"></span><span class="scale"></span><a target="_blank" rel="noopener">open ↗</a></div>
+    <div class="stage"><iframe title="Left design"></iframe></div>
+  </section>
+  <section class="pane" data-side="right">
+    <div class="pane-head"><span class="name"></span><span class="ref"></span><span class="scale"></span><a target="_blank" rel="noopener">open ↗</a></div>
+    <div class="stage"><iframe title="Right design"></iframe></div>
+  </section>
+</main>
+<script>
+  // Filled in by server.py: { left: {url, name, ref}, right: {url, name, ref} }
+  const CONFIG = /*CONFIG*/null;
+  const qs = new URLSearchParams(location.search);
+  const $ = s => document.querySelector(s);
+  const sides = {};
+  document.querySelectorAll('.pane').forEach(pane => {
+    const key = pane.dataset.side;
+    sides[key] = { key, pane, frame: pane.querySelector('iframe'), stage: pane.querySelector('.stage'), cfg: CONFIG[key], path: null };
+    pane.querySelector('.name').textContent = CONFIG[key].name;
+    pane.querySelector('.ref').textContent = CONFIG[key].ref;
+    pane.querySelector('.ref').title = CONFIG[key].ref;
+  });
+  const other = s => s.key === 'left' ? sides.right : sides.left;
+
+  // Remember the reader's choices across reloads (per browser, nothing shared).
+  const store = { get(k, d) { try { return localStorage.getItem('zm-compare-' + k) ?? d; } catch { return d; } },
+                  set(k, v) { try { localStorage.setItem('zm-compare-' + k, v); } catch {} } };
+  $('#device').value = qs.get('device') || store.get('device', '1440');
+  $('#sync').checked = store.get('sync', '1') === '1';
+
+  const layout = () => {
+    const w = +$('#device').value;
+    Object.values(sides).forEach(s => {
+      const W = s.stage.clientWidth, H = s.stage.clientHeight;
+      const k = Math.min(1, W / w);
+      Object.assign(s.frame.style, { width: w + 'px', height: (H / k) + 'px', left: ((W - w * k) / 2) + 'px', transform: `scale(${k})` });
+      s.pane.querySelector('.scale').textContent = k < 1 ? `${Math.round(k * 100)}%` : '';
+    });
+  };
+
+  const open = path => {
+    path = path.startsWith('/') ? path : '/' + path;
+    $('#path').value = path;
+    Object.values(sides).forEach(s => {
+      s.frame.src = s.cfg.url + path;
+      s.pane.querySelector('a').href = s.cfg.url + path;
+    });
+  };
+
+  const send = (s, msg) => s.frame.contentWindow && s.frame.contentWindow.postMessage(Object.assign({ zm: true }, msg), '*');
+
+  let pendingJump = qs.get('section') ? '#' + qs.get('section').replace(/^#/, '') : null;
+  if (pendingJump) $('#jump').value = pendingJump;
+  window.addEventListener('message', e => {
+    const d = e.data;
+    if (!d || !d.zm) return;
+    const s = Object.values(sides).find(x => x.frame.contentWindow === e.source);
+    if (!s) return;
+    if (d.type === 'pos' && $('#sync').checked) {
+      send(other(s), { type: 'follow', id: d.id, frac: d.frac });
+    } else if (d.type === 'nav') {
+      s.path = d.path;
+      if (s.key === 'left') $('#path').value = d.path;
+      const o = other(s);
+      // following a link in one pane opens the same page in the other
+      if ($('#sync').checked && o.path && o.path !== d.path) { o.path = d.path; o.frame.src = o.cfg.url + d.path; }
+      if (pendingJump && sides.left.path && sides.right.path) { jump(pendingJump); pendingJump = null; }
+    }
+  });
+
+  // With sync on, moving the left pane is enough: the right one follows.
+  const jump = id => { send(sides.left, { type: 'jump', id }); if (!$('#sync').checked) send(sides.right, { type: 'jump', id }); };
+
+  $('#device').addEventListener('change', () => { store.set('device', $('#device').value); layout(); });
+  $('#sync').addEventListener('change', () => store.set('sync', $('#sync').checked ? '1' : '0'));
+  $('#jump').addEventListener('change', () => jump($('#jump').value));
+  $('#go').addEventListener('click', () => open($('#path').value));
+  $('#path').addEventListener('keydown', e => { if (e.key === 'Enter') open($('#path').value); });
+  $('#reload').addEventListener('click', () => Object.values(sides).forEach(s => send(s, { type: 'reload' })));
+  new ResizeObserver(layout).observe($('main'));
+
+  layout();
+  open(qs.get('path') || '/');
+</script>
+</body>
+</html>

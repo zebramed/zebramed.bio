@@ -1,0 +1,70 @@
+# Traction items. An item with `pending:` is not cleared for publication:
+# review builds show it with the reason in amber, production builds
+# (JEKYLL_ENV=production) leave it out. Delete the `pending:` line to publish.
+# See docs/ceo-copy-merge.md §4 for the reasoning behind each.
+# `lede` is the phrase each feature adds to the section's one-line summary.
+# `logos` are shown on light tiles at the foot of the card (files in
+# assets/images); a logo without `file` renders as its name.
+features:
+  - kicker: Pharma
+    lede: pharma partnerships
+    title: Commercial contract and NAM collaboration
+    text: >-
+      A paid contract with a top-50 pharma company (Servier), alongside an active
+      collaborative framework on New Approach Methodologies (NAMs) with a second
+      international pharma company, through the Step4NAM challenge.
+    logos:
+      - name: Servier
+        file: servier_logo.svg
+      - name: Top-50 pharma company
+        file: top50_pharma_logo.svg
+  - kicker: Research collaborations
+    lede: research collaborations
+    title: Co-development with TEFOR (CNRS) and Sorbonne ISIR
+    text: >-
+      Strategic collaborations with the TEFOR infrastructure (CNRS, Université
+      Paris-Saclay) for biological models and laboratory hosting, and with the
+      Institute for Intelligent Systems and Robotics (ISIR, Sorbonne Université)
+      for robotic automation.
+    logos:
+      - name: TEFOR
+        file: tefor_logo.png
+      #- name: Institut Imagine
+      #  file: imagine_logo.png
+      - name: ISIR, Sorbonne Université
+        file: isir_logo.png
+  - kicker: Acceleration programmes
+    lede: acceleration programmes
+    title: Selected by premier programmes
+    text: >-
+      Highly selective incubation and acceleration across Basel, Paris and
+      international hubs: DayOne Accelerator (Basel), HEC Paris Challenge+ and
+      Creative Destruction Lab (CDL Nurture).
+    logos:
+      - name: Creative Destruction Lab
+        file: cdl_logo.svg
+      - name: HEC Paris Challenge+
+        file: hec_challenge_logo.png
+      - name: DayOne, Basel
+        file: dayone_logo.svg
+  - kicker: Awards and grants
+    lede: awards and grants
+    title: National deeptech innovation awards
+    text: >-
+      Winner of the prestigious i-Lab national innovation prize, funded by the
+      French government (France 2030) and operated by Bpifrance, alongside
+      competitive support from Wilco and Genopole.
+    logos:
+      - name: Datacraft Awards
+        file: datacraft_logo.jpg
+      - name: Deeptech Pioneers
+        file: deeptech_pioneers_logo.jpg
+      - name: i-Lab innovation prize
+        file: logo_ilab.webp
+measures:
+  - value: "2"
+    label: active pharma contracts and collaborations
+  - value: "1 + 6"
+    label: patent applications, one priority filed and six planned; freedom to operate cleared
+  - value: "€700k+"
+    label: pre-seed capital and competitive non-dilutive deeptech grants

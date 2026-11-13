@@ -1,0 +1,4 @@
+{%- comment -%}A date in French, e.g. "12 novembre 2026". Usage: {% include date-fr.html date=page.updated %}{%- endcomment -%}
+{%- assign mois = "janvier,février,mars,avril,mai,juin,juillet,août,septembre,octobre,novembre,décembre" | split: "," -%}
+{%- assign i = include.date | date: "%-m" | minus: 1 -%}
+{{- include.date | date: "%-d" }} {{ mois[i] }} {{ include.date | date: "%Y" -}}

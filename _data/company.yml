@@ -1,0 +1,38 @@
+# The publisher's legal identity, shown on the legal notice, privacy policy and
+# terms of use (legal-notice.md, privacy.md, terms.md, via
+# _includes/legal-identity.html). Source: RNE and INSEE registers
+# (data.inpi.fr, annuaire-entreprises.data.gouv.fr), checked 2026-11-12.
+# Update `capital` when a capital increase is registered, and the pages'
+# `updated:` date whenever anything here changes.
+name: ZebraMed
+form:
+  en: simplified joint-stock company (société par actions simplifiée, SAS)
+  fr: société par actions simplifiée (SAS)
+capital:
+  en: "€5,000"
+  fr: "5 000 €"
+rcs: Évry
+siren: "988 494 795"
+siret: "988 494 795 00012"
+vat: FR09988494795
+address:
+  - Pépinière « Genopole Entreprises » – Campus 3
+  - 4 rue Pierre Fontaine
+  - 91000 Évry-Courcouronnes
+  - France
+# Required by the LCEN (art. 6-III). While empty, review builds show a reminder
+# in amber and production builds (JEKYLL_ENV=production) leave the line out.
+phone: "+33 1 87 65 02 29"
+publication_director:
+  name: Lorenzo Zolfanelli
+  role:
+    en: Managing director
+    fr: Directeur général
+host:
+  name: GitHub, Inc.
+  service: GitHub Pages
+  address:
+    en: 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, United States
+    fr: 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis
+  phone: "+1 877 448 4820"
+  url: https://github.com

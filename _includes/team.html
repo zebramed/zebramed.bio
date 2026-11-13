@@ -1,35 +1,56 @@
-<section id="team">
-    <div class="text-center mb-16 reveal-on-scroll">
-        <h3 class="text-sm font-semibold tracking-widest text-accent-primary uppercase">The Architects</h3>
-        <h4 class="mt-4 text-3xl md:text-4xl font-bold tracking-tight">Meet The Founding Team</h4>
-        <p class="mt-4 max-w-2xl mx-auto text-lg text-text-medium">A multidisciplinary team with deep expertise across biology, engineering, and artificial intelligence.</p>
+<section id="team" class="section band band-deep">
+  <div class="wrap">
+    <header class="section-head">
+        <h2 class="title">Team</h2>
+        <p class="lede">
+            Three founders across translational pharmacology, microfluidic hardware automation and
+            production multi-agent AI.
+        </p>
+    </header>
+
+    <div class="trio team">
+        {% for p in site.data.team %}
+        <article class="person">
+            <img src="{{ '/assets/images/' | append: p.photo | relative_url }}" alt="{{ p.name }}" loading="lazy" width="112" height="112" class="person-photo">
+            <h3 class="person-name">{{ p.name }}{% if p.title %}, {{ p.title }}{% endif %}</h3>
+            <p class="label">{{ p.role }}</p>
+            <p class="person-bio">{{ p.bio }}</p>
+            {% if p.affiliations %}<p class="person-aff">{% for a in p.affiliations %}<span class="nowrap">{{ a }}</span>{% unless forloop.last %} · {% endunless %}{% endfor %}</p>{% endif %}
+            <p class="links">
+                {% if p.linkedin %}<a href="{{ p.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% endif %}
+                {% if p.page %}<a href="{{ p.page | relative_url }}">Profile</a>{% endif %}
+            </p>
+        </article>
+        {% endfor %}
     </div>
 
-    <div class="pb-4 -mx-4 px-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 w-full py-4">
-            <div class="card-bg p-8 text-center reveal-on-scroll">
-                <img src="{{ '/assets/images/valerio-laghi.webp' | relative_url }}" alt="Valerio Laghi" loading="lazy" class="w-24 h-24 md:w-32 md:h-32 rounded-full mx-auto mb-4 md:mb-6 border-2 border-accent-primary-50">
-                <h5 class="text-xl font-semibold text-text-light">Valerio Laghi</h5>
-                <p class="gradient-text font-medium mt-1">Chief Executive Officer</p>
-                <p class="mt-4 text-sm text-text-medium">PhD in Immunology with a decade of experience in high-throughput zebrafish screening and automation.</p>
-            </div>
-            <div class="card-bg p-8 text-center reveal-on-scroll" style="transition-delay: 150ms;">
-                <img src="{{ '/assets/images/lorenzo-zolfanelli.webp' | relative_url }}" alt="Lorenzo Zolfanelli" loading="lazy" class="w-24 h-24 md:w-32 md:h-32 rounded-full mx-auto mb-4 md:mb-6 border-2 border-accent-secondary-50">
-                <h5 class="text-xl font-semibold text-text-light">Lorenzo Zolfanelli</h5>
-                <p class="gradient-text font-medium mt-1">Chief Scientific Officer</p>
-                <p class="mt-4 text-sm text-text-medium">PhD in Biophysics and former lead engineer for industrial-scale HTS screening platforms.</p>
-            </div>
-            <div class="card-bg p-8 text-center reveal-on-scroll" style="transition-delay: 300ms;">
-               <img src="{{ '/assets/images/guillaume-de-luca.webp' | relative_url }}" alt="Guillaume De Luca" loading="lazy" class="w-24 h-24 md:w-32 md:h-32 rounded-full mx-auto mb-4 md:mb-6 border-2 border-text-light-50">
-                <h5 class="text-xl font-semibold text-text-light">Guillaume De Luca</h5>
-                <p class="gradient-text font-medium mt-1">Chief Data Officer</p>
-                <p class="mt-4 text-sm text-text-medium">PhD in Engineering with deep expertise in creating data-driven and AI-based industrial solutions.</p>
+    {% assign prod = false %}{% if jekyll.environment == "production" %}{% assign prod = true %}{% endif %}
+    {% assign board_shown = 0 %}
+    {% for g in site.data.board.groups %}{% for m in g.members %}{% unless prod and m.pending %}{% assign board_shown = board_shown | plus: 1 %}{% endunless %}{% endfor %}{% endfor %}
+    <div class="board">
+        {% if board_shown > 0 %}
+        <h3 class="title title-sm">Board</h3>
+        {% for g in site.data.board.groups %}
+        {% assign g_shown = 0 %}{% for m in g.members %}{% unless prod and m.pending %}{% assign g_shown = g_shown | plus: 1 %}{% endunless %}{% endfor %}
+        {% if g_shown == 0 %}{% continue %}{% endif %}
+        <div class="mt-8">
+            <p class="label">{{ g.name }}</p>
+            <div class="trio trio-tight mt-5">
+                {% for m in g.members %}
+                {% if prod and m.pending %}{% continue %}{% endif %}
+                <article class="member">
+                    {% if m.photo %}<img src="{{ '/assets/images/' | append: m.photo | relative_url }}" alt="{{ m.name }}" loading="lazy" width="56" height="56" class="member-photo">{% endif %}
+                    <h4 class="h4">{% if m.title %}{{ m.title }} {% endif %}{{ m.name }}</h4>
+                    <p class="mt-2 text-sm">{{ m.line }}</p>
+                    {% if m.linkedin != "" %}<p class="mt-2 text-sm links"><a href="{{ m.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a></p>{% endif %}
+                    {% if m.pending %}<p class="mt-2 pending-inline">Pending: {{ m.pending }}.</p>{% endif %}
+                </article>
+                {% endfor %}
             </div>
         </div>
+        {% endfor %}
+        {% endif %}
+        <p class="mentors{% if board_shown == 0 %} is-alone{% endif %}">{{ site.data.board.mentorship }}</p>
     </div>
-
-    <div class="mt-20 text-center reveal-on-scroll">
-        <h5 class="text-2xl font-bold tracking-tight">Backed by World-Class Advisors</h5>
-        <p class="mt-4 max-w-3xl mx-auto text-lg text-text-medium">Our scientific and business advisors include world-class experts in biology automation, molecular libraries, and zebrafish neuroimmunology from universities and institutions like <span class="text-accent-primary">Institut Pasteur</span> and <span class="text-accent-primary">TEFOR</span>, alongside seasoned leaders in pharma market access strategy and deeptech startup operations.</p>
-    </div>
+  </div>
 </section>

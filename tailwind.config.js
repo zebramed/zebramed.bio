@@ -6,13 +6,18 @@ module.exports = {
     './*.html',
     './assets/js/**/*.js'
   ],
+  // The scanner turns any matching word into a utility; "ring" appears in figure
+  // comments and its utility draws a 3px blue box-shadow. Not used on purpose.
+  // The others are plain words in platform.js, problem.html and cta.html.
+  blocklist: ['ring', 'visible', '!visible', 'collapse', 'sticky', 'grow', 'outline', 'filter'],
   theme: {
     extend: {
       colors: {
-        'bg-dark': '#0a192f',
+        'bg-dark': '#11174a',
         'text-light': '#ffffff',
         'text-bright': '#e6f1ff',
         'text-medium': '#ccd6f6',
+        'flag': '#f5b85c',
         'accent-primary': '#64ffda',
         'accent-secondary': '#a8ff78',
       },
