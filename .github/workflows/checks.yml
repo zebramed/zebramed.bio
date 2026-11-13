@@ -1,6 +1,8 @@
 # Checks every pull request into main: the production build, the rules in
 # .github/STYLE.md and a browser smoke test. What each step checks is
-# described at the top of its script in .github/scripts/.
+# described at the top of its script in .github/scripts/. With an
+# ANTHROPIC_API_KEY or OPENAI_API_KEY secret, a language model also reviews
+# the changed copy (advisory; repository variable LLM_MODEL picks the model).
 name: Checks
 
 on:
@@ -106,3 +108,22 @@ jobs:
           name: screenshots
           path: ${{ runner.temp }}/screenshots
           retention-days: 14
+
+  review:
+    name: Copy review (language model, advisory)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2  # the merge commit and its base, for the diff
+          persist-credentials: false
+
+      - name: Review changed copy against STYLE.md
+        run: python3 .github/scripts/llm_review.py HEAD^1
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
