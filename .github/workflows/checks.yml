@@ -1,0 +1,108 @@
+# Checks every pull request into main: the production build, the rules in
+# .github/STYLE.md and a browser smoke test. What each step checks is
+# described at the top of its script in .github/scripts/.
+name: Checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and content
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tailwind CSS is up to date
+        run: |
+          npx tailwindcss -i ./assets/css/tailwind.src.css -o "$RUNNER_TEMP/tailwind.css" --minify
+          if ! cmp -s "$RUNNER_TEMP/tailwind.css" assets/css/tailwind.css; then
+            echo "::error file=assets/css/tailwind.css,title=Tailwind::Out of date: run npm run build:css and commit the result"
+            exit 1
+          fi
+
+      - name: Build (production)
+        id: build
+        if: ${{ !cancelled() }}
+        run: bundle exec jekyll build --strict_front_matter
+        env:
+          JEKYLL_ENV: production
+
+      - name: Confidentiality
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python3 .github/scripts/guard.py _site
+        env:
+          CONFIDENTIAL_TERMS: ${{ secrets.CONFIDENTIAL_TERMS }}
+
+      - name: Links and images
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python3 .github/scripts/links.py _site
+
+      - name: House writing rules
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python3 .github/scripts/house_rules.py _site assets/js/platform.js assets/js/motion.js assets/js/main.js
+
+      - name: Graphical rules (advisory)
+        if: ${{ !cancelled() }}
+        run: python3 .github/scripts/css_rules.py assets/css/main.scss
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        with:
+          name: site
+          path: _site
+          retention-days: 7
+
+  smoke:
+    name: Browser smoke test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: _site
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-package-lock --prefix "$RUNNER_TEMP/pw" playwright@1.65.0
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+
+      - name: Smoke test
+        run: node .github/scripts/smoke.cjs _site "$RUNNER_TEMP/screenshots"
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/pw/node_modules/playwright
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: screenshots
+          path: ${{ runner.temp }}/screenshots
+          retention-days: 14
