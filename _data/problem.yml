@@ -1,6 +1,14 @@
 # Problem: the two headline figures under the wall chart.
 # `count` animates the number up (suffix after it); without it the value shows as written.
 metrics:
+  # Source: BIO, Informa Pharma Intelligence and QLS Advisors, "Clinical
+  # Development Success Rates and Contributing Factors 2011–2020" (Feb 2021),
+  # p. 3: likelihood of approval from Phase I for all candidates 7.9%
+  # (9,704 programmes, 1,779 companies), so about 92% fail; "90%" rounds down.
+  # https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf
+  # Peer-reviewed statement of the same figure: Sun, Gao, Hu & Zhou, "Why 90% of
+  # clinical drug development fails and how to improve it?", Acta Pharm Sin B
+  # 12(7):3049–3062, 2022, doi:10.1016/j.apsb.2022.02.002
   - value: "90%"
     count: "90"
     suffix: "%"
