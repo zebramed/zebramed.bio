@@ -8,8 +8,8 @@ baseurl: ""
 intranet_url: "https://portal.zebramed.bio"
 
 # Audience measurement: assets/telemetry/telemetry.js sends reading statistics
-# (no cookies, no stored identifier) to ZebraMed's own receiver (tally, at
-# t.zebramed.bio). `enabled` also switches the matching wording in privacy.md
+# (no cookies; a random visitor id kept 13 months in localStorage) to
+# ZebraMed's own receiver (tally, at t.zebramed.bio). `enabled` also switches the matching wording in privacy.md
 # and legal-notice.md, so the policy always says what the site does: bump
 # their `updated:` dates whenever you flip it. The script only runs on `host`,
 # never on previews or locally.
