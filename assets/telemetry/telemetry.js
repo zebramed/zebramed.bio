@@ -4,13 +4,17 @@
  * (see the telemetry block in _config.yml, which also says how to remove it).
  * The site's own scripts know nothing about this file: it watches the DOM
  * hooks listed under HOOKS and never changes the page, except to wire the
- * opt-out box on the privacy page.
+ * opt-out box on the privacy page, which also shows the visitor id.
  *
  * What leaves the browser: running totals per page view (seconds, counts,
- * enums), keyed by a random id that lives only in this page's memory. No
- * cookie, no stored identifier, no referrer URL, no text. The only thing ever
- * stored on the device is the visitor's opt-out choice. The receiver (tally)
- * drops anything outside its allowlist and never stores the IP address.
+ * enums), keyed by a random page-view id that lives only in this page's
+ * memory, and a random visitor id kept in localStorage for 13 months from its
+ * creation, never extended. No cookie, no referrer URL, no text. The visitor
+ * id and the opt-out choice are the only things ever stored on the device;
+ * opting out (or a GPC/DNT signal) deletes the id. The receiver (tally) drops
+ * anything outside its allowlist and never stores the IP address. The team
+ * lists its own browsers' ids on tally's admin page, so the dashboard can
+ * leave them out.
  *
  * Kept outside assets/js/ on purpose: Tailwind scans that folder.
  */
@@ -20,6 +24,8 @@
   const script = document.currentScript;
   const SRC = 'zebramed.bio';
   const OPTOUT_KEY = 'zm-measure-optout';
+  const ID_KEY = 'zm-measure-id';
+  const ID_DAYS = 393;        // the shortest 13 months (365 + 28 days), so the id never outlives what the policy says
   const TICK_MS = 1000;
   const IDLE_MS = 15000;      // no input for this long and the visitor is no longer reading
   const PERIODIC_MS = 60000;  // while reading, send at most this often
@@ -35,6 +41,27 @@
     set(off) { try { if (off) localStorage.setItem(OPTOUT_KEY, '1'); else localStorage.removeItem(OPTOUT_KEY); } catch (e) { /* storage blocked */ } },
   };
   const signalled = navigator.globalPrivacyControl === true || navigator.doNotTrack === '1' || window.doNotTrack === '1';
+  // "<uuid> <created, ms>". A visit never renews it: once expired, a new one replaces it.
+  const visitor = {
+    get() {
+      try {
+        const [id, since] = (localStorage.getItem(ID_KEY) || '').split(' ');
+        const age = Date.now() - Number(since);
+        return /^[0-9a-f-]{36}$/.test(id) && age >= 0 && age < ID_DAYS * 864e5 ? id : '';
+      } catch (e) { return ''; }
+    },
+    ensure(make) {
+      const id = visitor.get();
+      if (id) return id;
+      try {
+        const fresh = make();
+        localStorage.setItem(ID_KEY, fresh + ' ' + Date.now());
+        return visitor.get();
+      } catch (e) { return ''; }
+    },
+    forget() { try { localStorage.removeItem(ID_KEY); } catch (e) { /* storage blocked */ } },
+  };
+  if (signalled || stored.get()) visitor.forget();
 
   let stop = () => {};
   const boxes = [...document.querySelectorAll('[data-telemetry-optout]')]
@@ -45,14 +72,21 @@
     btn.style.display = signalled ? 'none' : '';
     btn.textContent = off ? box.dataset.onLabel : box.dataset.offLabel;
     status.textContent = signalled ? box.dataset.statusSignal : off ? box.dataset.statusOff : box.dataset.statusOn;
+    const shown = box.querySelector('[data-telemetry-id]'), code = shown && shown.querySelector('code');
+    if (!code) return;
+    const id = signalled || off ? '' : visitor.get();
+    code.textContent = id;
+    shown.hidden = !id;   // none yet on previews, or before this page's first measurement
   });
   boxes.forEach(safe(box => {
     const btn = box.querySelector('button');
     btn.addEventListener('click', safe(() => {
       stored.set(!stored.get());
-      if (stored.get()) stop();   // turning it back on takes effect on the next page
+      if (stored.get()) { stop(); visitor.forget(); }   // turning it back on takes effect on the next page
       renderBoxes();
     }));
+    const code = box.querySelector('[data-telemetry-id] code');
+    if (code) code.style.userSelect = code.style.webkitUserSelect = 'all';   // one tap selects the whole id
     box.hidden = false;
   }));
   safe(renderBoxes)();
@@ -131,7 +165,7 @@
   };
 
   /* ---------- state of one page view ---------- */
-  let pv, seq, t, sent, startedAt, last, prevState, lastInput, lastSend, engagedAtSend, timer = null, stopped = false;
+  let vid = '', pv, seq, t, sent, startedAt, last, prevState, lastInput, lastSend, engagedAtSend, timer = null, stopped = false;
   let current = null, depthDirty = true, lastP = {}, lastFilmControl = -Infinity, hooks = 0;
   const inView = new Set();
 
@@ -227,7 +261,7 @@
   const post = ev => {
     if (seq >= MAX_SEQ) return;
     seq += 1;
-    const body = JSON.stringify({ v: 1, src: SRC, pv, seq, ev });
+    const body = JSON.stringify(vid ? { v: 1, src: SRC, vid, pv, seq, ev } : { v: 1, src: SRC, pv, seq, ev });
     // Not sendBeacon: it always sends cookies, and the team's sign-in cookie is
     // scoped to zebramed.bio. A string body goes as text/plain: no preflight.
     fetch(endpoint, { method: 'POST', body, keepalive: true, credentials: 'omit', mode: 'no-cors' }).catch(() => {});
@@ -296,10 +330,12 @@
     return { n: 'page.view', a };
   };
   const begin = () => {
+    vid = visitor.ensure(uuid);   // '' when storage is blocked: measured without one
     reset();
     measureDepth();
     flush(pageView());
     run();
+    safe(renderBoxes)();
   };
 
   stop = () => { stopped = true; pause(); };

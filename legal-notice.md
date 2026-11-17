@@ -26,7 +26,7 @@ The Inter and Barlow typefaces are used under the SIL Open Font License 1.1.
 ## Personal data and cookies
 
 {% if site.telemetry.enabled %}
-This website sets no cookies. It measures its own audience without keeping your IP address or placing any identifier on your device. Our [privacy policy]({{ '/privacy.html' | relative_url }}) sets out what is measured, how to turn it off and how we handle personal data, including the emails you send us. Use of the website is governed by our [terms of use]({{ '/terms.html' | relative_url }}).
+This website sets no cookies. It measures its own audience with a random identifier kept in your browser for 13 months, without keeping your IP address. Our [privacy policy]({{ '/privacy.html' | relative_url }}) sets out what is measured, how to turn it off and how we handle personal data, including the emails you send us. Use of the website is governed by our [terms of use]({{ '/terms.html' | relative_url }}).
 {% else %}
 This website sets no cookies and uses no audience measurement or tracking. How we handle personal data, including the emails you send us, is set out in our [privacy policy]({{ '/privacy.html' | relative_url }}). Use of the website is governed by our [terms of use]({{ '/terms.html' | relative_url }}).
 {% endif %}
@@ -62,7 +62,7 @@ Les polices de caractères Inter et Barlow sont utilisées sous licence SIL Open
 ### Données personnelles et cookies
 
 {% if site.telemetry.enabled %}
-Ce site ne dépose aucun cookie. Il mesure lui-même son audience, sans conserver votre adresse IP ni déposer d'identifiant sur votre appareil. Notre [politique de confidentialité]({{ '/privacy.html' | relative_url }}#fr) décrit ce qui est mesuré, la façon de désactiver cette mesure et le traitement des données personnelles, notamment des courriels que vous nous adressez. L'utilisation du site est régie par nos [conditions d'utilisation]({{ '/terms.html' | relative_url }}#fr).
+Ce site ne dépose aucun cookie. Il mesure lui-même son audience au moyen d'un identifiant aléatoire conservé 13 mois dans votre navigateur, sans conserver votre adresse IP. Notre [politique de confidentialité]({{ '/privacy.html' | relative_url }}#fr) décrit ce qui est mesuré, la façon de désactiver cette mesure et le traitement des données personnelles, notamment des courriels que vous nous adressez. L'utilisation du site est régie par nos [conditions d'utilisation]({{ '/terms.html' | relative_url }}#fr).
 {% else %}
 Ce site ne dépose aucun cookie et n'utilise aucun outil de mesure d'audience ni de suivi. Le traitement des données personnelles, notamment des courriels que vous nous adressez, est décrit dans notre [politique de confidentialité]({{ '/privacy.html' | relative_url }}#fr). L'utilisation du site est régie par nos [conditions d'utilisation]({{ '/terms.html' | relative_url }}#fr).
 {% endif %}
