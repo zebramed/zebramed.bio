@@ -2,7 +2,7 @@
 layout: legal
 title: Legal notice
 description: Legal notice (mentions légales) of zebramed.bio, published by ZebraMed SAS.
-updated: 2026-11-12
+updated: 2026-11-17
 ---
 {% assign c = site.data.company %}
 ## Publisher

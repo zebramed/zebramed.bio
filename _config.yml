@@ -18,7 +18,7 @@ intranet_url: "https://portal.zebramed.bio"
 # branches in privacy.md and legal-notice.md, and the exception in
 # .github/STYLE.md (Assets).
 telemetry:
-  enabled: false
+  enabled: true
   endpoint: "https://t.zebramed.bio/v1/events"
   host: "zebramed.bio"
 
