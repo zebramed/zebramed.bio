@@ -39,7 +39,7 @@ To see how the website is read and to improve it, we measure its audience oursel
 - **Your rights:** because we cannot tell which measurements are yours, we cannot single them out to give you access to them or to erase them (Article 11 GDPR). The button below stops any further measurement.
 - **How to turn it off:** use the button below. Your choice applies to this browser only, and it is the only thing the website ever stores on your device. If you clear your browser's data, or your browser clears it after some weeks without a visit (Safari does), you will need to choose again. If your browser sends a Global Privacy Control or Do Not Track signal, nothing is measured.
 
-<p class="measure-choice" data-telemetry-optout data-off-label="Turn off measurement in this browser" data-on-label="Turn measurement back on" data-status-on="Measurement is on in this browser." data-status-off="Measurement is off in this browser." data-status-signal="Your browser sends a Global Privacy Control or Do Not Track signal, so nothing is measured." hidden><button type="button" class="btn btn-outline btn-sm">Turn off measurement in this browser</button> <span role="status"></span></p>
+<p class="measure-choice" data-telemetry-optout data-off-label="Turn off measurement" data-on-label="Turn measurement back on" data-status-on="Measurement is on in this browser." data-status-off="Measurement is off in this browser." data-status-signal="Your browser sends a Global Privacy Control or Do Not Track signal, so nothing is measured." hidden><button type="button" class="btn btn-outline btn-sm">Turn off measurement</button> <span role="status"></span></p>
 {% endif %}
 
 ## Our host's server logs
@@ -112,7 +112,7 @@ Pour comprendre comment le site est lu et l'améliorer, nous mesurons nous-même
 - **Vos droits :** comme nous ne pouvons pas savoir quelles mesures vous concernent, nous ne pouvons pas les isoler pour vous y donner accès ou les effacer (article 11 du RGPD). Le bouton ci-dessous met fin à toute nouvelle mesure.
 - **Désactiver la mesure :** utilisez le bouton ci-dessous. Votre choix ne vaut que pour ce navigateur, et c'est la seule information que le site enregistre jamais sur votre appareil. Si vous effacez les données de votre navigateur, ou si celui-ci les efface après quelques semaines sans visite (c'est le cas de Safari), il faudra choisir de nouveau. Si votre navigateur envoie un signal Global Privacy Control ou Do Not Track, rien n'est mesuré.
 
-<p class="measure-choice" data-telemetry-optout data-off-label="Désactiver la mesure dans ce navigateur" data-on-label="Réactiver la mesure" data-status-on="La mesure est active dans ce navigateur." data-status-off="La mesure est désactivée dans ce navigateur." data-status-signal="Votre navigateur envoie un signal Global Privacy Control ou Do Not Track : rien n'est mesuré." hidden><button type="button" class="btn btn-outline btn-sm">Désactiver la mesure dans ce navigateur</button> <span role="status"></span></p>
+<p class="measure-choice" data-telemetry-optout data-off-label="Désactiver la mesure" data-on-label="Réactiver la mesure" data-status-on="La mesure est active dans ce navigateur." data-status-off="La mesure est désactivée dans ce navigateur." data-status-signal="Votre navigateur envoie un signal Global Privacy Control ou Do Not Track : rien n'est mesuré." hidden><button type="button" class="btn btn-outline btn-sm">Désactiver la mesure</button> <span role="status"></span></p>
 {% endif %}
 
 ### Journaux de connexion de notre hébergeur
