@@ -104,6 +104,8 @@
   // [data-pf-stage]                 time in view of the platform film (bit 8)
   // [data-platform] [data-select]   inline --p, the film's progress per chapter (bit 16)
   // [data-pf-*], [data-play], [data-hold], [data-replay], #mobile-menu-btn   control.use
+  // article.person, article.member (img alt or h3/h4)   whose card a link.click came from
+  // .board                          place "board" instead of the section
   const FIGURES = [['loop', '[data-figure="loop"]', 0.3, 2], ['wall', '[data-figure="wall"]', 0.3, 4], ['film', '[data-pf-stage]', 0.6, 8]];
   const CHAPTERS = '[data-platform] [data-select]';
   const label = el => (el.textContent || '').trim();
@@ -148,8 +150,19 @@
   const place = el => {
     if (el.closest('header')) return 'header';
     if (el.closest('footer')) return 'footer';
+    if (el.closest('.board')) return 'board';
     const s = el.closest('main section');
     return s ? sectionName(s) : 'other';
+  };
+  // The team or board member whose card holds the link: their name (the
+  // photo's alt text, else the heading before any ", PhD"), as a slug.
+  const person = el => {
+    const card = el.closest('article.person, article.member');
+    if (!card) return '';
+    const img = card.querySelector('img[alt]'), h = card.querySelector('h3, h4');
+    const name = img && img.alt ? img.alt : h ? label(h).split(',')[0] : '';
+    return name.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 64);
   };
   const linkKind = a => {
     if (/^mailto:/i.test(a.getAttribute('href') || '')) return 'email';
@@ -255,7 +268,12 @@
     Object.entries(t.chapters).forEach(([k, c]) => out.push(['chapter:' + k, 'film.chapter', { chapter: k, watched: pct(c.watched), reached: pct(c.reached) }]));
     if (t.played || t.done) out.push(['film', 'film.state', { played_s: s(t.played), done: t.done }]);
     Object.entries(t.controls).forEach(([k, n]) => out.push(['control:' + k, 'control.use', { control: k, n }]));
-    Object.entries(t.links).forEach(([k, n]) => { const [kind, where] = k.split('|'); out.push(['link:' + k, 'link.click', { kind, place: where, n }]); });
+    Object.entries(t.links).forEach(([k, n]) => {
+      const [kind, where, who] = k.split('|');
+      const a = { kind, place: where, n };
+      if (who) a.person = who;
+      out.push(['link:' + k, 'link.click', a]);
+    });
     return out;
   };
   const post = ev => {
@@ -294,7 +312,7 @@
       if (b) { countControl(name(b)); return; }
     }
     const a = e.target.closest('a[href]');
-    if (a) bump(t.links, linkKind(a) + '|' + place(a), 1);
+    if (a) bump(t.links, linkKind(a) + '|' + place(a) + '|' + person(a), 1);
   }), { capture: true, passive: true });
   // main.js cancels Enter/Space on the chapter buttons, so no click follows.
   document.addEventListener('keydown', safe(e => {
