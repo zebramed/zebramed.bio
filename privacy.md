@@ -1,11 +1,15 @@
 ---
 layout: legal
 title: Privacy policy
-description: How ZebraMed handles personal data on zebramed.bio. No cookies, no tracking.
-updated: 2026-11-12
+description: How ZebraMed handles personal data on zebramed.bio. No cookies, no cross-site tracking.
+updated: 2026-11-17
 ---
 {% assign c = site.data.company %}
+{% if site.telemetry.enabled %}
+In short: this website sets no cookies and does not follow you across other websites. It measures how its pages are read, for ZebraMed alone, without keeping your IP address or placing any identifier on your device, and you can turn this off. The only other personal data we receive through it is what you choose to send us by email.
+{% else %}
 In short: this website sets no cookies and does not track you. The only personal data we receive through it is what you choose to send us by email.
+{% endif %}
 
 ## Who is responsible
 
@@ -13,9 +17,30 @@ The controller of the personal data described here is {{ c.name }}, {{ c.form.en
 
 ## What the website collects
 
+{% if site.telemetry.enabled %}
+zebramed.bio is a static website: it sets no cookies, uses no advertising or social-media trackers and loads no third-party resources. Fonts, scripts, images and videos are all served from zebramed.bio. The only data it gathers by itself is the audience measurement described below, which runs on our own server. That measurement meets the conditions under which the CNIL exempts audience measurement from consent, which is why the website has no cookie banner.
+{% else %}
 Nothing, by itself. zebramed.bio is a static website: it sets no cookies, uses no audience measurement, advertising or social-media trackers, stores nothing on your device and loads no third-party resources. Fonts, scripts, images and videos are all served from zebramed.bio. With no cookies or similar trackers, there is nothing to consent to, which is why the website has no cookie banner.
+{% endif %}
 
 Links to LinkedIn take you to LinkedIn's own website, which has its own privacy policy.
+
+{% if site.telemetry.enabled %}
+## Audience measurement
+
+To see how the website is read and to improve it, we measure its audience ourselves, for ZebraMed's use only.
+
+- **What we measure:** for each page view, the page; the date and time; the town or city, region and country, worked out from your IP address; the kind of link that brought you (for example a search engine, LinkedIn or a label we put on our own links), never the address of the page you came from; your screen's width class; whether your device asks for reduced motion; how long the page was open, visible, in focus and being read; how far you scrolled; the time spent on each section and animation; how far the platform animation played; and how often you used its controls and each kind of link (for example email or LinkedIn). Each page view carries a random number that exists only while the page is open, so separate visits cannot be linked.
+- **What we do not collect:** cookies, identifiers stored on your device, your IP address (used in passing to find the town or city and to block abuse, then discarded, never stored or logged), the address of the page you came from, anything you type and mouse movements.
+- **Purpose:** audience statistics, to understand how the website is read and to improve it, for ZebraMed alone. The data is not combined with other data, and is used neither to follow you on other websites nor to identify you.
+- **Legal basis:** our legitimate interest in understanding how our website is used (Article 6(1)(f) GDPR). The measurement follows the conditions the CNIL sets for audience measurement exempt from consent.
+- **Who receives it:** the members of the ZebraMed team concerned, through an internal dashboard. The data is stored on servers we operate at Hetzner Online GmbH in Germany, which acts as our processor. Encrypted backups of our database are kept by Wasabi in the European Union, which cannot read them. We do not sell or pass on this data.
+- **How long we keep it:** 13 months at most, after which it is deleted. Backup copies are overwritten within a further month.
+- **Your rights:** because we cannot tell which measurements are yours, we cannot single them out to give you access to them or to erase them (Article 11 GDPR). The button below stops any further measurement.
+- **How to turn it off:** use the button below. Your choice applies to this browser only, and it is the only thing the website ever stores on your device. If you clear your browser's data, or your browser clears it after some weeks without a visit (Safari does), you will need to choose again. If your browser sends a Global Privacy Control or Do Not Track signal, nothing is measured.
+
+<p class="measure-choice" data-telemetry-optout data-off-label="Turn off measurement" data-on-label="Turn measurement back on" data-status-on="Measurement is on in this browser." data-status-off="Measurement is off in this browser." data-status-signal="Your browser sends a Global Privacy Control or Do Not Track signal, so nothing is measured." hidden><button type="button" class="btn btn-outline btn-sm">Turn off measurement</button> <span role="status"></span></p>
+{% endif %}
 
 ## Our host's server logs
 
@@ -53,7 +78,11 @@ We will update this policy if the way we handle personal data changes, for examp
 
 *Version française. Dernière mise à jour : {% include date-fr.html date=page.updated %}.*
 
+{% if site.telemetry.enabled %}
+En bref : ce site ne dépose aucun cookie et ne vous suit pas sur d'autres sites. Il mesure la façon dont ses pages sont lues, pour le seul usage de ZebraMed, sans conserver votre adresse IP ni déposer d'identifiant sur votre appareil, et vous pouvez désactiver cette mesure. Les seules autres données personnelles que nous recevons par son intermédiaire sont celles que vous choisissez de nous envoyer par courriel.
+{% else %}
 En bref : ce site ne dépose aucun cookie et ne vous suit pas. Les seules données personnelles que nous recevons par son intermédiaire sont celles que vous choisissez de nous envoyer par courriel.
+{% endif %}
 
 ### Responsable du traitement
 
@@ -61,9 +90,30 @@ Le responsable des traitements décrits ici est {{ c.name }}, {{ c.form.fr }}, {
 
 ### Ce que le site collecte
 
+{% if site.telemetry.enabled %}
+zebramed.bio est un site statique : il ne dépose aucun cookie, n'utilise aucun traceur publicitaire ou de réseau social et ne charge aucune ressource tierce. Les polices, scripts, images et vidéos sont tous servis depuis zebramed.bio. Les seules données qu'il recueille par lui-même sont celles de la mesure d'audience décrite ci-dessous, qui fonctionne sur notre propre serveur. Cette mesure respecte les conditions dans lesquelles la CNIL dispense la mesure d'audience de consentement ; c'est pourquoi le site n'affiche pas de bandeau cookies.
+{% else %}
 Rien, par lui-même. zebramed.bio est un site statique : il ne dépose aucun cookie, n'utilise aucun outil de mesure d'audience, de publicité ou de réseau social, n'enregistre rien sur votre appareil et ne charge aucune ressource tierce. Les polices, scripts, images et vidéos sont tous servis depuis zebramed.bio. En l'absence de cookie ou de traceur, aucun consentement n'est à recueillir ; c'est pourquoi le site n'affiche pas de bandeau cookies.
+{% endif %}
 
 Les liens vers LinkedIn vous conduisent sur le site de LinkedIn, qui dispose de sa propre politique de confidentialité.
+
+{% if site.telemetry.enabled %}
+### Mesure d'audience
+
+Pour comprendre comment le site est lu et l'améliorer, nous mesurons nous-mêmes son audience, pour le seul usage de ZebraMed.
+
+- **Ce que nous mesurons :** pour chaque page vue, la page ; la date et l'heure ; la ville, la région et le pays, déduits de votre adresse IP ; le type de lien qui vous a amené (par exemple un moteur de recherche, LinkedIn ou une étiquette que nous plaçons sur nos propres liens), jamais l'adresse de la page d'où vous venez ; la catégorie de largeur de votre écran ; si votre appareil demande des animations réduites ; la durée pendant laquelle la page était ouverte, visible, active et lue ; jusqu'où vous l'avez fait défiler ; le temps passé sur chaque section et chaque animation ; jusqu'où l'animation de la plateforme a été lue ; et le nombre d'utilisations de ses commandes et de chaque type de lien (par exemple courriel ou LinkedIn). Chaque page vue porte un numéro aléatoire qui n'existe que tant que la page est ouverte : deux visites ne peuvent pas être reliées.
+- **Ce que nous ne collectons pas :** les cookies, les identifiants enregistrés sur votre appareil, votre adresse IP (utilisée au passage pour déterminer la ville et bloquer les abus, puis écartée, jamais conservée ni journalisée), l'adresse de la page d'où vous venez, ce que vous saisissez et les mouvements de la souris.
+- **Finalité :** des statistiques d'audience, pour comprendre comment le site est lu et l'améliorer, pour le seul usage de ZebraMed. Ces données ne sont pas croisées avec d'autres et ne servent ni à vous suivre sur d'autres sites ni à vous identifier.
+- **Base légale :** notre intérêt légitime à comprendre l'utilisation de notre site (article 6.1.f du RGPD). La mesure respecte les conditions fixées par la CNIL pour la mesure d'audience exemptée de consentement.
+- **Destinataires :** les membres de l'équipe ZebraMed concernés, au moyen d'un tableau de bord interne. Les données sont hébergées sur des serveurs que nous exploitons chez Hetzner Online GmbH en Allemagne, qui agit en qualité de sous-traitant. Les sauvegardes chiffrées de notre base de données sont conservées par Wasabi dans l'Union européenne, qui ne peut pas les lire. Nous ne vendons ni ne transmettons ces données.
+- **Durée de conservation :** 13 mois au plus, après quoi elles sont supprimées. Les copies de sauvegarde sont remplacées dans le mois qui suit.
+- **Vos droits :** comme nous ne pouvons pas savoir quelles mesures vous concernent, nous ne pouvons pas les isoler pour vous y donner accès ou les effacer (article 11 du RGPD). Le bouton ci-dessous met fin à toute nouvelle mesure.
+- **Désactiver la mesure :** utilisez le bouton ci-dessous. Votre choix ne vaut que pour ce navigateur, et c'est la seule information que le site enregistre jamais sur votre appareil. Si vous effacez les données de votre navigateur, ou si celui-ci les efface après quelques semaines sans visite (c'est le cas de Safari), il faudra choisir de nouveau. Si votre navigateur envoie un signal Global Privacy Control ou Do Not Track, rien n'est mesuré.
+
+<p class="measure-choice" data-telemetry-optout data-off-label="Désactiver la mesure" data-on-label="Réactiver la mesure" data-status-on="La mesure est active dans ce navigateur." data-status-off="La mesure est désactivée dans ce navigateur." data-status-signal="Votre navigateur envoie un signal Global Privacy Control ou Do Not Track : rien n'est mesuré." hidden><button type="button" class="btn btn-outline btn-sm">Désactiver la mesure</button> <span role="status"></span></p>
+{% endif %}
 
 ### Journaux de connexion de notre hébergeur
 

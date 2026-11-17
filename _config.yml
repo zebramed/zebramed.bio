@@ -7,6 +7,21 @@ url: "https://zebramed.bio"
 baseurl: ""
 intranet_url: "https://portal.zebramed.bio"
 
+# Audience measurement: assets/telemetry/telemetry.js sends reading statistics
+# (no cookies, no stored identifier) to ZebraMed's own receiver (tally, at
+# t.zebramed.bio). `enabled` also switches the matching wording in privacy.md
+# and legal-notice.md, so the policy always says what the site does: bump
+# their `updated:` dates whenever you flip it. The script only runs on `host`,
+# never on previews or locally.
+# To remove the feature for good, delete this block, assets/telemetry/, the
+# line that loads it in _layouts/default.html, the `site.telemetry.enabled`
+# branches in privacy.md and legal-notice.md, and the exception in
+# .github/STYLE.md (Assets).
+telemetry:
+  enabled: true
+  endpoint: "https://t.zebramed.bio/v1/events"
+  host: "zebramed.bio"
+
 # SEO & Social
 author: ZebraMed
 # No `twitter:` block: without a username jekyll-seo-tag would emit an empty
