@@ -72,5 +72,6 @@
     <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
     <script src="{{ '/assets/js/motion.js' | relative_url }}"></script>
     <script src="{{ '/assets/js/platform.js' | relative_url }}"></script>
+    {%- if site.telemetry.enabled %}<script src="{{ '/assets/telemetry/telemetry.js' | relative_url }}" data-endpoint="{{ site.telemetry.endpoint }}" data-host="{{ site.telemetry.host }}" defer></script>{% endif %}
 </body>
 </html>

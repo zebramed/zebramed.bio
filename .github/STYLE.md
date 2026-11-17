@@ -185,7 +185,7 @@ Use the tokens in section 1 of `assets/css/main.scss`. A new colour gets a token
 
 ### Assets
 
-- The site serves everything itself: fonts, scripts, images and video. No third-party requests.
+- The site serves everything itself: fonts, scripts, images and video. No third-party requests. The one outgoing request is our own audience measurement, sent to ZebraMed's server at t.zebramed.bio and switched by `telemetry.enabled` in `_config.yml`.
 - Video ships as MP4 and WebM with a JPEG poster.
 
 
