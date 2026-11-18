@@ -95,6 +95,19 @@
   const endpoint = script && script.dataset.endpoint;
   const params = new URLSearchParams(location.search);
   if (!endpoint || !script.dataset.host || location.hostname !== script.dataset.host) return;  // previews, jekyll serve, CI
+
+  // ?ref= is read once (params keeps it), then dropped from the address bar,
+  // so a link copied from there does not credit the channel with visits it
+  // did not bring. Done whether or not anything is measured.
+  const dropRef = safe(() => {
+    if (!params.has('ref')) return;
+    const u = new URL(location.href);
+    u.searchParams.delete('ref');
+    history.replaceState(history.state, '', u.pathname + u.search + u.hash);
+  });
+  if (document.prerendering) document.addEventListener('prerenderingchange', dropRef, { once: true });
+  else dropRef();
+
   if (signalled || stored.get() || navigator.webdriver) return;
   if (params.has('pf-t')) return;   // review links that set the film's clock
 
